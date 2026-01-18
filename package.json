@@ -1,0 +1,29 @@
+{
+    "name": "rns_telcom",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production --progress"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/AntonUpro/rns_telcom.git"
+    },
+    "private": true,
+    "dependencies": {
+        "@symfony/ux-vue": "^2.23.0"
+    },
+    "devDependencies": {
+        "@hotwired/stimulus": "^3.2.2",
+        "@symfony/stimulus-bridge": "^3.2.3",
+        "@symfony/webpack-encore": "^5.3.1",
+        "@vue/compiler-sfc": "^3.5.26",
+        "core-js": "^3.47.0",
+        "vue": "^3.5.26",
+        "vue-loader": "^17.4.2",
+        "webpack-notifier": "^1.15.0"
+    }
+}

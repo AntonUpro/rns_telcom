@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Личный кабинет | {{ parent() }}{% endblock %}
+
+{% block body %}
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1>Добро пожаловать, {{ user.firstName }}!</h1>
+{#            <p class="user-role">{{ user.position }} | {{ user.department }}</p>#}
+        </div>
+
+        <div class="dashboard-content">
+            <div class="info-card">
+                <h3>Информация о профиле</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">ФИО:</span>
+                        <span class="info-value">{{ user.fullName }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email:</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Должность:</span>
+                        <span class="info-value">Разработчик</span>
+                    </div>
+{#                    <div class="info-item">#}
+{#                        <span class="info-label">Отдел:</span>#}
+{#                        <span class="info-value">Отдел расчета РНС</span>#}
+{#                    </div>#}
+                    <div class="info-item">
+                        <span class="info-label">Дата регистрации:</span>
+                        <span class="info-value">{{ user.createdAt|date('d.m.Y') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <h3>Доступные действия</h3>
+                <div class="actions-grid">
+                    <a href="{{ path('app_concrete_pillar_calc') }}" class="action-card">
+                        <h4>Расчет ЖБ столба</h4>
+                        <p>Расчет железобетонного столба на ветровую нагрузку</p>
+                        <span class="action-status active">Активно</span>
+                    </a>
+                    <div class="action-card disabled">
+                        <h4>Расчет башни</h4>
+                        <p>Система в разработке</p>
+                    </div>
+                    <div class="action-card disabled">
+                        <h4>Расчет мачты</h4>
+                        <p>Система в разработке</p>
+                    </div>
+                    <div class="action-card disabled">
+                        <h4>Мои расчеты</h4>
+                        <p>Система в разработке</p>
+                    </div>
+                </div>
+            </div>
+            <div {{ vue_component('Hello', { 'name': "qwrqwr" }) }}></div>
+        </div>
+    </div>
+{% endblock %}

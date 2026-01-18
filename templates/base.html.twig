@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Система инженерных расчетов{% endblock %}</title>
+{#    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>#}
+    <!-- Стили -->
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+
+    <!-- Скрипты -->
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</head>
+<body>
+<!-- Шапка -->
+<header class="header">
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <h1 class="logo-title">ТЕЛ<strong>КОМ</strong></h1>
+                <span class="logo-subtitle">Сервис расчета РНС</span>
+            </div>
+
+            <nav class="nav">
+                {% if is_granted('ROLE_USER') %}
+                    <span class="user-info">
+                            {{ app.user.firstName }} {{ app.user.lastName }}
+{#                            <small>{{ app.user.position }}</small>#}
+                        </span>
+                    <a href="{{ path('app_dashboard') }}" class="btn btn-link">Личный кабинет</a>
+                    <a href="{{ path('app_logout') }}" class="btn btn-secondary">Выход</a>
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn btn-primary">Вход</a>
+                    <a href="{{ path('app_register') }}" class="btn btn-secondary">Регистрация</a>
+                {% endif %}
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- Основное содержимое -->
+<main class="main-content">
+    <div class="container">
+        {% block body %}{% endblock %}
+    </div>
+</main>
+
+<!-- Подвал -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; {{ "now"|date("Y") }} Система инженерных расчетов. Для внутреннего использования ООО «Телком».</p>
+    </div>
+</footer>
+</body>
+</html>
