@@ -1,5 +1,6 @@
 import { registerVueControllerComponents } from '@symfony/ux-vue';
 import { startStimulusApp } from '@symfony/stimulus-bridge';
+import {VueElementConstructor} from "vue";
 
 /*
  * Welcome to your app's main JavaScript file!
@@ -8,6 +9,7 @@ import { startStimulusApp } from '@symfony/stimulus-bridge';
  * which should already be in your base.html.twig.
  */
 import './styles/app.css';
+import './styles/calculation.css';
 
 // Запуск Stimulus-приложения и автоподключение контроллеров из assets/controllers/*
 const app = startStimulusApp(require.context(

@@ -1,6 +1,5 @@
 {
     "controllers": {
-
         "@symfony/ux-vue": {
             "vue": {
                 "enabled": true,

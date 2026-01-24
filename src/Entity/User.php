@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -56,10 +58,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\OneToMany(targetEntity: Calculation::class, mappedBy: 'user')]
+    private Collection $calculations;
+
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->roles = ['ROLE_USER'];
+        $this->calculations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -215,6 +221,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsActive(bool $isActive): static
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Calculation>
+     */
+    public function getCalculations(): Collection
+    {
+        return $this->calculations;
+    }
+
+    public function addCalculation(Calculation $calculation): static
+    {
+        if (!$this->calculations->contains($calculation)) {
+            $this->calculations->add($calculation);
+            $calculation->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCalculation(Calculation $calculation): static
+    {
+        if ($this->calculations->removeElement($calculation)) {
+            // set the owning side to null (unless already changed)
+            if ($calculation->getUser() === $this) {
+                $calculation->setUser(null);
+            }
+        }
 
         return $this;
     }
