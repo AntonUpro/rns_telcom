@@ -50,9 +50,6 @@ class Calculation
     #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: CalculationData::class, cascade: ['persist', 'remove'])]
     private ?CalculationData $calculationData = null;
 
-    #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: CalculationResults::class, cascade: ['persist', 'remove'])]
-    private ?CalculationResults $calculationResults = null;
-
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -184,22 +181,6 @@ class Calculation
         }
 
         $this->calculationData = $calculationData;
-
-        return $this;
-    }
-
-    public function getCalculationResults(): ?CalculationResults
-    {
-        return $this->calculationResults;
-    }
-
-    public function setCalculationResults(?CalculationResults $calculationResults): static
-    {
-        if ($calculationResults !== null && $calculationResults->getCalculation() !== $this) {
-            $calculationResults->setCalculation($this);
-        }
-
-        $this->calculationResults = $calculationResults;
 
         return $this;
     }
