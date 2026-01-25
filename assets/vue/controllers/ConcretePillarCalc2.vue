@@ -234,11 +234,11 @@
                         @click="toggleSection('strengthening')"
                         :class="{ active: openedSections.strengthening }"
                     >
-                        <h3>3. Усиление столба</h3>
+                        <h3>3. Данные по столбу</h3>
                         <span class="toggle-icon">+</span>
                     </div>
                     <div class="section-content" :class="{ active: openedSections.strengthening }">
-                        <div class="strengthening-header-row">
+                        <div class="strengthening-row">
                             <div class="form-group compact-group">
                                 <label>Выберите марку столба:</label>
                                 <select v-model="formData.pillarStamp" class="form-control compact-input">
@@ -405,6 +405,11 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="section-actions" style="margin-top: 2rem">
+                    <button @click="saveGeneralData" class="btn-save-small" :disabled="isSaving">
+                        {{ isSaving ? 'Сохранение...' : 'Сохранить' }}
+                    </button>
                 </div>
             </div>
 
@@ -607,22 +612,38 @@ const saveGeneralData = async () => {
     try {
         isSaving.value = true;
 
-        const response = await fetch('/api/save/general-data', {
+        const response = await fetch('/api/v1/save/general-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                objectCode: formData.objectCode,
-                stationNumber: formData.stationNumber,
-                region: formData.region,
-                locality: formData.locality,
-                customer: formData.customer,
-                amsType: formData.amsType,
-                amsHeight: formData.amsHeight,
-                inspectionDate: formData.inspectionDate,
-                latitude: formData.latitude,
-                longitude: formData.longitude,
+                totalData: {
+                    objectCode: formData.objectCode,
+                    stationNumber: formData.stationNumber,
+                    region: formData.region,
+                    locality: formData.locality,
+                    customer: formData.customer,
+                    amsType: formData.amsType,
+                    amsHeight: formData.amsHeight,
+                    inspectionDate: formData.inspectionDate,
+                    latitude: formData.latitude,
+                    longitude: formData.longitude,
+                },
+                climateData: {
+                    windRegion: formData.windRegion,
+                    terrainType: formData.terrainType,
+                    snowRegion: formData.snowRegion,
+                    iceRegion: formData.iceRegion,
+                },
+                pillarData: {
+                    pillarStamp: formData.pillarStamp,
+                    strengtheningExist: formData.strengtheningExist,
+                    strengtheningGeometry: formData.strengtheningGeometry || null,
+                    strengtheningWidth: formData.strengtheningWidth || null,
+                    strengtheningHeight: formData.strengtheningHeight || null,
+                    allowedMoment: formData.allowedMoment || null,
+                },
             }),
         });
 
