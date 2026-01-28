@@ -1,0 +1,64 @@
+version: '3.8'
+
+networks:
+  rns_telcom:
+
+services:
+  rns-telcom-app:
+    container_name: rns-telcom-app
+    build:
+      context: .docker/app
+      dockerfile: Dockerfile
+      args:
+          UID: ${UID:-1001}
+          GID: ${GID:-1001}
+    volumes:
+      - ".:/var/www/rns_telcom"
+    env_file:
+      - .env
+    networks:
+      - rns_telcom
+    hostname: rns-telcom.res
+
+  rns-telcom-db:
+    container_name: rns-telcom-db
+    image: postgres:alpine
+    volumes:
+      - /home/storage/rns_telcom/postgres/:/var/lib/postgresql/data/
+    ports:
+      - 6441:5432
+    hostname: rns-telcom.res
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: ${SQL_DB_PASSWORD:-developer}
+      POSTGRES_USER: ${SQL_DB_USER:-developer}
+      POSTGRES_DB: ${SQL_DB_NAME:-postgesql}
+    command: [ "postgres", "-c", "log_statement=all" ]
+    networks:
+      - rns_telcom
+
+  rns-telcom-nginx:
+    container_name: rns-telcom-nginx
+    image: nginx:alpine
+    ports:
+      - ${NGINX_PORT:-8123}:8080
+    volumes:
+      - ".:/var/www/rns_telcom"
+      - ".docker/nginx/conf.d/rns-telcom-prod.conf:/etc/nginx/conf.d/default.conf"
+    depends_on:
+      - rns-telcom-app
+    networks:
+      - rns_telcom
+    hostname: rns-telcom.res
+
+#  mailer:
+#    container_name: rns-telcom-mailer
+#    image: axllent/mailpit
+#    ports:
+#      - "1025:1025"
+#      - "8025:8025"
+#    environment:
+#      MAILPIT_WEB_HOST: 0.0.0.0
+#      MP_SMTP_AUTH_ACCEPT_ANY: 1
+#      MP_SMTP_AUTH_ALLOW_INSECURE: 1

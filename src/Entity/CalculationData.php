@@ -3,6 +3,8 @@
 
 namespace App\Entity;
 
+use App\Entity\JsonData\AbstractJsonData;
+use App\Entity\JsonData\ConcretePillarSpecificData;
 use App\Enum\CalculationData\IcingRegionEnum;
 use App\Enum\CalculationData\SnowRegionEnum;
 use App\Enum\CalculationData\TerrainTypeEnum;
@@ -92,8 +94,10 @@ class CalculationData
     private ?string $longitude = null;
 
     // Параметры для конкретных типов расчетов (хранятся в JSON)
-    #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[ORM\Column(name: 'specific_data', type: Types::JSON, nullable: true)]
     private array $specificData = [];
+
+    private ?AbstractJsonData $specificDataObject = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
@@ -311,6 +315,23 @@ class CalculationData
         return $this;
     }
 
+    public function getConcretePillarSpecificData(): ?ConcretePillarSpecificData
+    {
+        if ($this->specificDataObject === null) {
+            $this->specificDataObject = ConcretePillarSpecificData::fromArray($this->specificData);
+        }
+
+        return $this->specificDataObject;
+    }
+
+    public function setSpecificDataObject(?AbstractJsonData $specificDataObject): static
+    {
+        $this->specificDataObject = $specificDataObject;
+        $this->specificData = $specificDataObject?->toArray();
+
+        return $this;
+    }
+
     public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;
@@ -326,22 +347,23 @@ class CalculationData
         return [
             'id' => $this->id,
             'calculation_id' => $this->calculation?->getId(),
-            'object_code' => $this->objectCode,
-            'base_station_number' => $this->baseStationNumber,
+            'objectCode' => $this->objectCode,
+            'baseStationNumber' => $this->baseStationNumber,
             'region' => $this->region,
             'locality' => $this->locality,
             'customer' => $this->customer,
-            'ams_type' => $this->amsType,
-            'ams_height' => $this->amsHeight,
-            'survey_date' => $this->surveyDate?->format('Y-m-d'),
-            'wind_region' => $this->windRegion,
-            'terrain_type' => $this->terrainType,
-            'snow_region' => $this->snowRegion,
-            'icing_region' => $this->icingRegion,
+            'amsType' => $this->amsType,
+            'amsHeight' => $this->amsHeight,
+            'surveyDate' => $this->surveyDate?->format('Y-m-d'),
+            'windRegion' => $this->windRegion?->value,
+            'terrainType' => $this->terrainType?->value,
+            'snowRegion' => $this->snowRegion?->value,
+            'icingRegion' => $this->icingRegion?->value,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
-            'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
-            'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
+            'specificData' => $this->specificData,
+            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
+            'updatedAt' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }

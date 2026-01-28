@@ -32,15 +32,9 @@ final class BitrixController extends AbstractApiController
 
             $bitrixData = $this->bitrixService->loadDataFromBitrix($objectCode);
 
-            return $this->json([
-                'success' => true,
-                'data' => $bitrixData,
-            ]);
+            return $this->successResponse($bitrixData);
         } catch (Throwable $exception) {
-            return $this->json([
-                'success' => false,
-                'message' => $exception->getMessage(),
-            ]);
+            return $this->errorResponse($exception->getMessage());
         }
     }
 }

@@ -14,6 +14,13 @@ RUN apt-get update \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    # Устанавливаем Node.js и npm
+    && apt-get install -y nodejs \
+    # Проверяем установку
+    && node --version \
+    && npm --version
+
 RUN groupmod -g "${GID}" www-data \
  && usermod -u "${UID}" -g "${GID}" www-data
 
@@ -24,7 +31,4 @@ COPY ./conf/local-dev.ini /usr/local/etc/php/conf.d/local-dev.ini
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN curl -sS https://get.symfony.com/cli/installer | bash
 
-#RUN usermod -u $UID www-data -s /bin/bash && groupmod -g $GID www-data
-#RUN chown -R www-data:www-data /var/www/rns_telcom
-#COPY ./conf/local-dev.ini /usr/local/etc/php/php.ini
 USER www-data

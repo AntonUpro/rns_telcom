@@ -19,3 +19,15 @@ exec: ## initialize database and rabbitMq
 
 lint: ## phpStan
 	docker exec -it rns-telcom-app vendor/bin/phpstan analyse
+
+ci:
+	docker exec -it rns-telcom-app composer install
+
+nm: ## phpUnit
+	docker exec -it rns-telcom-app npm run dev
+
+up-prod: ## initialize database and rabbitMq
+	docker compose up -f docker-compose-prod.yaml -d --build
+
+down-prod: ## initialize database and rabbitMq
+	docker compose down -f docker-compose-prod.yaml --remove-orphans

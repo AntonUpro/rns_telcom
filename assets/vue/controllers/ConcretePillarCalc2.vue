@@ -242,11 +242,11 @@
                             <div class="form-group compact-group">
                                 <label>Выберите марку столба:</label>
                                 <select v-model="formData.pillarStamp" class="form-control compact-input">
-                                    <option value="СК26-1.1">СК26-1.1</option>
-                                    <option value="СК26-1.2">СК26-1.2</option>
-                                    <option value="СК26-1.3">СК26-1.3</option>
-                                    <option value="СК26-5.1">СК26-5.1</option>
-                                    <option value="СК26-6.1">СК26-6.1</option>
+                                    <option value="СК26-1.1">СК26.1-1.1</option>
+                                    <option value="СК26-1.2">СК26.1-1.2</option>
+                                    <option value="СК26-1.3">СК26.1-1.3</option>
+                                    <option value="СК26-5.1">СК26.1-5.1</option>
+                                    <option value="СК26-6.1">СК26.1-6.1</option>
                                 </select>
                             </div>
                             <div class="form-group compact-group checkbox-group">
@@ -567,6 +567,56 @@ const onStrengtheningToggle = () => {
     }
 };
 
+const fetchGeneralData = async () => {
+    try {
+        isLoading.value = true;
+
+        const response = await fetch('/api/v1/calculation/' + props.calculationId, {
+            method: 'GET',
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке данных');
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error('Не удалось загрузить общие данные по расчету. Ошибка: ' + data.error);
+        }
+        // Заполняем поля данными из Bitrix
+        formData.objectCode = data.data.totalData?.objectCode || '';
+        formData.stationNumber = data.data.totalData?.stationNumber || '';
+        formData.region = data.data.totalData?.region || '';
+        formData.locality = data.data.totalData?.locality || '';
+        formData.customer = data.data.totalData?.customer || '';
+        formData.amsType = data.data.totalData?.amsType || '';
+        formData.amsHeight = data.data.totalData?.amsHeight || '';
+        formData.inspectionDate = data.data.totalData?.inspectionDate || '';
+        formData.latitude = data.data.totalData?.latitude || '';
+        formData.longitude = data.data.totalData?.longitude || '';
+
+        formData.windRegion = data.data.climateData?.windRegion || '';
+        formData.terrainType = data.data.climateData?.terrainType || '';
+        formData.snowRegion = data.data.climateData?.snowRegion || '';
+        formData.iceRegion = data.data.climateData?.iceRegion || '';
+
+        formData.pillarStamp = data.data.pillarData?.pillarStamp || '';
+        formData.strengtheningExist = data.data.pillarData?.strengtheningExist || false;
+
+        formData.strengtheningGeometry = data.data.pillarData?.strengtheningGeometry || null;
+        formData.strengtheningWidth = data.data.pillarData?.strengtheningWidth || null;
+        formData.strengtheningHeight = data.data.pillarData?.strengtheningHeight || null;
+        formData.allowedMoment = data.data.pillarData?.allowedMoment || null;
+
+    } catch (error) {
+        console.error('Ошибка загрузки данных по расчету:', error);
+        alert('Не удалось загрузить данные по расчету');
+    } finally {
+        isLoading.value = false;
+    }
+};
+
 const loadFromBitrix = async () => {
     try {
         isLoading.value = true;
@@ -618,6 +668,7 @@ const saveGeneralData = async () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
+                calculationId: props.calculationId,
                 totalData: {
                     objectCode: formData.objectCode,
                     stationNumber: formData.stationNumber,
@@ -649,6 +700,12 @@ const saveGeneralData = async () => {
 
         if (!response.ok) {
             throw new Error('Ошибка сохранения данных');
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error('Ошибка сохранения данных. Ошибка: ' + data.error);
         }
 
         alert('Общие данные сохранены');
@@ -938,6 +995,7 @@ const loadCalculation = (calc) => {
 };
 
 onMounted(() => {
+    fetchGeneralData();
     loadSavedCalculations();
 });
 </script>
