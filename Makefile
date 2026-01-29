@@ -27,7 +27,7 @@ nm: ## phpUnit
 	docker exec -it rns-telcom-app npm run dev
 
 up-prod: ## initialize database and rabbitMq
-	docker compose up -f docker-compose-prod.yaml -d --build
+	docker compose -f docker-compose-prod.yaml up -d --build
 
 down-prod: ## initialize database and rabbitMq
-	docker compose down -f docker-compose-prod.yaml --remove-orphans
+	docker compose -f docker-compose-prod.yaml down --remove-orphans
