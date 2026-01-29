@@ -414,10 +414,164 @@
             </div>
 
             <!-- Остальные табы (ветровые нагрузки) остаются без изменений -->
-            <div v-if="activeTab === 'wind-pillar'" class="tab-content active">
-                <!-- Содержимое таба 2 из исходного кода -->
-                <div class="form-grid">
-                    <!-- ... ваш существующий код для ветра на столб ... -->
+            <div v-if="activeTab === 'wind-equipment'" class="tab-content active">
+                <div class="data-section compact-section">
+                    <div
+                        class="section-header"
+                        @click="toggleSection('equipmentList')"
+                        :class="{ active: openedSections.equipmentList }"
+                    >
+                        <h3>Оборудование на столбе</h3>
+                        <span class="toggle-icon">+</span>
+                    </div>
+
+                    <div class="section-content" :class="{ active: openedSections.equipmentList }">
+                        <!-- Форма поиска оборудования -->
+                        <div class="equipment-search">
+                            <div class="search-container">
+                                <input
+                                    type="text"
+                                    v-model="equipmentSearchQuery"
+                                    @input="searchEquipment"
+                                    class="form-calculation-control compact-input"
+                                    placeholder="Начните вводить марку или модель оборудования..."
+                                />
+                                <div class="search-loading" v-if="isSearching">
+                                    <span>Поиск...</span>
+                                </div>
+                            </div>
+
+                            <!-- Результаты поиска -->
+                            <div v-if="searchResults.length > 0" class="search-results">
+                                <div
+                                    v-for="equipment in searchResults"
+                                    :key="equipment.id"
+                                    class="search-result-item"
+                                    @click="addEquipmentToList(equipment)"
+                                >
+                                    <div class="equipment-info">
+                                        <strong>{{ equipment.brand }} {{ equipment.model }}</strong>
+                                        <span class="equipment-type">{{ getEquipmentTypeName(equipment.type) }}</span>
+                                    </div>
+                                    <div class="equipment-details">
+                                        <span>Габариты: {{ equipment.width }}×{{ equipment.height }}×{{ equipment.depth }} мм</span>
+                                        <span>Вес: {{ equipment.weight }} кг</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="equipmentSearchQuery && !isSearching && searchResults.length === 0"
+                                 class="search-no-results">
+                                Оборудование не найдено
+                            </div>
+                        </div>
+
+                        <!-- Список добавленного оборудования -->
+                        <div class="equipment-list" v-if="formData.equipmentData.length > 0">
+                            <h4>Добавленное оборудование:</h4>
+
+                            <div class="equipment-list-items">
+                                <div
+                                    v-for="(item, index) in formData.equipmentData"
+                                    :key="index"
+                                    class="equipment-list-item"
+                                >
+                                    <div class="equipment-item-header">
+                                        <div class="equipment-item-info">
+                                            <strong>{{ item.brand }} {{ item.model }}</strong>
+                                            <span class="equipment-item-type">{{ getEquipmentTypeName(item.type) }}</span>
+                                            <span><strong>Габариты:</strong> {{ item.width }}×{{ item.height }}×{{ item.depth }} мм</span>
+                                            <span><strong>Вес:</strong> {{ item.weight }} кг</span>
+                                            <span><strong>Площадь:</strong> {{ calculateEquipmentArea(item) }} м²</span>
+                                        </div>
+                                        <button
+                                            @click="removeEquipmentFromList(index)"
+                                            class="btn-remove-equipment"
+                                            title="Удалить оборудование"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+
+                                    <div class="equipment-item-details">
+                                        <div class="form-grid compact-grid">
+                                            <div class="form-group compact-group">
+                                                <label>Высота установки:</label>
+                                                <div class="input-with-unit">
+                                                    <input
+                                                        type="number"
+                                                        v-model.number="item.installationHeight"
+                                                        class="form-calculation-control compact-input"
+                                                        step="0.1"
+                                                        min="0"
+                                                    />
+                                                    <span class="unit">м</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group compact-group">
+                                                <label>Количество:</label>
+                                                <input
+                                                    type="number"
+                                                    v-model.number="item.quantity"
+                                                    class="form-calculation-control compact-input"
+                                                    step="1"
+                                                    min="1"
+                                                />
+                                            </div>
+
+                                            <div class="form-group compact-group">
+                                                <label>Коэффициент затенения:</label>
+                                                <input
+                                                    type="number"
+                                                    v-model.number="item.shadingCoefficient"
+                                                    class="form-calculation-control compact-input"
+                                                    step="0.1"
+                                                    min="0"
+                                                    max="1"
+                                                />
+                                            </div>
+                                        </div>
+
+<!--                                        <div class="equipment-item-specs">-->
+<!--                                            <span><strong>Габариты:</strong> {{ item.width }}×{{ item.height }}×{{ item.depth }} мм</span>-->
+<!--                                            <span><strong>Вес:</strong> {{ item.weight }} кг</span>-->
+<!--                                            <span><strong>Площадь:</strong> {{ calculateEquipmentArea(item) }} м²</span>-->
+<!--                                        </div>-->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="equipment-list-summary">
+                                <div class="summary-item">
+                                    <span>Всего единиц оборудования:</span>
+                                    <strong>{{ formData.equipmentCount }}</strong>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Суммарная площадь:</span>
+                                    <strong>{{ totalEquipmentArea.toFixed(2) }} м²</strong>
+                                </div>
+                                <div class="summary-item">
+                                    <span>Суммарный вес:</span>
+                                    <strong>{{ totalEquipmentWeight.toFixed(1) }} кг</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="equipment-empty-state">
+                            <p>Оборудование еще не добавлено. Начните поиск выше.</p>
+                        </div>
+
+                        <!-- Кнопки действий -->
+                        <div class="section-actions" style="margin-top: 2rem">
+                            <button
+                                @click="saveEquipmentData"
+                                class="btn-save-small"
+                                :disabled="isSavingEquipment"
+                            >
+                                {{ isSavingEquipment ? 'Сохранение...' : 'Сохранить список оборудования' }}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -454,8 +608,8 @@
             <button @click="exportToPDF" class="btn-action btn-secondary" :disabled="!calculationResults">
                 Экспорт в PDF
             </button>
-            <button @click="exportToExcel" class="btn-action btn-secondary" :disabled="!calculationResults">
-                Экспорт в Excel
+            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">
+                Экспорт в Word
             </button>
         </div>
     </div>
@@ -484,6 +638,7 @@ const openedSections = reactive({
     climate: true,
     strengthening: true,
     materials: true,
+    equipmentList: true,
 });
 
 // console.log(calculationId)
@@ -547,6 +702,13 @@ const calculationResults = ref(null);
 const isLoading = ref(false);
 const isSaving = ref(false);
 const savedCalculations = ref([]);
+
+// Состояния для оборудования
+const equipmentSearchQuery = ref('');
+const searchResults = ref([]);
+const isSearching = ref(false);
+const isSavingEquipment = ref(false);
+const searchTimeout = ref(null);
 
 // Методы
 const setActiveTab = (tab) => {
@@ -717,95 +879,174 @@ const saveGeneralData = async () => {
     }
 };
 
-const saveClimateData = async () => {
-    try {
-        isSaving.value = true;
+// Оборудование
+// watch(() => formData.equipmentData, (newValue) => {
+//     formData.equipmentCount = newValue.reduce((sum, item) => sum + (item.quantity || 1), 0);
+// }, { deep: true });
 
-        const response = await fetch('/api/save/climate-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                windRegion: formData.windRegion,
-                terrainType: formData.terrainType,
-                snowRegion: formData.snowRegion,
-                iceRegion: formData.iceRegion,
-            }),
-        });
+// Методы для работы с оборудованием
+const searchEquipment = () => {
+    clearTimeout(searchTimeout.value);
 
-        if (!response.ok) {
-            throw new Error('Ошибка сохранения климатических данных');
-        }
-
-        alert('Климатические данные сохранены');
-    } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        alert('Не удалось сохранить климатические данные');
-    } finally {
-        isSaving.value = false;
+    if (!equipmentSearchQuery.value.trim()) {
+        searchResults.value = [];
+        return;
     }
+
+    isSearching.value = true;
+
+    searchTimeout.value = setTimeout(async () => {
+        try {
+            const response = await fetch('/api/v1/equipment/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    query: equipmentSearchQuery.value,
+                    limit: 10
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка поиска оборудования');
+            }
+
+            const dataResponse = await response.json();
+
+            if (dataResponse.success) {
+                searchResults.value = dataResponse.data;
+            } else {
+                searchResults.value = [];
+                console.error('Ошибка при поиске оборудования:', dataResponse.error);
+            }
+        } catch (error) {
+            console.error('Ошибка поиска оборудования:', error);
+            searchResults.value = [];
+        } finally {
+            isSearching.value = false;
+        }
+    }, 500);
 };
 
-const saveStrengtheningData = async () => {
-    try {
-        isSaving.value = true;
+const addEquipmentToList = (equipment) => {
+    // Проверяем, нет ли уже такого оборудования в списке
+    const existingIndex = formData.equipmentData.findIndex(
+        item => item.id === equipment.id
+    );
 
-        const response = await fetch('/api/save/strengthening-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                strengtheningGeometry: formData.strengtheningGeometry,
-                strengtheningWidth: formData.strengtheningWidth,
-                strengtheningHeight: formData.strengtheningHeight,
-                allowedMoment: formData.allowedMoment,
-            }),
+    if (existingIndex === -1) {
+        formData.equipmentData.push({
+            id: equipment.id,
+            brand: equipment.brand,
+            model: equipment.model,
+            type: equipment.type,
+            width: equipment.width,
+            height: equipment.height,
+            depth: equipment.depth,
+            weight: equipment.weight,
+            installationHeight: 0,
+            quantity: 1,
+            shadingCoefficient: 0.8,
+            aerodynamicCoefficient: 1.4
         });
-
-        if (!response.ok) {
-            throw new Error('Ошибка сохранения данных усиления');
-        }
-
-        alert('Данные усиления сохранены');
-    } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        alert('Не удалось сохранить данные усиления');
-    } finally {
-        isSaving.value = false;
+    } else {
+        // Если оборудование уже есть, увеличиваем количество
+        formData.equipmentData[existingIndex].quantity += 1;
     }
+
+    // Очищаем поиск
+    equipmentSearchQuery.value = '';
+    searchResults.value = [];
 };
 
-const saveMaterialsData = async () => {
-    try {
-        isSaving.value = true;
+const removeEquipmentFromList = (index) => {
+    formData.equipmentData.splice(index, 1);
+};
 
-        const response = await fetch('/api/save/materials-data', {
+const getEquipmentTypeName = (type) => {
+    const types = {
+        'rls': 'РЛС',
+        'rrl': 'РРЛ',
+        'panel': 'Панельная',
+        'dish': 'Тарелка',
+        'other': 'Другое'
+    };
+    return types[type] || type;
+};
+
+const calculateEquipmentArea = (equipment) => {
+    // Переводим мм в метры и вычисляем площадь
+    const widthM = equipment.width / 1000;
+    const heightM = equipment.height / 1000;
+    return (widthM * heightM).toFixed(2);
+};
+
+// Вычисляемые свойства для сводки
+const totalEquipmentArea = computed(() => {
+    return formData.equipmentData.reduce((sum, item) => {
+        const widthM = item.width / 1000;
+        const heightM = item.height / 1000;
+        return sum + (widthM * heightM * item.quantity);
+    }, 0);
+});
+
+const totalEquipmentWeight = computed(() => {
+    return formData.equipmentData.reduce((sum, item) => {
+        return sum + (item.weight * item.quantity);
+    }, 0);
+});
+
+// Метод сохранения данных оборудования
+const saveEquipmentData = async () => {
+    if (formData.equipmentData.length === 0) {
+        alert('Добавьте оборудование перед сохранением');
+        return;
+    }
+
+    try {
+        isSavingEquipment.value = true;
+
+        const response = await fetch('/api/v1/save/equipment-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                concreteClass: formData.concreteClass,
-                reinforcementClass: formData.reinforcementClass,
-                reinforcementDiameter: formData.reinforcementDiameter,
-                reinforcementCount: formData.reinforcementCount,
-                concreteDensity: formData.concreteDensity,
-                workingConditions: formData.workingConditions,
+                calculationId: props.calculationId,
+                equipmentData: formData.equipmentData.map(item => ({
+                    equipmentId: item.id,
+                    brand: item.brand,
+                    model: item.model,
+                    type: item.type,
+                    width: item.width,
+                    height: item.height,
+                    depth: item.depth,
+                    weight: item.weight,
+                    installationHeight: item.installationHeight,
+                    quantity: item.quantity,
+                    shadingCoefficient: item.shadingCoefficient,
+                    aerodynamicCoefficient: item.aerodynamicCoefficient
+                }))
             }),
         });
 
         if (!response.ok) {
-            throw new Error('Ошибка сохранения данных материалов');
+            throw new Error('Ошибка сохранения данных оборудования');
         }
 
-        alert('Данные материалов сохранены');
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error('Ошибка сохранения данных оборудования: ' + data.error);
+        }
+
+        alert('Данные оборудования сохранены');
     } catch (error) {
-        console.error('Ошибка сохранения:', error);
-        alert('Не удалось сохранить данные материалов');
+        console.error('Ошибка сохранения оборудования:', error);
+        alert('Не удалось сохранить данные оборудования');
     } finally {
-        isSaving.value = false;
+        isSavingEquipment.value = false;
     }
 };
 
@@ -977,8 +1218,8 @@ const exportToPDF = () => {
     window.print();
 };
 
-const exportToExcel = () => {
-    alert('Экспорт в Excel (функция в разработке)');
+const exportToWord = () => {
+    alert('Экспорт в Word (функция в разработке)');
 };
 
 const loadSavedCalculations = () => {
