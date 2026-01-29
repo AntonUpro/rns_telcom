@@ -17,16 +17,16 @@
                     1. Исходные данные
                 </button>
                 <button
-                    @click="setActiveTab('wind-pillar')"
-                    :class="['tab-btn', { active: activeTab === 'wind-pillar' }]"
-                >
-                    2. Ветер: столб и коммуникации
-                </button>
-                <button
                     @click="setActiveTab('wind-equipment')"
                     :class="['tab-btn', { active: activeTab === 'wind-equipment' }]"
                 >
-                    3. Ветер на оборудование
+                    2. Ветер на оборудование
+                </button>
+                <button
+                    @click="setActiveTab('wind-pillar')"
+                    :class="['tab-btn', { active: activeTab === 'wind-pillar' }]"
+                >
+                    3. Ветер: столб и коммуникации
                 </button>
                 <button
                     @click="setActiveTab('wind-platform')"
@@ -575,7 +575,7 @@
                 </div>
             </div>
 
-            <div v-if="activeTab === 'wind-equipment'" class="tab-content active">
+            <div v-if="activeTab === 'wind-pillar'" class="tab-content active">
                 <!-- Содержимое таба 3 из исходного кода -->
                 <div class="form-grid">
                     <!-- ... ваш существующий код для ветра на оборудование ... -->
