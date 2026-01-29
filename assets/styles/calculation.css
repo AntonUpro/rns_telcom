@@ -138,8 +138,30 @@
     gap: 0.25rem;
 }
 
-.input-with-unit .form-control {
+.input-with-unit .form-calculation-control {
     flex: 1;
+}
+
+.form-calculation-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-calculation-control:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+
+.compact-input {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    height: 36px;
 }
 
 .input-with-unit .unit {
@@ -222,15 +244,15 @@
 }
 
 /* Стили для заблокированных полей */
-.form-control:disabled,
-.form-control[readonly] {
+.form-calculation-control:disabled,
+.form-calculation-control[readonly] {
     background-color: #f8f9fa;
     border-color: #e9ecef;
     color: #6c757d;
     cursor: not-allowed;
 }
 
-select.form-control:disabled {
+select.form-calculation-control:disabled {
     background-color: #f8f9fa;
     color: #6c757d;
 }
@@ -264,7 +286,7 @@ select.form-control:disabled {
     border-top: 1px solid #eee;
 }
 
-.btn {
+.btn-action {
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 4px;
@@ -274,7 +296,7 @@ select.form-control:disabled {
     transition: all 0.3s ease;
 }
 
-.btn-primary {
+.btn-action-calc {
     background-color: #3498db;
     color: white;
 }
@@ -301,7 +323,7 @@ select.form-control:disabled {
     background-color: #7f8c8d;
 }
 
-.btn:disabled {
+.btn-action:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -347,7 +369,7 @@ select.form-control:disabled {
         flex-direction: column;
     }
 
-    .btn {
+    .btn-action {
         width: 100%;
         margin-bottom: 0.5rem;
     }
