@@ -14,6 +14,7 @@ use App\Enum\CalculationData\IcingRegionEnum;
 use App\Enum\CalculationData\SnowRegionEnum;
 use App\Enum\CalculationData\TerrainTypeEnum;
 use App\Enum\CalculationData\WindRegionEnum;
+use App\Enum\CalculationStatusEnum;
 use App\Exception\NotFoundCalculationDataException;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;

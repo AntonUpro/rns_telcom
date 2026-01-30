@@ -34,7 +34,6 @@ final class SaveGeneralDataController extends AbstractApiController
             $pillarCalculationDataDto = PillarCalculationDataDto::fromRequest($params);
 
             $this->pillarCalculationService->saveGeneralData($pillarCalculationDataDto);
-
             return $this->successResponse($pillarCalculationDataDto->toArray());
         } catch (Throwable $e) {
             $this->logger->error(

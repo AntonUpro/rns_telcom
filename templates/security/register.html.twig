@@ -11,6 +11,11 @@
             </div>
 
             {{ form_start(registrationForm) }}
+            {% if error is defined %}
+                <div class="alert alert-error">
+                    {{ error }}
+                </div>
+            {% endif %}
             <div class="form-group">
                 {{ form_label(registrationForm.email) }}
                 {{ form_widget(registrationForm.email) }}

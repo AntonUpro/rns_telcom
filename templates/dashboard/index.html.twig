@@ -51,7 +51,7 @@
                         <input type="text"
                                id="name"
                                name="name"
-                               class="form-control"
+                               class="form-control new-calc"
                                placeholder="Например: Расчет ЖБ столба для БС №123"
                                required
                                maxlength="255">
@@ -59,7 +59,7 @@
 
                     <div class="form-group">
                         <label for="type">Тип расчета *</label>
-                        <select id="type" name="type" class="form-control" required>
+                        <select id="type" name="type" class="form-control new-calc" required>
                             <option value="">Выберите тип</option>
                             {% for calculation_type in calculation_types %}
                                 <option value="{{ calculation_type.value }}">
@@ -127,7 +127,7 @@
                                           style="display: inline;">
                                         <select name="status"
                                                 onchange="this.form.submit()"
-                                                class="form-control btn-small btn-change-status"
+                                                class="form-control calc-list btn-small btn-change-status"
                                                 style="padding: 0.375rem 0.75rem; height: auto;">
                                             <option value="" disabled selected>Изменить статус</option>
                                             {% for status in ['draft', 'calculated', 'approved', 'archived'] %}
