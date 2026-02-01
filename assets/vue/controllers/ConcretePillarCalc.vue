@@ -415,164 +415,172 @@
 
             <!-- Остальные табы (ветровые нагрузки) остаются без изменений -->
             <div v-if="activeTab === 'wind-equipment'" class="tab-content active">
-                <div class="data-section compact-section">
-                    <div
-                        class="section-header"
-                        @click="toggleSection('equipmentList')"
-                        :class="{ active: openedSections.equipmentList }"
-                    >
-                        <h3>Оборудование на столбе</h3>
-                        <span class="toggle-icon">+</span>
-                    </div>
+                <EquipmentTab
+                    title="Оборудование на столбе"
+                    :calculation-id="calculationId"
+                    :editable="true"
+                    :initial-data="formData.equipmentData"
+                    @equipment-selected="addEquipment"
+                />
 
-                    <div class="section-content" :class="{ active: openedSections.equipmentList }">
-                        <!-- Форма поиска оборудования -->
-                        <div class="equipment-search">
-                            <div class="search-container">
-                                <input
-                                    type="text"
-                                    v-model="equipmentSearchQuery"
-                                    @input="searchEquipment"
-                                    class="form-calculation-control compact-input"
-                                    placeholder="Начните вводить марку или модель оборудования..."
-                                />
-                                <div class="search-loading" v-if="isSearching">
-                                    <span>Поиск...</span>
-                                </div>
-                            </div>
+<!--                <div class="data-section compact-section">-->
+<!--                    <div-->
+<!--                        class="section-header"-->
+<!--                        @click="toggleSection('equipmentList')"-->
+<!--                        :class="{ active: openedSections.equipmentList }"-->
+<!--                    >-->
+<!--                        <h3>Оборудование на столбе</h3>-->
+<!--                        <span class="toggle-icon">+</span>-->
+<!--                    </div>-->
 
-                            <!-- Результаты поиска -->
-                            <div v-if="searchResults.length > 0" class="search-results">
-                                <div
-                                    v-for="equipment in searchResults"
-                                    :key="equipment.id"
-                                    class="search-result-item"
-                                    @click="addEquipmentToList(equipment)"
-                                >
-                                    <div class="equipment-info">
-                                        <strong>{{ equipment.brand }} {{ equipment.model }}</strong>
-                                        <span class="equipment-type">{{ getEquipmentTypeName(equipment.type) }}</span>
-                                    </div>
-                                    <div class="equipment-details">
-                                        <span>Габариты: {{ equipment.width }}×{{ equipment.height }}×{{ equipment.depth }} мм</span>
-                                        <span>Вес: {{ equipment.weight }} кг</span>
-                                    </div>
-                                </div>
-                            </div>
+<!--                    <div class="section-content" :class="{ active: openedSections.equipmentList }">-->
+<!--                        &lt;!&ndash; Форма поиска оборудования &ndash;&gt;-->
+<!--                        <div class="equipment-search">-->
+<!--                            <div class="search-container">-->
+<!--                                <input-->
+<!--                                    type="text"-->
+<!--                                    v-model="equipmentSearchQuery"-->
+<!--                                    @input="searchEquipment"-->
+<!--                                    class="form-calculation-control compact-input"-->
+<!--                                    placeholder="Начните вводить марку или модель оборудования..."-->
+<!--                                />-->
+<!--                                <div class="search-loading" v-if="isSearching">-->
+<!--                                    <span>Поиск...</span>-->
+<!--                                </div>-->
+<!--                            </div>-->
 
-                            <div v-if="equipmentSearchQuery && !isSearching && searchResults.length === 0"
-                                 class="search-no-results">
-                                Оборудование не найдено
-                            </div>
-                        </div>
+<!--                            &lt;!&ndash; Результаты поиска &ndash;&gt;-->
+<!--                            <div v-if="searchResults.length > 0" class="search-results">-->
+<!--                                <div-->
+<!--                                    v-for="equipment in searchResults"-->
+<!--                                    :key="equipment.id"-->
+<!--                                    class="search-result-item"-->
+<!--                                    @click="addEquipmentToList(equipment)"-->
+<!--                                >-->
+<!--                                    <div class="equipment-info">-->
+<!--                                        <strong>{{ equipment.brand }} {{ equipment.model }}</strong>-->
+<!--                                        <span class="equipment-type">{{ getEquipmentTypeName(equipment.type) }}</span>-->
+<!--                                    </div>-->
+<!--                                    <div class="equipment-details">-->
+<!--                                        <span>Габариты: {{ equipment.width }}×{{ equipment.height }}×{{ equipment.depth }} мм</span>-->
+<!--                                        <span>Вес: {{ equipment.weight }} кг</span>-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
 
-                        <!-- Список добавленного оборудования -->
-                        <div class="equipment-list" v-if="formData.equipmentData.length > 0">
-                            <h4>Добавленное оборудование:</h4>
+<!--                            <div v-if="equipmentSearchQuery && !isSearching && searchResults.length === 0"-->
+<!--                                 class="search-no-results">-->
+<!--                                Оборудование не найдено-->
+<!--                            </div>-->
+<!--                        </div>-->
 
-                            <div class="equipment-list-items">
-                                <div
-                                    v-for="(item, index) in formData.equipmentData"
-                                    :key="index"
-                                    class="equipment-list-item"
-                                >
-                                    <div class="equipment-item-header">
-                                        <div class="equipment-item-info">
-                                            <strong>{{ item.brand }} {{ item.model }}</strong>
-                                            <span class="equipment-item-type">{{ getEquipmentTypeName(item.type) }}</span>
-                                            <span><strong>Габариты:</strong> {{ item.width }}×{{ item.height }}×{{ item.depth }} мм</span>
-                                            <span><strong>Вес:</strong> {{ item.weight }} кг</span>
-                                            <span><strong>Площадь:</strong> {{ calculateEquipmentArea(item) }} м²</span>
-                                        </div>
-                                        <button
-                                            @click="removeEquipmentFromList(index)"
-                                            class="btn-remove-equipment"
-                                            title="Удалить оборудование"
-                                        >
-                                            ×
-                                        </button>
-                                    </div>
+<!--                        &lt;!&ndash; Список добавленного оборудования &ndash;&gt;-->
+<!--                        <div class="equipment-list" v-if="formData.equipmentData.length > 0">-->
+<!--                            <h4>Добавленное оборудование:</h4>-->
 
-                                    <div class="equipment-item-details">
-                                        <div class="form-grid compact-grid">
-                                            <div class="form-group compact-group">
-                                                <label>Высота установки:</label>
-                                                <div class="input-with-unit">
-                                                    <input
-                                                        type="number"
-                                                        v-model.number="item.installationHeight"
-                                                        class="form-calculation-control compact-input"
-                                                        step="0.1"
-                                                        min="0"
-                                                    />
-                                                    <span class="unit">м</span>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-group compact-group">
-                                                <label>Количество:</label>
-                                                <input
-                                                    type="number"
-                                                    v-model.number="item.quantity"
-                                                    class="form-calculation-control compact-input"
-                                                    step="1"
-                                                    min="1"
-                                                />
-                                            </div>
-
-                                            <div class="form-group compact-group">
-                                                <label>Коэффициент затенения:</label>
-                                                <input
-                                                    type="number"
-                                                    v-model.number="item.shadingCoefficient"
-                                                    class="form-calculation-control compact-input"
-                                                    step="0.1"
-                                                    min="0"
-                                                    max="1"
-                                                />
-                                            </div>
-                                        </div>
-
-<!--                                        <div class="equipment-item-specs">-->
+<!--                            <div class="equipment-list-items">-->
+<!--                                <div-->
+<!--                                    v-for="(item, index) in formData.equipmentData"-->
+<!--                                    :key="index"-->
+<!--                                    class="equipment-list-item"-->
+<!--                                >-->
+<!--                                    <div class="equipment-item-header">-->
+<!--                                        <div class="equipment-item-info">-->
+<!--                                            <strong>{{ item.brand }} {{ item.model }}</strong>-->
+<!--                                            <span class="equipment-item-type">{{ getEquipmentTypeName(item.type) }}</span>-->
 <!--                                            <span><strong>Габариты:</strong> {{ item.width }}×{{ item.height }}×{{ item.depth }} мм</span>-->
 <!--                                            <span><strong>Вес:</strong> {{ item.weight }} кг</span>-->
 <!--                                            <span><strong>Площадь:</strong> {{ calculateEquipmentArea(item) }} м²</span>-->
 <!--                                        </div>-->
-                                    </div>
-                                </div>
-                            </div>
+<!--                                        <button-->
+<!--                                            @click="removeEquipmentFromList(index)"-->
+<!--                                            class="btn-remove-equipment"-->
+<!--                                            title="Удалить оборудование"-->
+<!--                                        >-->
+<!--                                            ×-->
+<!--                                        </button>-->
+<!--                                    </div>-->
 
-                            <div class="equipment-list-summary">
-                                <div class="summary-item">
-                                    <span>Всего единиц оборудования:</span>
-                                    <strong>{{ formData.equipmentCount }}</strong>
-                                </div>
-                                <div class="summary-item">
-                                    <span>Суммарная площадь:</span>
-                                    <strong>{{ totalEquipmentArea.toFixed(2) }} м²</strong>
-                                </div>
-                                <div class="summary-item">
-                                    <span>Суммарный вес:</span>
-                                    <strong>{{ totalEquipmentWeight.toFixed(1) }} кг</strong>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-else class="equipment-empty-state">
-                            <p>Оборудование еще не добавлено. Начните поиск выше.</p>
-                        </div>
+<!--                                    <div class="equipment-item-details">-->
+<!--                                        <div class="form-grid compact-grid">-->
+<!--                                            <div class="form-group compact-group">-->
+<!--                                                <label>Высота установки:</label>-->
+<!--                                                <div class="input-with-unit">-->
+<!--                                                    <input-->
+<!--                                                        type="number"-->
+<!--                                                        v-model.number="item.installationHeight"-->
+<!--                                                        class="form-calculation-control compact-input"-->
+<!--                                                        step="0.1"-->
+<!--                                                        min="0"-->
+<!--                                                    />-->
+<!--                                                    <span class="unit">м</span>-->
+<!--                                                </div>-->
+<!--                                            </div>-->
 
-                        <!-- Кнопки действий -->
-                        <div class="section-actions" style="margin-top: 2rem">
-                            <button
-                                @click="saveEquipmentData"
-                                class="btn-save-small"
-                                :disabled="isSavingEquipment"
-                            >
-                                {{ isSavingEquipment ? 'Сохранение...' : 'Сохранить список оборудования' }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+<!--                                            <div class="form-group compact-group">-->
+<!--                                                <label>Количество:</label>-->
+<!--                                                <input-->
+<!--                                                    type="number"-->
+<!--                                                    v-model.number="item.quantity"-->
+<!--                                                    class="form-calculation-control compact-input"-->
+<!--                                                    step="1"-->
+<!--                                                    min="1"-->
+<!--                                                />-->
+<!--                                            </div>-->
+
+<!--                                            <div class="form-group compact-group">-->
+<!--                                                <label>Коэффициент затенения:</label>-->
+<!--                                                <input-->
+<!--                                                    type="number"-->
+<!--                                                    v-model.number="item.shadingCoefficient"-->
+<!--                                                    class="form-calculation-control compact-input"-->
+<!--                                                    step="0.1"-->
+<!--                                                    min="0"-->
+<!--                                                    max="1"-->
+<!--                                                />-->
+<!--                                            </div>-->
+<!--                                        </div>-->
+
+<!--&lt;!&ndash;                                        <div class="equipment-item-specs">&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <span><strong>Габариты:</strong> {{ item.width }}×{{ item.height }}×{{ item.depth }} мм</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <span><strong>Вес:</strong> {{ item.weight }} кг</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                            <span><strong>Площадь:</strong> {{ calculateEquipmentArea(item) }} м²</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                                        </div>&ndash;&gt;-->
+<!--                                    </div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            <div class="equipment-list-summary">-->
+<!--                                <div class="summary-item">-->
+<!--                                    <span>Всего единиц оборудования:</span>-->
+<!--                                    <strong>{{ formData.equipmentCount }}</strong>-->
+<!--                                </div>-->
+<!--                                <div class="summary-item">-->
+<!--                                    <span>Суммарная площадь:</span>-->
+<!--                                    <strong>{{ totalEquipmentArea.toFixed(2) }} м²</strong>-->
+<!--                                </div>-->
+<!--                                <div class="summary-item">-->
+<!--                                    <span>Суммарный вес:</span>-->
+<!--                                    <strong>{{ totalEquipmentWeight.toFixed(1) }} кг</strong>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div v-else class="equipment-empty-state">-->
+<!--                            <p>Оборудование еще не добавлено. Начните поиск выше.</p>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Кнопки действий &ndash;&gt;-->
+<!--                        <div class="section-actions" style="margin-top: 2rem">-->
+<!--                            <button-->
+<!--                                @click="saveEquipmentData"-->
+<!--                                class="btn-save-small"-->
+<!--                                :disabled="isSavingEquipment"-->
+<!--                            >-->
+<!--                                {{ isSavingEquipment ? 'Сохранение...' : 'Сохранить список оборудования' }}-->
+<!--                            </button>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
             </div>
 
             <div v-if="activeTab === 'wind-pillar'" class="tab-content active">
@@ -617,6 +625,7 @@
 
 <script setup>
 import {ref, reactive, computed, onMounted} from 'vue';
+import EquipmentTab from "./component/EquipmentTab.vue";
 
 const props = defineProps({
     user: {
