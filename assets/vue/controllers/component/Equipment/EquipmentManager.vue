@@ -11,6 +11,10 @@ const props = defineProps({
     editable: {
         type: Boolean,
         default: true
+    },
+    initialData: {
+        type: Object,
+        default: () => ({})
     }
 });
 const emit = defineEmits(['update', 'save']);
@@ -27,7 +31,7 @@ function ensureGroup(group) {
     };
 }
 
-const state = reactive({
+const allEquipment = reactive({
     existEquipment: ensureGroup(props.initialData?.existEquipment),
     plainEquipment: ensureGroup(props.initialData?.plainEquipment),
     dismantledEquipment: ensureGroup(props.initialData?.dismantledEquipment),
@@ -54,24 +58,24 @@ const handleEquipmentAdded = (equipmentData) => {
 };
 
 const saveAll = () => {
-    emit('save', toRaw(state));
+    emit('save', toRaw(allEquipment));
 };
 </script>
 
 <template>
     <div class="equipment-table-container">
         <EquipmentTable
-            v-model="state.existEquipment"
+            v-model="allEquipment.existEquipment"
             :editable="editable"
             title="Существующее оборудование"
         />
         <EquipmentTable
-            v-model="state.plainEquipment"
+            v-model="allEquipment.plainEquipment"
             :editable="editable"
             title="Проектируемое оборудование"
         />
         <EquipmentTable
-            v-model="state.dismantledEquipment"
+            v-model="allEquipment.dismantledEquipment"
             :editable="editable"
             title="Демонтируемое оборудование"
         />

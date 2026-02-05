@@ -18,19 +18,33 @@ const localRows = ref([]);
 
 const clone = (v) => JSON.parse(JSON.stringify(v ?? []));
 
+// Флаг для предотвращения бесконечных обновлений
+let isUpdatingFromProps = false;
+
 // Синхронизация пропа и локального состояния
 watch(
     () => props.rows,
-    (v) => { localRows.value = clone(v); },
+    (v) => {
+        isUpdatingFromProps = true;
+        localRows.value = clone(v);
+        // Сбрасываем флаг после следующего тика
+        nextTick(() => {
+            isUpdatingFromProps = false;
+        });
+    },
     { immediate: true, deep: true }
 );
 
-// Эмитим наверх при любом изменении локальных данных
-// watch(
-//     localRows,
-//     (v) => emit('update:rows', clone(v)),
-//     { deep: true }
-// );
+// Эмитим наверх только при изменениях не из пропсов
+watch(
+    localRows,
+    (v) => {
+        if (!isUpdatingFromProps) {
+            emit('update:rows', clone(v));
+        }
+    },
+    { deep: true }
+);
 
 const formatDims = (row) => {
     if (props.category === 'rrl') {
@@ -171,8 +185,8 @@ function normalizeResults(list, category) {
         weight: num(it.weight),
         // размеры
         diameter: num(it.diameter ?? it.diam),
-        width: num(it.width),
         height: num(it.height),
+        width: num(it.width),
         depth: num(it.depth),
         type: it.type ?? category
     }));
@@ -208,8 +222,8 @@ function formatDimsForResult(res, category) {
     if (category === 'rrl') {
         return `Ø${res.diameter || 0} мм`;
     }
-    const w = res.width || 0, h = res.height || 0, d = res.depth || 0;
-    return `${w}×${h}×${d} мм`;
+    const h = res.height || 0, w =  res.width || 0, d = res.depth || 0;
+    return `${h}×${w}×${d} мм`;
 }
 
 function formatWeight(n) {
@@ -221,8 +235,8 @@ function selectResult(row, idx, res) {
     if (props.category === 'rrl') {
         row.diameter = Number(res.diameter) || 0;
     } else {
-        row.width = Number(res.width) || 0;
         row.height = Number(res.height) || 0;
+        row.width = Number(res.width) || 0;
         row.depth = Number(res.depth) || 0;
     }
     row.weight = Number(res.weight) || 0;
@@ -309,7 +323,7 @@ function onBlur(row, idx) {
                 v-if="stateFor(item, index).open"
                 class="autocomplete-panel"
                 :data-visible="stateFor(item, index).open"
-                style="background: yellow; border: 3px solid red; display: block !important; visibility: visible !important;"
+                style="background: #e3e3c9; border: 3px solid #efc0c0; display: block !important; visibility: visible !important;"
             >
                 <div class="autocomplete-status" v-if="stateFor(item, index).loading">
                     Поиск...

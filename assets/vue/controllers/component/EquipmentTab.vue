@@ -303,7 +303,6 @@ function handleSave(payload) {
     // await api.save(payload)
     console.log('SAVE', payload);
 }
-
 </script>
 
 <template>

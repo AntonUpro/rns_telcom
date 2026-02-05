@@ -27,29 +27,17 @@ const group = computed({
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 function makeDefaultRow(category) {
-    const base = {
+    return {
         id: uid(),
         fullName: '',
+        type: category,
+        diameter: 0,
+        height: 0,
+        width: 0,
+        depth: 0,
         quantity: 1,
         weight: 0,
-        coefficient: 1.0,
-        isExisting: false,
         mountHeight: 0 // отдельное поле для "Отметка подвеса, м"
-    };
-
-    if (category === 'rrl') {
-        return {
-            ...base,
-            type: 'rrl',
-            diameter: 0
-        };
-    }
-
-    // panel / radio / other — прямоугольники
-    return {
-        ...base,
-        type: category === 'radio' ? 'radioBloc' : category, // совместимость с вашими типами
-        width: 0, height: 0, depth: 0
     };
 }
 

@@ -169,18 +169,6 @@ const handleBackdropClick = (event) => {
                 <!-- Rectangular Equipment - Dimensions -->
                 <div v-else class="dimensions-grid">
                     <div class="form-group">
-                        <label class="form-label">Ширина, мм *</label>
-                        <input
-                            v-model.number="formData.width"
-                            type="number"
-                            class="form-input"
-                            min="0"
-                            step="1"
-                            placeholder="Ширина"
-                        />
-                    </div>
-
-                    <div class="form-group">
                         <label class="form-label">Высота, мм *</label>
                         <input
                             v-model.number="formData.height"
@@ -189,6 +177,18 @@ const handleBackdropClick = (event) => {
                             min="0"
                             step="1"
                             placeholder="Высота"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ширина, мм *</label>
+                        <input
+                            v-model.number="formData.width"
+                            type="number"
+                            class="form-input"
+                            min="0"
+                            step="1"
+                            placeholder="Ширина"
                         />
                     </div>
 
