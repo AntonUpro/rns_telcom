@@ -50,8 +50,8 @@ const formatDims = (row) => {
     if (props.category === 'rrl') {
         return `Ø${row?.diameter ?? 0}`;
     }
-    const w = row?.width ?? 0;
     const h = row?.height ?? 0;
+    const w = row?.width ?? 0;
     const d = row?.depth ?? 0;
     return `${w}×${h}×${d}`;
 };
@@ -77,16 +77,10 @@ function stateFor(item, idx) {
     return getState(keyOf(item, idx));
 }
 
-function mapTypeForApi(category) {
-    // подстройте под ваш бекенд, если нужно
-    const t = { rrl: 'rrl', panel: 'panel', radio: 'radio', other: 'other' };
-    return t[category] || category;
-}
-
 async function apiSearch(query, category, signal) {
     const url = new URL(props.apiUrl, window.location.origin);
     url.searchParams.set('query', query);
-    url.searchParams.set('type', mapTypeForApi(category));
+    url.searchParams.set('type', category);
 
     const res = await fetch(url.toString(), { signal });
     if (!res.ok) throw new Error('Ошибка поиска');
@@ -246,6 +240,13 @@ function selectResult(row, idx, res) {
     closeDropdown(key);
 }
 
+function onMouseEnter(row, idx, rIdx) {
+    // При наведении мышью сбрасываем активный элемент клавиатуры
+    const key = keyOf(row, idx);
+    const st = getState(key);
+    st.active = rIdx;
+}
+
 function onKeyDown(row, idx, e) {
     const key = keyOf(row, idx);
     const st = getState(key);
@@ -341,6 +342,7 @@ function onBlur(row, idx) {
                             :key="res.id"
                             :class="['autocomplete-item', { active: stateFor(item, index).active === rIdx }]"
                             @mousedown.prevent="selectResult(item, index, res)"
+                            @mouseenter="onMouseEnter(item, index, rIdx)"
                         >
                             <div class="title">{{ res.fullName }}</div>
                             <div class="meta">
@@ -641,8 +643,8 @@ function onBlur(row, idx) {
     border-bottom: 1px solid #f1f3f5;
     transition: all 0.15s ease;
     display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
+    flex-direction: row;
+    gap: 1rem;
 }
 
 .autocomplete-item:last-child {
@@ -651,15 +653,15 @@ function onBlur(row, idx) {
 
 .autocomplete-item .title {
     font-weight: 500;
-    color: #2c3e50;
-    font-size: 0.85rem;
+    color: #243442;
+    font-size: 0.9rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .autocomplete-item .meta {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     color: #6c757d;
     display: flex;
     justify-content: space-between;
