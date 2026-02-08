@@ -504,6 +504,10 @@ function onBlur(row, idx) {
     overflow: visible;
 }
 
+.cell-weight {
+    text-align: center;
+}
+
 .editable-cell {
     display: flex;
     flex-direction: column;
@@ -573,11 +577,11 @@ function onBlur(row, idx) {
 }
 
 .btn-remove {
-    background: #e74c3c;
+    background: #f68d82;
 }
 
 .btn-remove:hover {
-    background: #c0392b;
+    background: #ba6e66;
 }
 
 /* Кнопки действий в строке */

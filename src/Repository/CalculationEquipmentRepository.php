@@ -94,6 +94,10 @@ class CalculationEquipmentRepository extends ServiceEntityRepository
             $equipment->setCalculation($calculation);
         }
 
+        if ($equipmentDto->quantity <= 0) {
+            throw new \Exception('Не указано количество оборудования у ' . $equipmentDto->fullName);
+        }
+
         $equipment->setEquipmentGroup($groupEnum)
             ->setEquipmentType($equipmentDto->type)
             ->setQuantity($equipmentDto->quantity)

@@ -27,7 +27,7 @@ final readonly class GetCalculationEquipmentService
             $equipmentDto[$equipmentItem->getEquipmentGroup()->value][$equipmentItem->getEquipmentType()->value][] = new EquipmentDto(
                 id: $equipmentItem->getId(),
                 equipmentId: $equipmentItem->getEquipmentParams()['equipmentId'],
-                fullName: $equipmentItem->getEquipmentGroup()->value,
+                fullName: $equipmentItem->getEquipmentParams()['fullName'],
                 type: $equipmentItem->getEquipmentType(),
                 diameter: $equipmentItem->getEquipmentParams()['diameter'],
                 height: $equipmentItem->getEquipmentParams()['height'],

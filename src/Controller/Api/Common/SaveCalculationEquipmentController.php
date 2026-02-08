@@ -6,6 +6,7 @@ namespace App\Controller\Api\Common;
 
 use App\Controller\Api\AbstractApiController;
 use App\Dto\Calculation\Equipment\AllEquipmentDto;
+use App\Service\Calculation\Equipment\GetCalculationEquipmentService;
 use App\Service\Calculation\Equipment\SaveCalculationEquipmentService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ class SaveCalculationEquipmentController extends AbstractApiController
 {
     public function __construct(
         private readonly SaveCalculationEquipmentService $saveCalculationEquipmentService,
+        private readonly GetCalculationEquipmentService $getCalculationEquipmentService,
         private readonly LoggerInterface $logger
     ) {
     }
@@ -37,7 +39,7 @@ class SaveCalculationEquipmentController extends AbstractApiController
 
             $this->saveCalculationEquipmentService->saveEquipmentForCalculation($equipment, $calculationId);
 
-            return $this->successResponse();
+            return $this->successResponse($this->getCalculationEquipmentService->getEquipmentByCalculationId($calculationId));
         } catch (Throwable $throwable) {
             $this->logger->error(sprintf('Ошибка сохранения оборудования: %s', $throwable->getMessage()), [
                 'trace' => $throwable->getTraceAsString(),

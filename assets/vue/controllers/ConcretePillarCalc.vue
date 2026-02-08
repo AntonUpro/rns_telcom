@@ -448,15 +448,15 @@
             <button @click="calculateAll" class="btn-action btn-action-calc" :disabled="isLoading">
                 {{ isLoading ? 'Выполняется расчет...' : 'Выполнить расчет' }}
             </button>
-            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">
-                Сохранить расчет
-            </button>
+<!--            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">-->
+<!--                Сохранить расчет-->
+<!--            </button>-->
             <button @click="exportToPDF" class="btn-action btn-secondary" :disabled="!calculationResults">
                 Экспорт в PDF
             </button>
-            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">
-                Экспорт в Word
-            </button>
+<!--            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">-->
+<!--                Экспорт в Word-->
+<!--            </button>-->
         </div>
     </div>
 </template>
@@ -806,96 +806,6 @@ const addEquipmentToList = (equipment) => {
     // Очищаем поиск
     equipmentSearchQuery.value = '';
     searchResults.value = [];
-};
-
-const removeEquipmentFromList = (index) => {
-    formData.equipmentData.splice(index, 1);
-};
-
-const getEquipmentTypeName = (type) => {
-    const types = {
-        'rls': 'РЛС',
-        'rrl': 'РРЛ',
-        'panel': 'Панельная',
-        'dish': 'Тарелка',
-        'other': 'Другое'
-    };
-    return types[type] || type;
-};
-
-const calculateEquipmentArea = (equipment) => {
-    // Переводим мм в метры и вычисляем площадь
-    const widthM = equipment.width / 1000;
-    const heightM = equipment.height / 1000;
-    return (widthM * heightM).toFixed(2);
-};
-
-// Вычисляемые свойства для сводки
-const totalEquipmentArea = computed(() => {
-    return formData.equipmentData.reduce((sum, item) => {
-        const widthM = item.width / 1000;
-        const heightM = item.height / 1000;
-        return sum + (widthM * heightM * item.quantity);
-    }, 0);
-});
-
-const totalEquipmentWeight = computed(() => {
-    return formData.equipmentData.reduce((sum, item) => {
-        return sum + (item.weight * item.quantity);
-    }, 0);
-});
-
-// Метод сохранения данных оборудования
-const saveEquipmentData = async () => {
-    if (formData.equipmentData.length === 0) {
-        alert('Добавьте оборудование перед сохранением');
-        return;
-    }
-
-    try {
-        isSavingEquipment.value = true;
-
-        const response = await fetch('/api/v1/save/equipment-data', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                calculationId: props.calculationId,
-                equipmentData: formData.equipmentData.map(item => ({
-                    equipmentId: item.id,
-                    brand: item.brand,
-                    model: item.model,
-                    type: item.type,
-                    width: item.width,
-                    height: item.height,
-                    depth: item.depth,
-                    weight: item.weight,
-                    installationHeight: item.installationHeight,
-                    quantity: item.quantity,
-                    shadingCoefficient: item.shadingCoefficient,
-                    aerodynamicCoefficient: item.aerodynamicCoefficient
-                }))
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Ошибка сохранения данных оборудования');
-        }
-
-        const data = await response.json();
-
-        if (!data.success) {
-            throw new Error('Ошибка сохранения данных оборудования: ' + data.error);
-        }
-
-        alert('Данные оборудования сохранены');
-    } catch (error) {
-        console.error('Ошибка сохранения оборудования:', error);
-        alert('Не удалось сохранить данные оборудования');
-    } finally {
-        isSavingEquipment.value = false;
-    }
 };
 
 // Остальные методы из исходного кода остаются без изменений

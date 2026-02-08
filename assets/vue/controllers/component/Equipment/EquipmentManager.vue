@@ -12,12 +12,7 @@ const props = defineProps({
         type: Boolean,
         default: true
     },
-    initialData: {
-        type: Object,
-        default: () => ({})
-    }
 });
-const emit = defineEmits(['update', 'save']);
 
 const clone = (v) => JSON.parse(JSON.stringify(v ?? {}));
 const ensureList = (list) => Array.isArray(list) ? clone(list) : [];
@@ -32,9 +27,9 @@ function ensureGroup(group) {
 }
 
 const allEquipment = reactive({
-    existEquipment: ensureGroup(props.initialData?.existEquipment),
-    plainEquipment: ensureGroup(props.initialData?.plainEquipment),
-    dismantledEquipment: ensureGroup(props.initialData?.dismantledEquipment),
+    existEquipment: {},
+    plainEquipment: {},
+    dismantledEquipment: {},
 });
 
 const showAddEquipmentPopup = ref(false);
@@ -57,9 +52,19 @@ const handleEquipmentAdded = (equipmentData) => {
     closeAddEquipment();
 };
 
-const saveAll  = async () => {
+const saveEquipment  = async () =>{
     try {
-        // Here you would make the actual API call
+        for (const category in allEquipment) {
+            for (const item of Object.values(allEquipment[category])) {
+                if (category !== 'dismantledEquipment' && item.mountHeight <= 0) {
+                    throw new Error('Не указана высота подвеса оборудования');
+                }
+                if (item.quantity <= 0) {
+                    throw new Error('Не указано количество оборудования');
+                }
+            }
+        }
+
         const response = await fetch('/api/v1/save/calculation/equipment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -69,18 +74,18 @@ const saveAll  = async () => {
             })
         });
 
-        const data = await response.json();
+        const responseData = await response.json();
 
-        if (!response.ok || !data.success) {
-            throw new Error('Ошибка сохранения данных. Ошибка: ' + data.error ? data.error : 'Неизвестная ошибка');
+        if (!response.ok || !responseData.success) {
+            throw new Error('Ошибка сохранения данных. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
         }
 
-        alert('Оборудование сохранено');
+        allEquipment.existEquipment = ensureGroup(responseData.data.existEquipment);
+        allEquipment.plainEquipment = ensureGroup(responseData.data.plainEquipment);
+        allEquipment.dismantledEquipment = ensureGroup(responseData.data.dismantledEquipment);
     } catch (error) {
         console.error('Error saving equipment:', error);
-        alert('Ошибка при сохранении оборудования');
-    } finally {
-        isSaving.value = false;
+        alert('Ошибка при сохранении оборудования: ', error);
     }
 };
 
@@ -91,17 +96,18 @@ const fetchEquipmentData = async () => {
         // Here you would make the actual API call
         const response = await fetch(url.toString());
 
-        const data = await response.json();
+        const responseData = await response.json();
 
-        if (!response.ok || !data.success) {
-            throw new Error('Ошибка получения данных по оборудованию. Ошибка: ' + data.error ? data.error : 'Неизвестная ошибка');
+        if (!response.ok || !responseData.success) {
+            throw new Error('Ошибка получения данных по оборудованию. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
         }
 
+        allEquipment.existEquipment = ensureGroup(responseData.data.existEquipment);
+        allEquipment.plainEquipment = ensureGroup(responseData.data.plainEquipment);
+        allEquipment.dismantledEquipment = ensureGroup(responseData.data.dismantledEquipment);
     } catch (error) {
-        console.error('Error saving equipment:', error);
+        console.error('Error get equipment:', error);
         alert('Ошибка получения данных по оборудованию');
-    } finally {
-        isSaving.value = false;
     }
 };
 
@@ -130,7 +136,7 @@ onMounted(() => {
 
         <div class="table-footer">
             <div class="footer-actions">
-                <button class="btn-save-table" @click="saveAll">Сохранить все</button>
+                <button class="btn-save-table" @click="() => { saveEquipment(); calculateWithWindowResult()}">Сохранить все</button>
                 <button class="btn-add-equipment" @click="openAddEquipment">Добавить оборудование</button>
             </div>
         </div>
