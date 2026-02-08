@@ -25,6 +25,19 @@ enum WindRegionEnum: string
         };
     }
 
+    public function pressureKgPerM(): int
+    {
+        return match($this) {
+            self::I => 23,
+            self::II => 30,
+            self::III => 38,
+            self::IV => 48,
+            self::V => 60,
+            self::VI => 73,
+            self::VII => 85,
+        };
+    }
+
     public function label(): string
     {
         return sprintf('%s (%d Па)', $this->value, $this->pressure());

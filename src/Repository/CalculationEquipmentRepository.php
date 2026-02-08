@@ -47,15 +47,16 @@ class CalculationEquipmentRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string[] $equipmentGroups
      * @return CalculationEquipment[]
      */
-    public function findByCalculationAndGroup(int $calculationId, string $equipmentGroup): array
+    public function findByCalculationAndGroups(int $calculationId, array $equipmentGroups): array
     {
         return $this->createQueryBuilder('ce')
             ->andWhere('ce.calculation = :calculationId')
-            ->andWhere('ce.equipmentGroup = :equipmentGroup')
+            ->andWhere('ce.equipmentGroup IN (:equipmentGroup)')
             ->setParameter('calculationId', $calculationId)
-            ->setParameter('equipmentGroup', $equipmentGroup)
+            ->setParameter('equipmentGroup', $equipmentGroups, ArrayParameterType::STRING)
             ->orderBy('ce.id', 'ASC')
             ->getQuery()
             ->getResult();

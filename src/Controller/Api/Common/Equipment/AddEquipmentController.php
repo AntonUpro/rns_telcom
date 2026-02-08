@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Api\Common;
+namespace App\Controller\Api\Common\Equipment;
 
 use App\Controller\Api\AbstractApiController;
 use App\Dto\Equipment\AddEquipmentDto;

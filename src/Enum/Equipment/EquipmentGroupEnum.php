@@ -16,4 +16,12 @@ enum EquipmentGroupEnum: string
             self::DISMANT => 'Демонтируемое',
         };
     }
+
+    /**
+     * @return string[]
+     */
+    public static function forCalculation(): array
+    {
+        return [self::EXIST->value, self::PLAIN->value];
+    }
 }

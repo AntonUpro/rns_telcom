@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Api\Common;
+namespace App\Controller\Api\Common\Equipment;
 
 use App\Controller\Api\AbstractApiController;
-use App\Dto\Calculation\Equipment\AllEquipmentDto;
 use App\Service\Calculation\Equipment\GetCalculationEquipmentService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;

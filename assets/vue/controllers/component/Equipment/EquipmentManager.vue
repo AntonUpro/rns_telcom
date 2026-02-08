@@ -111,6 +111,29 @@ const fetchEquipmentData = async () => {
     }
 };
 
+const calculateWithWindowResult  = async () =>{
+    try {
+        const response = await fetch('/api/v1/calculation/equipment/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                calculationId: props.calculationId,
+            })
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok || !responseData.success) {
+            throw new Error('Ошибка расчета данных. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
+        }
+
+        console.log(responseData)
+    } catch (error) {
+        console.error('Error saving equipment:', error);
+        alert('Ошибка при сохранении оборудования: ', error);
+    }
+};
+
 onMounted(() => {
     fetchEquipmentData(props.calculationId);
 });

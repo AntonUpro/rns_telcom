@@ -266,6 +266,7 @@ select.form-calculation-control:disabled {
     font-size: 0.85rem;
     cursor: pointer;
     transition: background 0.3s ease;
+    margin-left: 20px;
 }
 
 .btn-save-small:hover:not(:disabled) {

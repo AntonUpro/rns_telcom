@@ -53,7 +53,7 @@ const formatDims = (row) => {
     const h = row?.height ?? 0;
     const w = row?.width ?? 0;
     const d = row?.depth ?? 0;
-    return `${w}×${h}×${d}`;
+    return `${h}×${w}×${d}`;
 };
 
 function addIds(arr) {
@@ -375,9 +375,9 @@ function onBlur(row, idx) {
                 <!-- Прямоугольные: ширина×высота×глубина -->
                 <template v-else>
                     <div v-if="false" class="dimension-inputs">
-                        <input type="number" v-model.number="item.width"  class="table-input small-input number-input" min="0" step="1" placeholder="Шир" />
-                        <span class="dimension-separator">×</span>
                         <input type="number" v-model.number="item.height" class="table-input small-input number-input" min="0" step="1" placeholder="Выс" />
+                        <span class="dimension-separator">×</span>
+                        <input type="number" v-model.number="item.width"  class="table-input small-input number-input" min="0" step="1" placeholder="Шир" />
                         <span class="dimension-separator">×</span>
                         <input type="number" v-model.number="item.depth"  class="table-input small-input number-input" min="0" step="1" placeholder="Гл"  />
                     </div>
