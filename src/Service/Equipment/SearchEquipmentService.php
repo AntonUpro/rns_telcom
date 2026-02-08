@@ -26,7 +26,7 @@ class SearchEquipmentService
       foreach ($searchResult as $result) {
           $response[] = [
               'id' => $result->getId(),
-              'fullName' => $result->getFullName(),
+              'fullName' => $result->getBrand() . ' ' . $result->getModel(),
               'type' => $result->getType()->value,
               'weight' => $result->getWeight(),
               'diameter' => $result->getDiameter(),

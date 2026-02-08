@@ -28,7 +28,8 @@ const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 function makeDefaultRow(category) {
     return {
-        id: uid(),
+        id: null,
+        equipmentId: 0,
         fullName: '',
         type: category,
         diameter: 0,

@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, toRaw, ref} from 'vue';
+import {reactive, toRaw, ref, onMounted} from 'vue';
 import EquipmentTable from './EquipmentTable.vue';
 import AddEquipmentPopup from './AddEquipmentPopup.vue';
 
@@ -57,9 +57,57 @@ const handleEquipmentAdded = (equipmentData) => {
     closeAddEquipment();
 };
 
-const saveAll = () => {
-    emit('save', toRaw(allEquipment));
+const saveAll  = async () => {
+    try {
+        // Here you would make the actual API call
+        const response = await fetch('/api/v1/save/calculation/equipment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                calculationId: props.calculationId,
+                equipment: allEquipment
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error('Ошибка сохранения данных. Ошибка: ' + data.error ? data.error : 'Неизвестная ошибка');
+        }
+
+        alert('Оборудование сохранено');
+    } catch (error) {
+        console.error('Error saving equipment:', error);
+        alert('Ошибка при сохранении оборудования');
+    } finally {
+        isSaving.value = false;
+    }
 };
+
+const fetchEquipmentData = async () => {
+    try {
+        const url = new URL('/api/v1/calculation/equipment', window.location.origin);
+        url.searchParams.set('calculationId', props.calculationId);
+        // Here you would make the actual API call
+        const response = await fetch(url.toString());
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error('Ошибка получения данных по оборудованию. Ошибка: ' + data.error ? data.error : 'Неизвестная ошибка');
+        }
+
+    } catch (error) {
+        console.error('Error saving equipment:', error);
+        alert('Ошибка получения данных по оборудованию');
+    } finally {
+        isSaving.value = false;
+    }
+};
+
+onMounted(() => {
+    fetchEquipmentData(props.calculationId);
+});
 </script>
 
 <template>

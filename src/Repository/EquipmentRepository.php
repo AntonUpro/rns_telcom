@@ -30,7 +30,7 @@ class EquipmentRepository extends ServiceEntityRepository
             ->andWhere('e.type = :type')
             ->andWhere('e.fullName LIKE :query')
             ->setParameter('type', $type)
-            ->setParameter('query', '%' . $query . '%')
+            ->setParameter('query', '%' . mb_strtolower($query) . '%')
             ->getQuery();
 
         return $qb->getResult();

@@ -174,7 +174,7 @@ function performSearch(key, q) {
 
 function normalizeResults(list, category) {
     return (Array.isArray(list) ? list : []).map((it, i) => ({
-        id: it.id ?? `res-${i}-${Math.random().toString(36).slice(2)}`,
+        id: it.id,
         fullName: it.fullName ?? it.name ?? '',
         weight: num(it.weight),
         // размеры
@@ -235,6 +235,7 @@ function selectResult(row, idx, res) {
     }
     row.weight = Number(res.weight) || 0;
     row.fullName = res.fullName || row.fullName;
+    row.equipmentId = res.id;
 
     const key = keyOf(row, idx);
     closeDropdown(key);

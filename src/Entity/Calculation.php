@@ -5,7 +5,10 @@ namespace App\Entity;
 
 use App\Enum\CalculationStatusEnum;
 use App\Enum\CalculationTypeEnum;
+use App\Entity\CalculationEquipment;
 use App\Repository\CalculationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -50,9 +53,13 @@ class Calculation
     #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: CalculationData::class, cascade: ['persist', 'remove'])]
     private ?CalculationData $calculationData = null;
 
+    #[ORM\OneToMany(mappedBy: 'calculation', targetEntity: CalculationEquipment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private \Doctrine\Common\Collections\Collection $calculationEquipments;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
+        $this->calculationEquipments = new ArrayCollection();
     }
 
     #[ORM\PreUpdate]
@@ -181,6 +188,36 @@ class Calculation
         }
 
         $this->calculationData = $calculationData;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CalculationEquipment>
+     */
+    public function getCalculationEquipments(): Collection
+    {
+        return $this->calculationEquipments;
+    }
+
+    public function addCalculationEquipment(CalculationEquipment $calculationEquipment): static
+    {
+        if (!$this->calculationEquipments->contains($calculationEquipment)) {
+            $this->calculationEquipments->add($calculationEquipment);
+            $calculationEquipment->setCalculation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCalculationEquipment(CalculationEquipment $calculationEquipment): static
+    {
+        if ($this->calculationEquipments->removeElement($calculationEquipment)) {
+            // set the owning side to null (unless already changed)
+            if ($calculationEquipment->getCalculation() === $this) {
+                $calculationEquipment->setCalculation(null);
+            }
+        }
 
         return $this;
     }

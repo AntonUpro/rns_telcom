@@ -44,7 +44,7 @@ class AddEquipmentDto
 
     public function buildFullName(): string
     {
-        return sprintf('%s %s', $this->brand, $this->model);
+        return sprintf('%s %s', mb_strtolower($this->brand), mb_strtolower($this->model));
     }
 
     public function isRrlEquipment(): bool
