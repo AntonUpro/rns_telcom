@@ -20,6 +20,7 @@ final readonly class EquipmentDto
         public ?float $depth,
         public float $weight,
         public float $mountHeight,
+        public int $heightGroup,
 
         #[Assert\NotBlank(message: 'Необходимо указать количество оборудования')]
         #[Assert\Range(min: 1, max: 300, minMessage: 'Минимальное колчество оборудования 1')]
@@ -40,6 +41,7 @@ final readonly class EquipmentDto
             depth: $data['depth'],
             weight: $data['weight'],
             mountHeight: $data['mountHeight'],
+            heightGroup: $data['heightGroup'] ?? 0,
             quantity: $data['quantity'],
         );
     }
@@ -57,6 +59,7 @@ final readonly class EquipmentDto
             'depth' => $this->depth,
             'weight' => $this->weight,
             'mountHeight' => $this->mountHeight,
+            'heightGroup' => $this->heightGroup,
             'quantity' => $this->quantity,
         ];
     }

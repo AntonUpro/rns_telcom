@@ -72,6 +72,7 @@ const handleSubmit = async () => {
             brand: formData.brand,
             model: formData.model,
             weight: Number(formData.weight),
+            fromDropdown: false, // Manually added equipment
             ...(isRRL.value
                 ? { diameter: Number(formData.diameter) }
                 : {

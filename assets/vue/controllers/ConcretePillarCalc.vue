@@ -18,6 +18,8 @@ const props = defineProps({
 // Состояние
 const activeTab = ref('initial');
 
+const isLoading = ref(false);
+
 const setActiveTab = (tab) => {
     activeTab.value = tab;
 };
@@ -45,13 +47,6 @@ const calculateAll = async () => {
             isSafe: true,
         };
 
-        calculationResults.value = {
-            pillar: windLoadPillar,
-            equipment: windLoadEquipment,
-            platform: windLoadPlatform,
-            total: totalLoad,
-            calculationDate: new Date().toISOString(),
-        };
     } catch (error) {
         console.error('Calculation error:', error);
         alert('Ошибка при расчете');
@@ -287,7 +282,7 @@ const loadSavedCalculations = () => {
 <!--            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">-->
 <!--                Сохранить расчет-->
 <!--            </button>-->
-            <button @click="exportToPDF" class="btn-action btn-secondary" :disabled="!calculationResults">
+            <button @click="exportToPDF" class="btn-action btn-secondary">
                 Экспорт в PDF
             </button>
 <!--            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">-->

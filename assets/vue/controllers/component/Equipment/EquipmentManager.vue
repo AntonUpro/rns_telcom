@@ -159,7 +159,8 @@ onMounted(() => {
 
         <div class="table-footer">
             <div class="footer-actions">
-                <button class="btn-save-table" @click="() => { saveEquipment(); calculateWithWindowResult()}">Сохранить</button>
+                <button class="btn-save-table" @click="saveEquipment">Сохранить</button>
+                <button class="btn-save-table" @click="() => { saveEquipment(); calculateWithWindowResult()}">Сохранить и показать ПДФ</button>
                 <button class="btn-add-equipment" @click="openAddEquipment">Добавить оборудование</button>
             </div>
         </div>

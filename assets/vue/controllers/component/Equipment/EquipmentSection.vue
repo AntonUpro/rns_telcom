@@ -95,30 +95,6 @@ async function apiSearch(query, category, signal) {
     return responseData.data;
 }
 
-function calculateDropdownPosition(row, idx) {
-    // Get the input element position
-    nextTick(() => {
-        const inputElements = document.querySelectorAll('input.table-input');
-        const targetInput = Array.from(inputElements).find(input =>
-            input.value === row.fullName
-        );
-
-        if (targetInput) {
-            const rect = targetInput.getBoundingClientRect();
-            const panel = document.querySelector('.autocomplete-panel[data-visible="true"]');
-
-            if (panel) {
-                // Position relative to viewport
-                panel.style.position = 'fixed';
-                panel.style.top = (rect.bottom + 2) + 'px';
-                panel.style.left = rect.left + 'px';
-                panel.style.width = rect.width + 'px';
-                panel.style.zIndex = '9999';
-            }
-        }
-    });
-}
-
 function scheduleSearch(row, idx) {
     if (!props.editable) return;
     const key = keyOf(row, idx);
@@ -237,6 +213,9 @@ function selectResult(row, idx, res) {
     row.fullName = res.fullName || row.fullName;
     row.equipmentId = res.id;
 
+    // Mark as selected from dropdown - disable manual editing
+    row.fromDropdown = true;
+
     const key = keyOf(row, idx);
     closeDropdown(key);
 }
@@ -286,6 +265,7 @@ function onBlur(row, idx) {
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
         <td>
             <div class="table-actions" v-if="editable">
                 <button @click="emit('add-item')" class="btn-add-row" title="Добавить строку">
@@ -313,7 +293,6 @@ function onBlur(row, idx) {
                     class="table-input"
                     placeholder="Введите обозначение"
                     @input="scheduleSearch(item, index)"
-                    @focus="scheduleSearch(item, index)"
                     @keydown="onKeyDown(item, index, $event)"
                     @blur="onBlur(item, index)"
                 />
@@ -361,7 +340,7 @@ function onBlur(row, idx) {
                 <!-- RRL: диаметр -->
                 <template v-if="category === 'rrl'">
                     <input
-                        v-if="false"
+                        v-if="editable && (!item.fromDropdown && !item.id)"
                         type="number"
                         v-model.number="item.diameter"
                         class="table-input small-input number-input"
@@ -374,7 +353,7 @@ function onBlur(row, idx) {
 
                 <!-- Прямоугольные: ширина×высота×глубина -->
                 <template v-else>
-                    <div v-if="false" class="dimension-inputs">
+                    <div v-if="editable && (!item.fromDropdown && !item.id)" class="dimension-inputs">
                         <input type="number" v-model.number="item.height" class="table-input small-input number-input" min="0" step="1" placeholder="Выс" />
                         <span class="dimension-separator">×</span>
                         <input type="number" v-model.number="item.width"  class="table-input small-input number-input" min="0" step="1" placeholder="Шир" />
@@ -390,7 +369,7 @@ function onBlur(row, idx) {
         <td class="cell-weight">
             <div class="editable-cell">
                 <input
-                    v-if="false"
+                    v-if="editable && (!item.fromDropdown && !item.id)"
                     type="number"
                     v-model.number="item.weight"
                     class="table-input number-input"
@@ -425,10 +404,26 @@ function onBlur(row, idx) {
                     v-model.number="item.mountHeight"
                     class="table-input number-input"
                     min="0"
+                    max="400"
                     step="0.001"
                     placeholder="м"
                 />
                 <span v-else>{{ item.mountHeight ?? '—' }}</span>
+            </div>
+        </td>
+
+        <!-- Высотная группа -->
+        <td class="cell-height-group">
+            <div class="editable-cell">
+                <input
+                    v-if="editable"
+                    type="number"
+                    v-model.number="item.heightGroup"
+                    class="table-input number-input"
+                    min="1"
+                    step="1"
+                />
+                <span v-else>{{ item.heightGroup }}</span>
             </div>
         </td>
 
@@ -539,7 +534,8 @@ function onBlur(row, idx) {
 }
 
 .small-input {
-    width: 60px;
+    width: 70px;
+    margin: 0;
 }
 
 .dimensions-cell {

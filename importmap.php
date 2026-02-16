@@ -12,42 +12,38 @@
  * The "importmap:require" command can be used to add new entries to this file.
  */
 return [
-//    'app' => [
-//        'path' => './assets/app.js',
-//        'entrypoint' => true,
-//    ],
-//    '@hotwired/stimulus' => [
-//        'version' => '3.2.2',
-//    ],
-//    '@symfony/stimulus-bundle' => [
-//        'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
-//    ],
-//    '@hotwired/turbo' => [
-//        'version' => '7.3.0',
-//    ],
-//    'vue' => [
-//        'version' => '3.5.26',
-//        'package_specifier' => 'vue/dist/vue.esm-bundler.js',
-//    ],
-//    '@vue/runtime-dom' => [
-//        'version' => '3.5.26',
-//    ],
-//    '@vue/compiler-dom' => [
-//        'version' => '3.5.26',
-//    ],
-//    '@vue/shared' => [
-//        'version' => '3.5.26',
-//    ],
-//    '@vue/runtime-core' => [
-//        'version' => '3.5.26',
-//    ],
-//    '@vue/compiler-core' => [
-//        'version' => '3.5.26',
-//    ],
-//    '@vue/reactivity' => [
-//        'version' => '3.5.26',
-//    ],
-//    '@symfony/ux-vue' => [
-//        'path' => './vendor/symfony/ux-vue/assets/dist/loader.js',
-//    ],
+    '@hotwired/stimulus' => [
+        'version' => '3.2.2',
+    ],
+    '@symfony/stimulus-bundle' => [
+        'path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js',
+    ],
+    '@hotwired/turbo' => [
+        'version' => '7.3.0',
+    ],
+    'vue' => [
+        'version' => '3.5.28',
+        'package_specifier' => 'vue/dist/vue.esm-bundler.js',
+    ],
+    '@vue/runtime-dom' => [
+        'version' => '3.5.28',
+    ],
+    '@vue/compiler-dom' => [
+        'version' => '3.5.28',
+    ],
+    '@vue/shared' => [
+        'version' => '3.5.28',
+    ],
+    '@vue/runtime-core' => [
+        'version' => '3.5.28',
+    ],
+    '@vue/compiler-core' => [
+        'version' => '3.5.28',
+    ],
+    '@vue/reactivity' => [
+        'version' => '3.5.28',
+    ],
+    '@symfony/ux-vue' => [
+        'path' => './vendor/symfony/ux-vue/assets/dist/loader.js',
+    ],
 ];

@@ -77,7 +77,7 @@ final readonly class CalculationWindEquipmentService
 
         foreach ($calculationEquipments as $equipment) {
             $equipmentDto = $equipmentsDto[$equipment->getId()];
-            $result[$equipment->getEquipmentGroup()->value][$equipment->getEquipmentType()->value][] = new EquipmentCalculationResult(
+            $result[$equipment->getEquipmentGroup()->value][$equipment->getEquipmentType()->value][] = (new EquipmentCalculationResult(
                 fullName: $equipment->getEquipmentParams()['fullName'],
                 quantity: $equipment->getQuantity(),
                 monthHeight: $equipment->getMountingHeight(),
@@ -92,7 +92,7 @@ final readonly class CalculationWindEquipmentService
                 cxPipeStand: 1.3,
                 shadingCoefficient: EquipmentCalculator::SECURITY_COEFFICIENT,
                 pressOnOneEquipment: $equipmentDto->pressOnOneEquipment(),
-            );
+            ))->toArray();
         }
 
         return $result;

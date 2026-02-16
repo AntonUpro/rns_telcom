@@ -113,6 +113,7 @@ class CalculationEquipmentRepository extends ServiceEntityRepository
                     'depth' => $equipmentDto->depth,
                     'weight' => $equipmentDto->weight,
                     'fullName' => $equipmentDto->fullName,
+                    'heightGroup' => $equipmentDto->heightGroup,
                 ]
             )
             ->setUpdatedAtValue();

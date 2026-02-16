@@ -47,7 +47,7 @@ const formData = reactive({
     // Материалы
     concreteClass: 'B25',
     reinforcementClass: 'A400',
-    reinforcementDiameter: 12,
+    reinforcementDiameter: 0.1,
     reinforcementCount: 8,
     concreteDensity: 2500,
     workingConditions: 1.0,
@@ -350,30 +350,6 @@ onMounted(() => {
                         class="form-calculation-control compact-input"
                     />
                 </div>
-                <div class="form-group compact-group">
-                    <label>Широта:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.latitude"
-                            class="form-calculation-control compact-input"
-                            step="0.000001"
-                        />
-                        <span class="unit">°</span>
-                    </div>
-                </div>
-                <div class="form-group compact-group">
-                    <label>Долгота:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.longitude"
-                            class="form-calculation-control compact-input"
-                            step="0.000001"
-                        />
-                        <span class="unit">°</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -530,40 +506,81 @@ onMounted(() => {
         </div>
     </div>
 
-    <!-- Секция 4: Материалы -->
+    <!-- Секция 4: Значения по умолчанию -->
     <div class="data-section compact-section">
         <div
             class="section-header"
             @click="toggleSection('materials')"
             :class="{ active: openedSections.materials }"
         >
-            <h3>4. Материалы</h3>
+            <h3>4. Значения по умолчанию</h3>
             <span class="toggle-icon">+</span>
         </div>
         <div class="section-content" :class="{ active: openedSections.materials }">
             <div class="form-grid compact-grid">
+                <!-- Площадь лестницы-->
                 <div class="form-group compact-group">
-                    <label>Класс бетона:</label>
-                    <select v-model="formData.concreteClass" class="form-calculation-control compact-input">
-                        <option value="B15">B15</option>
-                        <option value="B20">B20</option>
-                        <option value="B25">B25</option>
-                        <option value="B30">B30</option>
-                        <option value="B35">B35</option>
-                        <option value="B40">B40</option>
-                    </select>
+                    <label>Площадь лестницы на 1 метр погонный:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.reinforcementDiameter"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0"
+                            max="1"
+                        />
+                        <span class="unit">м. кв.</span>
+                    </div>
                 </div>
+                <!-- Отметка низа лестницы-->
                 <div class="form-group compact-group">
-                    <label>Класс арматуры:</label>
-                    <select v-model="formData.reinforcementClass" class="form-calculation-control compact-input">
-                        <option value="A240">A240</option>
-                        <option value="A400">A400</option>
-                        <option value="A500">A500</option>
-                        <option value="A600">A600</option>
-                    </select>
+                    <label>Отметка низа лестницы:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.reinforcementDiameter"
+                            class="form-calculation-control compact-input"
+                            step="0.1"
+                            min="0"
+                            max="40"
+                        />
+                        <span class="unit">м</span>
+                    </div>
                 </div>
+                <!-- Площадь кабельроста-->
                 <div class="form-group compact-group">
-                    <label>Диаметр арматуры:</label>
+                    <label>Площадь кабельроста на 1 метр погонный:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.reinforcementDiameter"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0"
+                            max="1"
+                        />
+                        <span class="unit">м. кв.</span>
+                    </div>
+                </div>
+                <!-- Отметка низа кабельроста-->
+                <div class="form-group compact-group">
+                    <label>Отметка низа кабельроста:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.reinforcementDiameter"
+                            class="form-calculation-control compact-input"
+                            step="0.1"
+                            min="0"
+                            max="40"
+                        />
+                        <span class="unit">м</span>
+                    </div>
+                </div>
+                <!-- Отметка низа кабельной трассы-->
+                <div class="form-group compact-group">
+                    <label>Отметка низа кабельной трассы:</label>
                     <div class="input-with-unit">
                         <input
                             type="number"
@@ -576,15 +593,64 @@ onMounted(() => {
                         <span class="unit">мм</span>
                     </div>
                 </div>
+                <!-- Коэффициент затенения РРЛ-->
                 <div class="form-group compact-group">
-                    <label>Количество стержней:</label>
+                    <label>Коэффициент затенения РРЛ:</label>
                     <input
                         type="number"
                         v-model.number="formData.reinforcementCount"
                         class="form-calculation-control compact-input"
-                        step="1"
-                        min="4"
-                        max="20"
+                        step="0.01"
+                        min="0.1"
+                        max="1"
+                    />
+                </div>
+                <!-- Коэффициент затенения панельных антенн-->
+                <div class="form-group compact-group">
+                    <label>Коэффициент затенения панельных антенн:</label>
+                    <input
+                        type="number"
+                        v-model.number="formData.reinforcementCount"
+                        class="form-calculation-control compact-input"
+                        step="0.01"
+                        min="0.1"
+                        max="1"
+                    />
+                </div>
+                <!-- Коэффициент затенения радиоблоков антенн-->
+                <div class="form-group compact-group">
+                    <label>Коэффициент затенения радиоблоков:</label>
+                    <input
+                        type="number"
+                        v-model.number="formData.reinforcementCount"
+                        class="form-calculation-control compact-input"
+                        step="0.01"
+                        min="0.1"
+                        max="1"
+                    />
+                </div>
+                <!-- Коэффициент затенения другого оборудования-->
+                <div class="form-group compact-group">
+                    <label>Коэффициент затенения другого оборудования:</label>
+                    <input
+                        type="number"
+                        v-model.number="formData.reinforcementCount"
+                        class="form-calculation-control compact-input"
+                        step="0.01"
+                        min="0.1"
+                        max="1"
+                    />
+                </div>
+                <!-- Коэффициент затенения кабельной трассы-->
+                <div class="form-group compact-group">
+                    <label>Коэффициент затенения кабельной трассы:</label>
+                    <input
+                        type="number"
+                        v-model.number="formData.reinforcementCount"
+                        class="form-calculation-control compact-input"
+                        step="0.01"
+                        min="0.1"
+                        max="1"
                     />
                 </div>
                 <div class="form-group compact-group">

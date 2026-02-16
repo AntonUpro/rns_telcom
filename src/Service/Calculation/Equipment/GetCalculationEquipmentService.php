@@ -35,6 +35,7 @@ final readonly class GetCalculationEquipmentService
                 depth: $equipmentItem->getEquipmentParams()['depth'],
                 weight: $equipmentItem->getEquipmentParams()['weight'],
                 mountHeight: $equipmentItem->getMountingHeight(),
+                heightGroup: $equipmentItem->getEquipmentParams()['heightGroup'] ?? 0,
                 quantity: $equipmentItem->getQuantity(),
             );
         }

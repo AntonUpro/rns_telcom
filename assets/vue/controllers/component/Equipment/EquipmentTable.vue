@@ -38,7 +38,9 @@ function makeDefaultRow(category) {
         depth: 0,
         quantity: 1,
         weight: 0,
-        mountHeight: 0 // отдельное поле для "Отметка подвеса, м"
+        mountHeight: 0, // отдельное поле для "Отметка подвеса, м"
+        heightGroup: null,
+        fromDropdown: false // флаг для отслеживания источника ввода
     };
 }
 
@@ -119,7 +121,8 @@ const toggleSection = (section) => {
                 <th class="column-dimensions">Габариты, мм</th>
                 <th class="column-weight">Масса, кг</th>
                 <th class="column-quantity">Кол-во</th>
-                <th class="column-height">Отметка подвеса, м</th>
+                <th class="column-height">Отметка<br> подвеса, м</th>
+                <th class="column-height-group">Высотная<br> группа</th>
                 <th class="column-actions">Действия</th>
             </tr>
             </thead>
@@ -175,6 +178,7 @@ const toggleSection = (section) => {
                 <td class="summary-value">—</td>
                 <td class="summary-value">{{ formatWeight(totalWeight) }}</td>
                 <td class="summary-value">{{ totalQuantity }}</td>
+                <td class="summary-value">—</td>
                 <td class="summary-value">—</td>
                 <td class="summary-value">—</td>
             </tr>
@@ -237,7 +241,7 @@ const toggleSection = (section) => {
 
 /* Колонки */
 .column-designation {
-    width: 40%;
+    width: 31%;
     text-align: left !important;
 }
 
@@ -246,7 +250,7 @@ const toggleSection = (section) => {
 }
 
 .column-dimensions {
-    width: 20%;
+    width: 25%;
 }
 
 .column-weight {
@@ -254,11 +258,15 @@ const toggleSection = (section) => {
 }
 
 .column-height {
-    width: 12%;
+    width: 8%;
+}
+
+.column-height-group {
+    width: 10%;
 }
 
 .column-actions {
-    width: 10%;
+    width: 8%;
 }
 
 /* Итоговая строка */
