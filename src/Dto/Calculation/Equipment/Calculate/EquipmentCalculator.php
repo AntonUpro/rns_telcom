@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace App\Dto\Calculation\Equipment\Calculate;
 
+use App\Dto\DefaultConstant;
 use App\Enum\CalculationData\TerrainTypeEnum;
 use App\Enum\CalculationData\WindRegionEnum;
 use App\Enum\Equipment\EquipmentTypeEnum;
 
 final readonly class EquipmentCalculator
 {
-    public const SECURITY_COEFFICIENT = 1.4;
-
     public function __construct(
         public AbstractCalculatorEquipment $equipment,
         public WindRegionEnum $windRegion,
@@ -27,7 +26,7 @@ final readonly class EquipmentCalculator
         return $this->equipment->calcArea() // площадь
             * $this->getKze() // k(z)
             * $this->windRegion->pressureKgPerM() // ветровое давление
-            * self::SECURITY_COEFFICIENT // коэффициент надежности
+            * DefaultConstant::SECURITY_COEFFICIENT // коэффициент надежности
             * $this->calculateShading() // коэффициент затмения
             * $this->equipment->calcCX() // коэффициент Cx
             ;

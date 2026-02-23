@@ -2,6 +2,7 @@
 import {ref, reactive, computed, onMounted} from 'vue';
 import EquipmentManager from "./component/Equipment/EquipmentManager.vue";
 import TotalDataManager from "./component/TotalData/TotalDataManager.vue";
+import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager.vue";
 
 const props = defineProps({
     user: {
@@ -253,10 +254,10 @@ const loadSavedCalculations = () => {
             </div>
 
             <div v-if="activeTab === 'wind-pillar'" class="tab-content active">
-                <!-- Содержимое таба 3 из исходного кода -->
-                <div class="form-grid">
-                    <!-- ... ваш существующий код для ветра на оборудование ... -->
-                </div>
+                <WindEquipmentManager
+                    :calculation-id="calculationId"
+                    :editable="true"
+                />
             </div>
 
             <div v-if="activeTab === 'wind-platform'" class="tab-content active">

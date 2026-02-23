@@ -24,4 +24,9 @@ enum EquipmentGroupEnum: string
     {
         return [self::EXIST->value, self::PLAIN->value];
     }
+
+    public function isDismant(): bool
+    {
+        return $this === self::DISMANT;
+    }
 }

@@ -211,6 +211,11 @@ class CalculationData
         return $this->amsHeight;
     }
 
+    public function getAmsHeightMm(): float
+    {
+        return (float) $this->amsHeight * 1000;
+    }
+
     public function setAmsHeight(?string $amsHeight): static
     {
         $this->amsHeight = $amsHeight;

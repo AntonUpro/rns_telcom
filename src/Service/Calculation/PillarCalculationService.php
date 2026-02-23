@@ -65,8 +65,9 @@ final readonly class PillarCalculationService
             $calculationData->setSnowRegion(SnowRegionEnum::tryFrom($calculationDataDto->climateData->snowRegion));
             $calculationData->setIcingRegion(IcingRegionEnum::tryFrom($calculationDataDto->climateData->iceRegion));
             $calculationData->setSpecificDataObject((new ConcretePillarSpecificData(
-                $calculationDataDto->pillarData->pillarStamp,
-                $calculationDataDto->pillarData->strengtheningExist,
+                pillarStamp: $calculationDataDto->pillarData->pillarStamp,
+                markBottom: $calculationDataDto->pillarData->markBottom ?? 0,
+                strengtheningExist: $calculationDataDto->pillarData->strengtheningExist,
             )));
 
             $this->entityManager->persist($calculationData);

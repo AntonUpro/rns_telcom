@@ -8,6 +8,7 @@ use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculationResult;
 use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculator;
 use App\Dto\Calculation\Equipment\Calculate\RectangleEquipmentForCalculationDto;
 use App\Dto\Calculation\Equipment\Calculate\RoundEquipmentForCalculationDto;
+use App\Dto\DefaultConstant;
 use App\Enum\Equipment\EquipmentGroupEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationEquipmentRepository;
@@ -90,7 +91,7 @@ final readonly class CalculationWindEquipmentService
                 kLambda: $equipmentDto->equipment->calcKLambda(),
                 cxEquipment: $equipmentDto->equipment->calcCX(),
                 cxPipeStand: 1.3,
-                shadingCoefficient: EquipmentCalculator::SECURITY_COEFFICIENT,
+                shadingCoefficient: DefaultConstant::SECURITY_COEFFICIENT,
                 pressOnOneEquipment: $equipmentDto->pressOnOneEquipment(),
             ))->toArray();
         }

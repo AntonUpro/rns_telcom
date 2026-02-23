@@ -26,7 +26,6 @@ final class SaveGeneralDataController extends AbstractApiController
     }
 
     #[Route('/save/general-data', name: 'api_save_general_data', methods: ['POST'])]
-
     public function saveGeneralData(Request $request): JsonResponse
     {
         try {

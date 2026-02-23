@@ -34,4 +34,9 @@ enum EquipmentTypeEnum: string
     {
         return $this === self::RRL;
     }
+
+    public function isRadio(): bool
+    {
+        return $this === self::RADIO;
+    }
 }
