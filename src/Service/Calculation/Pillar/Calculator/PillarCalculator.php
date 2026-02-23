@@ -26,7 +26,7 @@ final class PillarCalculator
     public function calculate(): PartSectionDto
     {
         $area = $this->sectionDto->getContourArea() / 1000 / 1000;
-        $cx = $this->calcCx();
+        $cx = $this->sectionDto->formConstruct->isCircle() ? $this->calcCx() : 1.4;
 
         $press = $this->windRegionEnum->pressureKgPerM()
             * $this->terrainTypeEnum->roughnessCoefficient(height: $this->sectionDto->middleMark() / 1000)

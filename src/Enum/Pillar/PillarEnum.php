@@ -240,4 +240,14 @@ enum PillarEnum: string
     {
         return 2 * ($height / (($this->getDiameterAtHeight($this->getHeight() - $height) + $this->getTopDiameter()) / 2));
     }
+
+    public static function choices(): array
+    {
+        $choices = [];
+        foreach (self::cases() as $case) {
+            $choices[$case->value] = $case->value;
+        }
+
+        return $choices;
+    }
 }

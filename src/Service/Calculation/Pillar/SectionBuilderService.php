@@ -19,10 +19,11 @@ class SectionBuilderService
     public function build(PillarEnum $pillarEnum, float $height, float $markBottom, ?StrengtheningDto $strengtheningDto): array
     {
         $sections = [];
-        $heightStrengthening = $strengtheningDto?->height ?? 0;
+        $heightStrengthening = ($strengtheningDto?->height ?? 0) * 1000;
         $countSectionsInPillar = (int)ceil(($height - $heightStrengthening) / self::HEIGHT_OF_SECTION);
+        $totalCountSection = $countSectionsInPillar + ceil(($heightStrengthening ?: 0) / self::HEIGHT_OF_SECTION);
 
-        $numberSection = 1;
+        $numberSection = (int)$totalCountSection;
         for ($i = 0; $i < $countSectionsInPillar; $i++) {
             $heightSection = $i === $countSectionsInPillar - 1
                 ? $height - ($countSectionsInPillar - 1) * self::HEIGHT_OF_SECTION - $heightStrengthening
@@ -35,7 +36,7 @@ class SectionBuilderService
                 topMark: $markBottom + $height - self::HEIGHT_OF_SECTION * $i,
                 formConstruct: FormConstructEnum::CIRCLE,
             );
-            $numberSection++;
+            $numberSection--;
         }
 
         if ($strengtheningDto) {
@@ -47,13 +48,16 @@ class SectionBuilderService
                 $sections[] = new SectionDto(
                     number: $numberSection,
                     height: $heightSection,
-                    diameterTop: $strengtheningDto->width,
-                    diameterBottom: $strengtheningDto->width,
-                    topMark: $markBottom + $height - self::HEIGHT_OF_SECTION * $i,
+                    diameterTop: $strengtheningDto->width * 1000,
+                    diameterBottom: $strengtheningDto->width * 1000,
+                    topMark: $markBottom + $heightStrengthening - self::HEIGHT_OF_SECTION * $i,
                     formConstruct: $strengtheningDto->type,
                 );
+                $numberSection--;
             }
         }
+
+        sort($sections);
 
         return $sections;
     }

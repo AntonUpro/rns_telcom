@@ -41,7 +41,7 @@ enum SnowRegionEnum: string
     {
         $choices = [];
         foreach (self::cases() as $case) {
-            $choices[$case->label() . ' (' . $case->snowLoad() . ' кПа)'] = $case->value;
+            $choices[$case->value] = $case->label() . ' (' . $case->snowLoad() . ' кПа)';
         }
         return $choices;
     }

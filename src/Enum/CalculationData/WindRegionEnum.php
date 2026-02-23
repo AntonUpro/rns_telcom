@@ -40,14 +40,14 @@ enum WindRegionEnum: string
 
     public function label(): string
     {
-        return sprintf('%s (%d Па)', $this->value, $this->pressure());
+        return sprintf('%s (%d Па, %d кг/м²)', $this->value, $this->pressure(), $this->pressureKgPerM());
     }
 
     public static function choices(): array
     {
         $choices = [];
         foreach (self::cases() as $case) {
-            $choices[$case->label()] = $case->value;
+            $choices[$case->value] = $case->label();
         }
         return $choices;
     }

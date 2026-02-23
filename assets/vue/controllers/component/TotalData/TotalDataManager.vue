@@ -75,6 +75,13 @@ const isLoading = ref(false);
 const isSaving = ref(false);
 const savedCalculations = ref([]);
 
+// Dynamic data from API
+const windRegions = ref([]);
+const terrainTypes = ref([]);
+const snowRegions = ref([]);
+const icingRegions = ref([]);
+const pillarTypes = ref([]);
+
 // Методы
 const toggleSection = (section) => {
     openedSections[section] = !openedSections[section];
@@ -135,6 +142,61 @@ const fetchGeneralData = async () => {
     } catch (error) {
         console.error('Ошибка загрузки данных по расчету:', error);
         alert('Не удалось загрузить данные по расчету');
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const fetchPillarTotalInfo = async () => {
+    try {
+        isLoading.value = true;
+
+        const response = await fetch('/api/v1/information/total-info-pillar', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error('Ошибка при загрузке справочных данных');
+        }
+
+        const data = await response.json();
+
+        if (!data.success) {
+            throw new Error('Не удалось загрузить справочные данные. Ошибка: ' + data.error);
+        }
+
+        // Populate dynamic data
+        windRegions.value = Object.entries(data.data.windRegions || {}).map(([value, label]) => ({
+            value,
+            label
+        }));
+
+        terrainTypes.value = Object.entries(data.data.terrainTypes || {}).map(([value, label]) => ({
+            value,
+            label
+        }));
+
+        snowRegions.value = Object.entries(data.data.snowRegions || {}).map(([value, label]) => ({
+            value,
+            label
+        }));
+
+        icingRegions.value = Object.entries(data.data.icingRegions || {}).map(([value, label]) => ({
+            value,
+            label
+        }));
+
+        pillarTypes.value = Object.entries(data.data.pillarTypes || {}).map(([value, label]) => ({
+            value,
+            label
+        }));
+
+    } catch (error) {
+        console.error('Ошибка загрузки справочных данных:', error);
+        alert('Не удалось загрузить справочные данные');
     } finally {
         isLoading.value = false;
     }
@@ -247,13 +309,18 @@ const loadSavedCalculations = () => {
     }
 };
 
-onMounted(() => {
-    fetchGeneralData();
+onMounted(async () => {
+    await fetchPillarTotalInfo();
+    await fetchGeneralData();
     // loadSavedCalculations();
 });
 </script>
 
 <template>
+    <div v-if="isLoading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Загрузка справочных данных...</p>
+    </div>
     <div class="data-section compact-section">
         <div
             class="section-header"
@@ -369,43 +436,33 @@ onMounted(() => {
                 <div class="form-group compact-group">
                     <label>Ветровой район:</label>
                     <select v-model="formData.windRegion" class="form-calculation-control compact-input">
-                        <option value="I">I (Wo = 230 Па)</option>
-                        <option value="II">II (Wo = 300 Па)</option>
-                        <option value="III">III (Wo = 380 Па)</option>
-                        <option value="IV">IV (Wo = 480 Па)</option>
-                        <option value="V">V (Wo = 600 Па)</option>
-                        <option value="VI">VI (Wo = 730 Па)</option>
-                        <option value="VII">VII (Wo = 850 Па)</option>
+                        <option v-for="region in windRegions" :key="region.value" :value="region.value">
+                            {{ region.label }}
+                        </option>
                     </select>
                 </div>
                 <div class="form-group compact-group">
                     <label>Тип местности:</label>
                     <select v-model="formData.terrainType" class="form-calculation-control compact-input">
-                        <option value="A">A - Открытые побережья, водоемы</option>
-                        <option value="B">B - Полевые, сельские местности</option>
-                        <option value="C">C - Городские территории</option>
+                        <option v-for="type in terrainTypes" :key="type.value" :value="type.value">
+                            {{ type.label }}
+                        </option>
                     </select>
                 </div>
                 <div class="form-group compact-group">
                     <label>Снеговой район:</label>
                     <select v-model="formData.snowRegion" class="form-calculation-control compact-input">
-                        <option value="I">I (Sg = 800 Па)</option>
-                        <option value="II">II (Sg = 1200 Па)</option>
-                        <option value="III">III (Sg = 1800 Па)</option>
-                        <option value="IV">IV (Sg = 2400 Па)</option>
-                        <option value="V">V (Sg = 3200 Па)</option>
-                        <option value="VI">VI (Sg = 4000 Па)</option>
-                        <option value="VII">VII (Sg = 5600 Па)</option>
+                        <option v-for="region in snowRegions" :key="region.value" :value="region.value">
+                            {{ region.label }}
+                        </option>
                     </select>
                 </div>
                 <div class="form-group compact-group">
                     <label>Гололедный район:</label>
                     <select v-model="formData.iceRegion" class="form-calculation-control compact-input">
-                        <option value="I">I (b = 5 мм)</option>
-                        <option value="II">II (b = 10 мм)</option>
-                        <option value="III">III (b = 15 мм)</option>
-                        <option value="IV">IV (b = 20 мм)</option>
-                        <option value="V">V (b = 25 мм)</option>
+                        <option v-for="region in icingRegions" :key="region.value" :value="region.value">
+                            {{ region.label }}
+                        </option>
                     </select>
                 </div>
             </div>
@@ -427,11 +484,9 @@ onMounted(() => {
                 <div class="form-group compact-group">
                     <label>Выберите марку столба:</label>
                     <select v-model="formData.pillarStamp" class="form-calculation-control compact-input">
-                        <option value="СК26-1.1">СК26.1-1.1</option>
-                        <option value="СК26-1.2">СК26.1-1.2</option>
-                        <option value="СК26-1.3">СК26.1-1.3</option>
-                        <option value="СК26-5.1">СК26.1-5.1</option>
-                        <option value="СК26-6.1">СК26.1-6.1</option>
+                        <option v-for="pillar in pillarTypes" :key="pillar.value" :value="pillar.value">
+                            {{ pillar.label }}
+                        </option>
                     </select>
                 </div>
                 <div class="form-group compact-group checkbox-group">
@@ -689,5 +744,38 @@ onMounted(() => {
 </template>
 
 <style scoped>
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
 
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+    color: #6c757d;
+    font-size: 1rem;
+    margin: 0;
+}
 </style>

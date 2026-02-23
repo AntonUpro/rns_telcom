@@ -48,10 +48,9 @@ class PillarWindLoadCalculationService
             markBottom: $calculationData->getConcretePillarSpecificData()->buttomMark ?? 0,
             strengtheningDto: $calculationData->getConcretePillarSpecificData()->strengtheningExist
                 ? new StrengtheningDto(
-                    height: 100,
-                    width: 100,
-                    depth: 100,
-                    type: FormConstructEnum::SQUARE,
+                    height: $calculationData->getConcretePillarSpecificData()->strengthening->strengtheningHeight,
+                    width: $calculationData->getConcretePillarSpecificData()->strengthening->strengtheningWidth,
+                    type: FormConstructEnum::from($calculationData->getConcretePillarSpecificData()->strengthening->strengtheningGeometry),
                 )
                 : null,
         );

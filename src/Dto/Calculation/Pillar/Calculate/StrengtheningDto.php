@@ -11,7 +11,6 @@ final readonly class StrengtheningDto
     public function __construct(
         public float $height,
         public float $width,
-        public float $depth,
         public FormConstructEnum $type
     ) {
     }

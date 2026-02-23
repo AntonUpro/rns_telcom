@@ -10,6 +10,7 @@ use App\Dto\Calculation\PillarDataDto;
 use App\Dto\Calculation\TotalDataDto;
 use App\Entity\CalculationData;
 use App\Entity\JsonData\ConcretePillarSpecificData;
+use App\Entity\JsonData\Dto\Strengthening;
 use App\Enum\CalculationData\IcingRegionEnum;
 use App\Enum\CalculationData\SnowRegionEnum;
 use App\Enum\CalculationData\TerrainTypeEnum;
@@ -68,6 +69,13 @@ final readonly class PillarCalculationService
                 pillarStamp: $calculationDataDto->pillarData->pillarStamp,
                 markBottom: $calculationDataDto->pillarData->markBottom ?? 0,
                 strengtheningExist: $calculationDataDto->pillarData->strengtheningExist,
+                strengthening: $calculationDataDto->pillarData->strengtheningExist
+                    ? new Strengthening(
+                        strengtheningGeometry: $calculationDataDto->pillarData->strengtheningGeometry,
+                        strengtheningWidth: $calculationDataDto->pillarData->strengtheningWidth,
+                        strengtheningHeight: $calculationDataDto->pillarData->strengtheningHeight,
+                        allowedMoment: $calculationDataDto->pillarData->allowedMoment,
+                    ) : null,
             )));
 
             $this->entityManager->persist($calculationData);

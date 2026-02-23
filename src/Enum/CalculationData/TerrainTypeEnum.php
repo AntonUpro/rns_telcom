@@ -129,7 +129,7 @@ enum TerrainTypeEnum: string
     {
         $choices = [];
         foreach (self::cases() as $case) {
-            $choices[$case->label()] = $case->value;
+            $choices[$case->value] = $case->label();
         }
         return $choices;
     }

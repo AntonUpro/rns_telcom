@@ -174,6 +174,10 @@ onMounted(() => {
     border-spacing: 0;
 }
 
+.table tbody {
+    font-size: 14px;
+}
+
 .table th,
 .table td {
     padding: 12px 15px;

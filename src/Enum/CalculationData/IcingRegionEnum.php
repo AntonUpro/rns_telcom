@@ -47,7 +47,7 @@ enum IcingRegionEnum: string
     {
         $choices = [];
         foreach (self::cases() as $case) {
-            $choices[$case->label() . ' - ' . $case->description()] = $case->value;
+            $choices[$case->value] = $case->label() . ' - ' . $case->description();
         }
         return $choices;
     }
