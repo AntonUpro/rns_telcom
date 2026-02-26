@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\JsonData\Dto;
 
-class Strengthening
+final class Strengthening
 {
     public function __construct(
         public readonly string $strengtheningGeometry,

@@ -42,4 +42,9 @@ final readonly class SectionDto
     {
         return $this->topMark - $this->height / 2;
     }
+
+    public function buttonMark(): float
+    {
+        return $this->topMark - $this->height;
+    }
 }

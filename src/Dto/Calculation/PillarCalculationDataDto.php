@@ -19,11 +19,14 @@ class PillarCalculationDataDto
 
         #[Assert\Valid]
         public ?PillarDataDto $pillarData = null,
+
+        public ?array $defaultValues = null,
     ) {
         // Инициализируем вложенные DTO если они null
         $this->totalData ??= new TotalDataDto();
         $this->climateData ??= new ClimateDataDto();
         $this->pillarData ??= new PillarDataDto();
+        $this->defaultValues ??= [];
     }
 
     public function toArray(): array
@@ -32,6 +35,7 @@ class PillarCalculationDataDto
             'totalData' => $this->totalData?->toArray(),
             'climateData' => $this->climateData?->toArray(),
             'pillarData' => $this->pillarData?->toArray(),
+            'defaultValues' => $this->defaultValues,
         ];
     }
 
@@ -42,6 +46,7 @@ class PillarCalculationDataDto
             totalData: isset($data['totalData']) ? TotalDataDto::fromArray($data['totalData']) : null,
             climateData: isset($data['climateData']) ? ClimateDataDto::fromArray($data['climateData']) : null,
             pillarData: isset($data['pillarData']) ? PillarDataDto::fromArray($data['pillarData']) : null,
+            defaultValues: $data['defaultValues'] ?? null,
         );
     }
 
@@ -83,6 +88,7 @@ class PillarCalculationDataDto
                     ? (float) $formData['pillarData']['allowedMoment']
                     : null,
             ),
+            defaultValues: $formData['defaultValues'] ?? null,
         );
     }
 

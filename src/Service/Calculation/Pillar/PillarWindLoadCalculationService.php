@@ -67,14 +67,14 @@ class PillarWindLoadCalculationService
                 sectionDto: $sectionCalculation,
                 windRegionEnum: $calculationData->getWindRegion(),
                 terrainTypeEnum: $calculationData->getTerrainType(),
-                areaInMeter: $calculationData->getConcretePillarSpecificData()->areaInMeterCabelChanel ?? 0,
+                defaultValues: $calculationData->getConcretePillarSpecificData()->defaultValues,
             );
 
             $ladderCalculator = new LadderCalculator(
                 sectionDto: $sectionCalculation,
                 windRegionEnum: $calculationData->getWindRegion(),
                 terrainTypeEnum: $calculationData->getTerrainType(),
-                areaInMeter: $calculationData->getConcretePillarSpecificData()->areaInMeterLadder ?? 0,
+                defaultValues: $calculationData->getConcretePillarSpecificData()->defaultValues,
             );
 
             $cableCalculator = new CableCalculator(
@@ -82,6 +82,7 @@ class PillarWindLoadCalculationService
                 windRegionEnum: $calculationData->getWindRegion(),
                 terrainTypeEnum: $calculationData->getTerrainType(),
                 equipments: $calculationData->getCalculation()->getCalculationEquipments()->toArray(),
+                defaultValues: $calculationData->getConcretePillarSpecificData()->defaultValues
             );
 
             $sections->add(

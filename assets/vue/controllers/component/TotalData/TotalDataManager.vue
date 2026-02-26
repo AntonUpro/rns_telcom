@@ -16,6 +16,28 @@ const openedSections = reactive({
     equipmentList: true,
 });
 
+const defaultValues = reactive({
+    cableDiameterValues: {
+        rrl: 0,
+        optical: 0,
+        power: 0,
+        otherEquipment: 0
+    },
+    constructionValues: {
+        cableTray: 0,
+        ladder: 0,
+        cableTrayBottom: 0,
+        ladderBottom: 0
+    },
+    shadingCoefficients: {
+        rrl: 0,
+        panelAntenna: 0,
+        radioBlocks: 0,
+        cableTray: 0,
+        otherEquipment: 0
+    }
+});
+
 const formData = reactive({
     // Общие данные (новые поля)
     objectCode: '',
@@ -37,12 +59,35 @@ const formData = reactive({
 
     // Данные по столбу
     pillarStamp: 'СК26.1-1',
+    bottomMarkPillar: 0,
     strengtheningExist: false,
 
     strengtheningGeometry: 'square',
     strengtheningWidth: 0,
     strengtheningHeight: 0,
     allowedMoment: 0,
+
+    cableDiameterValues: {
+        rrl: 0,
+        optical: 0,
+        power: 0,
+        otherEquipment: 0
+    },
+
+    constructionValues: {
+        cableTray: 0,
+        ladder: 0,
+        cableTrayBottom: 0,
+        ladderBottom: 0
+    },
+
+    shadingCoefficients: {
+        rrl: 0,
+        panelAntenna: 0,
+        radioBlocks: 0,
+        cableTray: 0,
+        otherEquipment: 0
+    },
 
     // Материалы
     concreteClass: 'B25',
@@ -51,24 +96,6 @@ const formData = reactive({
     reinforcementCount: 8,
     concreteDensity: 2500,
     workingConditions: 1.0,
-
-    // Остальные поля для ветровых нагрузок
-    height: 10,
-    sectionType: 'rectangle',
-    width: 0.4,
-    thickness: 0.4,
-    diameter: 0.5,
-    wallThickness: 0.1,
-    windPressure: 300,
-    heightAboveGround: 0,
-    aerodynamicCoefficient: 1.4,
-    gustFactor: 1.4,
-    equipmentCount: 0,
-    equipmentData: [],
-    platformWidth: 0,
-    platformLength: 0,
-    platformHeight: 0,
-    fenceHeight: 0,
 });
 
 const isLoading = ref(false);
@@ -132,12 +159,33 @@ const fetchGeneralData = async () => {
         formData.iceRegion = data.data.climateData?.iceRegion || '';
 
         formData.pillarStamp = data.data.pillarData?.pillarStamp || '';
+        formData.bottomMarkPillar = data.data.pillarData?.bottomMarkPillar || 0;
         formData.strengtheningExist = data.data.pillarData?.strengtheningExist || false;
 
         formData.strengtheningGeometry = data.data.pillarData?.strengtheningGeometry || null;
         formData.strengtheningWidth = data.data.pillarData?.strengtheningWidth || null;
         formData.strengtheningHeight = data.data.pillarData?.strengtheningHeight || null;
         formData.allowedMoment = data.data.pillarData?.allowedMoment || null;
+
+        formData.cableDiameterValues = {
+            rrl: data.data.defaultValues.cableDiameterValues?.rrl || defaultValues.cableDiameterValues?.rrl,
+            optical: data.data.defaultValues.cableDiameterValues?.optical || defaultValues.cableDiameterValues?.optical,
+            power: data.data.defaultValues.cableDiameterValues?.power || defaultValues.cableDiameterValues?.power,
+            otherEquipment: data.data.defaultValues.cableDiameterValues?.otherEquipment || defaultValues.cableDiameterValues?.otherEquipment
+        };
+        formData.constructionValues = {
+            cableTray: data.data.defaultValues.constructionValues?.cableTray || defaultValues.constructionValues?.cableTray,
+            ladder: data.data.defaultValues.constructionValues?.ladder || defaultValues.constructionValues?.ladder,
+            cableTrayBottom: data.data.defaultValues.constructionValues?.cableTrayBottom || defaultValues.constructionValues?.cableTrayBottom,
+            ladderBottom: data.data.defaultValues.constructionValues?.ladderBottom || defaultValues.constructionValues?.ladderBottom
+        };
+        formData.shadingCoefficients = {
+            rrl: data.data.defaultValues.shadingCoefficients?.rrl || defaultValues.shadingCoefficients?.rrl,
+            panelAntenna: data.data.defaultValues.shadingCoefficients?.panelAntenna || defaultValues.shadingCoefficients?.panelAntenna,
+            radioBlocks: data.data.defaultValues.shadingCoefficients?.radioBlocks || defaultValues.shadingCoefficients?.radioBlocks,
+            cableTray: data.data.defaultValues.shadingCoefficients?.cableTray || defaultValues.shadingCoefficients?.cableTray,
+            otherEquipment: data.data.defaultValues.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment
+        };
 
     } catch (error) {
         console.error('Ошибка загрузки данных по расчету:', error);
@@ -194,6 +242,22 @@ const fetchPillarTotalInfo = async () => {
             label
         }));
 
+        defaultValues.cableDiameterValues.rrl = data.data.defaultValues.cableDiameterValues.rrl;
+        defaultValues.cableDiameterValues.optical = data.data.defaultValues.cableDiameterValues.optical;
+        defaultValues.cableDiameterValues.power = data.data.defaultValues.cableDiameterValues.power;
+        defaultValues.cableDiameterValues.otherEquipment = data.data.defaultValues.cableDiameterValues.otherEquipment;
+
+        defaultValues.constructionValues.cableTray = data.data.defaultValues.constructionValues.cableTray;
+        defaultValues.constructionValues.ladder = data.data.defaultValues.constructionValues.ladder;
+        defaultValues.constructionValues.cableTrayBottom = data.data.defaultValues.constructionValues.cableTrayBottom;
+        defaultValues.constructionValues.ladderBottom = data.data.defaultValues.constructionValues.ladderBottom;
+
+
+        defaultValues.shadingCoefficients.rrl = data.data.defaultValues.shadingCoefficients.rrl;
+        defaultValues.shadingCoefficients.panelAntenna = data.data.defaultValues.shadingCoefficients.panelAntenna;
+        defaultValues.shadingCoefficients.radioBlocks = data.data.defaultValues.shadingCoefficients.radioBlocks;
+        defaultValues.shadingCoefficients.cableTray = data.data.defaultValues.shadingCoefficients.cableTray;
+        defaultValues.shadingCoefficients.otherEquipment = data.data.defaultValues.shadingCoefficients.otherEquipment;
     } catch (error) {
         console.error('Ошибка загрузки справочных данных:', error);
         alert('Не удалось загрузить справочные данные');
@@ -279,6 +343,11 @@ const saveGeneralData = async () => {
                     strengtheningWidth: formData.strengtheningWidth || null,
                     strengtheningHeight: formData.strengtheningHeight || null,
                     allowedMoment: formData.allowedMoment || null,
+                },
+                defaultValues: {
+                    cableDiameterValues: formData.cableDiameterValues,
+                    constructionValues: formData.constructionValues,
+                    shadingCoefficients: formData.shadingCoefficients,
                 },
             }),
         });
@@ -480,7 +549,7 @@ onMounted(async () => {
             <span class="toggle-icon">+</span>
         </div>
         <div class="section-content" :class="{ active: openedSections.strengthening }">
-            <div class="strengthening-row">
+            <div class="form-grid compact-grid">
                 <div class="form-group compact-group">
                     <label>Выберите марку столба:</label>
                     <select v-model="formData.pillarStamp" class="form-calculation-control compact-input">
@@ -488,6 +557,19 @@ onMounted(async () => {
                             {{ pillar.label }}
                         </option>
                     </select>
+                </div>
+                <div class="form-group compact-group">
+                    <label>Отметка низа столба:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.bottomMarkPillar"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="-3"
+                        />
+                        <span class="unit">м</span>
+                    </div>
                 </div>
                 <div class="form-group compact-group checkbox-group">
                     <div class="checkbox-container">
@@ -572,168 +654,222 @@ onMounted(async () => {
             <span class="toggle-icon">+</span>
         </div>
         <div class="section-content" :class="{ active: openedSections.materials }">
-            <div class="form-grid compact-grid">
-                <!-- Площадь лестницы-->
-                <div class="form-group compact-group">
-                    <label>Площадь лестницы на 1 метр погонный:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.reinforcementDiameter"
-                            class="form-calculation-control compact-input"
-                            step="0.01"
-                            min="0"
-                            max="1"
-                        />
-                        <span class="unit">м. кв.</span>
+            <!-- Row 1: Диаметр кабельной трассы -->
+            <div class="default-values-row">
+                <h4 class="row-title">Диаметр кабельной трассы</h4>
+                <div class="dynamic-inputs-grid">
+                    <div class="form-group compact-group">
+                        <label>РРЛ:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.cableDiameterValues.rrl"
+                                class="form-calculation-control compact-input"
+                                step="1"
+                                min="0"
+                                max="100"
+                            />
+                            <span class="unit">мм</span>
+                        </div>
                     </div>
-                </div>
-                <!-- Отметка низа лестницы-->
-                <div class="form-group compact-group">
-                    <label>Отметка низа лестницы:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.reinforcementDiameter"
-                            class="form-calculation-control compact-input"
-                            step="0.1"
-                            min="0"
-                            max="40"
-                        />
-                        <span class="unit">м</span>
+                    <div class="form-group compact-group">
+                        <label>Оптика:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.cableDiameterValues.optical"
+                                class="form-calculation-control compact-input"
+                                step="1"
+                                min="0"
+                                max="100"
+                            />
+                            <span class="unit">мм</span>
+                        </div>
                     </div>
-                </div>
-                <!-- Площадь кабельроста-->
-                <div class="form-group compact-group">
-                    <label>Площадь кабельроста на 1 метр погонный:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.reinforcementDiameter"
-                            class="form-calculation-control compact-input"
-                            step="0.01"
-                            min="0"
-                            max="1"
-                        />
-                        <span class="unit">м. кв.</span>
+                    <div class="form-group compact-group">
+                        <label>Питание:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.cableDiameterValues.power"
+                                class="form-calculation-control compact-input"
+                                step="1"
+                                min="0"
+                                max="100"
+                            />
+                            <span class="unit">мм</span>
+                        </div>
                     </div>
-                </div>
-                <!-- Отметка низа кабельроста-->
-                <div class="form-group compact-group">
-                    <label>Отметка низа кабельроста:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.reinforcementDiameter"
-                            class="form-calculation-control compact-input"
-                            step="0.1"
-                            min="0"
-                            max="40"
-                        />
-                        <span class="unit">м</span>
+                    <div class="form-group compact-group">
+                        <label>Другое оборудование:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.cableDiameterValues.otherEquipment"
+                                class="form-calculation-control compact-input"
+                                step="1"
+                                min="0"
+                                max="100"
+                            />
+                            <span class="unit">мм</span>
+                        </div>
                     </div>
-                </div>
-                <!-- Отметка низа кабельной трассы-->
-                <div class="form-group compact-group">
-                    <label>Отметка низа кабельной трассы:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.reinforcementDiameter"
-                            class="form-calculation-control compact-input"
-                            step="1"
-                            min="6"
-                            max="40"
-                        />
-                        <span class="unit">мм</span>
-                    </div>
-                </div>
-                <!-- Коэффициент затенения РРЛ-->
-                <div class="form-group compact-group">
-                    <label>Коэффициент затенения РРЛ:</label>
-                    <input
-                        type="number"
-                        v-model.number="formData.reinforcementCount"
-                        class="form-calculation-control compact-input"
-                        step="0.01"
-                        min="0.1"
-                        max="1"
-                    />
-                </div>
-                <!-- Коэффициент затенения панельных антенн-->
-                <div class="form-group compact-group">
-                    <label>Коэффициент затенения панельных антенн:</label>
-                    <input
-                        type="number"
-                        v-model.number="formData.reinforcementCount"
-                        class="form-calculation-control compact-input"
-                        step="0.01"
-                        min="0.1"
-                        max="1"
-                    />
-                </div>
-                <!-- Коэффициент затенения радиоблоков антенн-->
-                <div class="form-group compact-group">
-                    <label>Коэффициент затенения радиоблоков:</label>
-                    <input
-                        type="number"
-                        v-model.number="formData.reinforcementCount"
-                        class="form-calculation-control compact-input"
-                        step="0.01"
-                        min="0.1"
-                        max="1"
-                    />
-                </div>
-                <!-- Коэффициент затенения другого оборудования-->
-                <div class="form-group compact-group">
-                    <label>Коэффициент затенения другого оборудования:</label>
-                    <input
-                        type="number"
-                        v-model.number="formData.reinforcementCount"
-                        class="form-calculation-control compact-input"
-                        step="0.01"
-                        min="0.1"
-                        max="1"
-                    />
-                </div>
-                <!-- Коэффициент затенения кабельной трассы-->
-                <div class="form-group compact-group">
-                    <label>Коэффициент затенения кабельной трассы:</label>
-                    <input
-                        type="number"
-                        v-model.number="formData.reinforcementCount"
-                        class="form-calculation-control compact-input"
-                        step="0.01"
-                        min="0.1"
-                        max="1"
-                    />
-                </div>
-                <div class="form-group compact-group">
-                    <label>Плотность бетона:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.concreteDensity"
-                            class="form-calculation-control compact-input"
-                            step="50"
-                            min="2200"
-                            max="2600"
-                        />
-                        <span class="unit">кг/м³</span>
-                    </div>
-                </div>
-                <div class="form-group compact-group">
-                    <label>Коэф. условий работы:</label>
-                    <input
-                        type="number"
-                        v-model.number="formData.workingConditions"
-                        class="form-calculation-control compact-input"
-                        step="0.05"
-                        min="0.9"
-                        max="1.1"
-                    />
                 </div>
             </div>
+
+            <!-- Row 2: А, м² на метр погонный -->
+            <div class="default-values-row">
+                <h4 class="row-title">А, м² на метр погонный</h4>
+                <div class="dynamic-inputs-grid">
+                    <div class="form-group compact-group">
+                        <label>Кабельрост, м²:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.constructionValues.cableTray"
+                                class="form-calculation-control compact-input"
+                                step="0.01"
+                                min="0"
+                                max="1"
+                            />
+                            <span class="unit">м²</span>
+                        </div>
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Лестница, м²:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.constructionValues.ladder"
+                                class="form-calculation-control compact-input"
+                                step="0.01"
+                                min="0"
+                                max="1"
+                            />
+                            <span class="unit">м²</span>
+                        </div>
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Низ кабельроста, м:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.constructionValues.cableTrayBottom"
+                                class="form-calculation-control compact-input"
+                                step="0.1"
+                                min="0"
+                                max="40"
+                            />
+                            <span class="unit">м</span>
+                        </div>
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Низ лестницы, м:</label>
+                        <div class="input-with-unit">
+                            <input
+                                type="number"
+                                v-model.number="formData.constructionValues.ladderBottom"
+                                class="form-calculation-control compact-input"
+                                step="0.1"
+                                min="0"
+                                max="40"
+                            />
+                            <span class="unit">м</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 3: Коэффициенты затенения -->
+            <div class="default-values-row">
+                <h4 class="row-title">Коэффициенты затенения</h4>
+                <div class="dynamic-inputs-grid">
+                    <div class="form-group compact-group">
+                        <label>РРЛ:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.rrl"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Панельная антенна:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.panelAntenna"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Радиоблоки:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.radioBlocks"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Кабельная трасса:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.cableTray"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Другое оборудование:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.otherEquipment"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional default values -->
+            <!--            <div class="form-grid compact-grid">-->
+            <!--                <div class="form-group compact-group">-->
+            <!--                    <label>Плотность бетона:</label>-->
+            <!--                    <div class="input-with-unit">-->
+            <!--                        <input-->
+            <!--                            type="number"-->
+            <!--                            v-model.number="formData.concreteDensity"-->
+            <!--                            class="form-calculation-control compact-input"-->
+            <!--                            step="50"-->
+            <!--                            min="2200"-->
+            <!--                            max="2600"-->
+            <!--                        />-->
+            <!--                        <span class="unit">кг/м³</span>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--                <div class="form-group compact-group">-->
+            <!--                    <label>Коэф. условий работы:</label>-->
+            <!--                    <input-->
+            <!--                        type="number"-->
+            <!--                        v-model.number="formData.workingConditions"-->
+            <!--                        class="form-calculation-control compact-input"-->
+            <!--                        step="0.05"-->
+            <!--                        min="0.9"-->
+            <!--                        max="1.1"-->
+            <!--                    />-->
+            <!--                </div>-->
+            <!--            </div>-->
         </div>
     </div>
     <div class="section-actions" style="margin-top: 2rem">
@@ -744,6 +880,31 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Стили для значений по умолчанию */
+.default-values-row {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    background-color: #fafafa;
+}
+
+.row-title {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #97afbc;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.dynamic-inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -769,13 +930,47 @@ onMounted(async () => {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-overlay p {
     color: #6c757d;
     font-size: 1rem;
     margin: 0;
+}
+
+@media (min-width: 1200px) {
+    .dynamic-inputs-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .default-values-row:nth-child(3) .dynamic-inputs-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+@media (max-width: 1199px) and (min-width: 768px) {
+    .dynamic-inputs-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .dynamic-inputs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .default-values-row {
+        padding: 0.75rem;
+    }
+
+    .row-title {
+        font-size: 1rem;
+    }
 }
 </style>

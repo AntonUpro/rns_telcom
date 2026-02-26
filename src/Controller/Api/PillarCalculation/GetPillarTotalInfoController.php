@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\PillarCalculation;
 
 use App\Controller\Api\AbstractApiController;
+use App\Dto\DefaultConstant;
 use App\Enum\CalculationData\IcingRegionEnum;
 use App\Enum\CalculationData\SnowRegionEnum;
 use App\Enum\CalculationData\TerrainTypeEnum;
@@ -36,6 +37,27 @@ class GetPillarTotalInfoController extends AbstractApiController
                 'icingRegions' => IcingRegionEnum::choices(),
                 'snowRegions' => SnowRegionEnum::choices(),
                 'pillarTypes' => PillarEnum::choices(),
+                'defaultValues' => [
+                    'cableDiameterValues' => [
+                        'rrl' => DefaultConstant::CABLE_RRL_DIAMETER,
+                        'optical' => DefaultConstant::CABLE_RADIO_OPTIC_DIAMETER,
+                        'power' => DefaultConstant::CABLE_RADIO_POWER_DIAMETER,
+                        'otherEquipment' => DefaultConstant::CABLE_OTHER_EQUIPMENT_DIAMETER,
+                    ],
+                    'constructionValues' => [
+                        'cableTray' => DefaultConstant::CONSTRUCTION_VALUE_CABLE_TRAY,
+                        'ladder' => DefaultConstant::CONSTRUCTION_VALUE_LADDER,
+                        'cableTrayBottom' => DefaultConstant::CONSTRUCTION_VALUE_CABLE_TRAY_BOTTOM,
+                        'ladderBottom' => DefaultConstant::CONSTRUCTION_VALUE_LADDER_BOTTOM,
+                    ],
+                    'shadingCoefficients' => [
+                        'rrl' => DefaultConstant::SHADING_COEFFICIENT_RRL,
+                        'panelAntenna' => DefaultConstant::SHADING_COEFFICIENT_PANEL_ANTENNA,
+                        'radioBlocks' => DefaultConstant::SHADING_COEFFICIENT_RADIO_BLOCKS,
+                        'cableTray' => DefaultConstant::SHADING_COEFFICIENT_CABLE_TRAY,
+                        'otherEquipment' => DefaultConstant::SHADING_COEFFICIENT_OTHER_EQUIPMENT,
+                    ],
+                ],
             ]);
         } catch (Throwable $e) {
             $this->logger->error(

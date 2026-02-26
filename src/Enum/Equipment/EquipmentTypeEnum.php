@@ -39,4 +39,9 @@ enum EquipmentTypeEnum: string
     {
         return $this === self::RADIO;
     }
+
+    public function isOther(): bool
+    {
+        return $this === self::OTHER;
+    }
 }

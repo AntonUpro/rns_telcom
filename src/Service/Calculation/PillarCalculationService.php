@@ -10,6 +10,7 @@ use App\Dto\Calculation\PillarDataDto;
 use App\Dto\Calculation\TotalDataDto;
 use App\Entity\CalculationData;
 use App\Entity\JsonData\ConcretePillarSpecificData;
+use App\Entity\JsonData\Dto\DefaultValues;
 use App\Entity\JsonData\Dto\Strengthening;
 use App\Enum\CalculationData\IcingRegionEnum;
 use App\Enum\CalculationData\SnowRegionEnum;
@@ -76,6 +77,11 @@ final readonly class PillarCalculationService
                         strengtheningHeight: $calculationDataDto->pillarData->strengtheningHeight,
                         allowedMoment: $calculationDataDto->pillarData->allowedMoment,
                     ) : null,
+                defaultValues: new DefaultValues(
+                    cableDiameterValues: $calculationDataDto->defaultValues['cableDiameterValues'],
+                    constructionValues: $calculationDataDto->defaultValues['constructionValues'],
+                    shadingCoefficients: $calculationDataDto->defaultValues['shadingCoefficients'],
+                ),
             )));
 
             $this->entityManager->persist($calculationData);
@@ -118,6 +124,10 @@ final readonly class PillarCalculationService
             pillarData: new PillarDataDto(
                 pillarStamp: $calculation->getCalculationData()->getConcretePillarSpecificData()?->pillarStamp,
                 strengtheningExist: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengtheningExist,
+                strengtheningGeometry: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengthening?->strengtheningGeometry,
+                strengtheningWidth: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengthening?->strengtheningWidth,
+                strengtheningHeight: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengthening?->strengtheningHeight,
+                allowedMoment: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengthening?->allowedMoment,
             ),
             climateData: new ClimateDataDto(
                 windRegion: $calculation->getCalculationData()->getWindRegion()?->value,
@@ -125,6 +135,7 @@ final readonly class PillarCalculationService
                 snowRegion: $calculation->getCalculationData()->getSnowRegion()?->value,
                 iceRegion: $calculation->getCalculationData()->getIcingRegion()?->value,
             ),
+            defaultValues: $calculation->getCalculationData()->getConcretePillarSpecificData()?->defaultValues->toArray(),
         );
     }
 }

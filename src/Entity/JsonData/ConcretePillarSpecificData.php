@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\JsonData;
 
+use App\Entity\JsonData\Dto\DefaultValues;
 use App\Entity\JsonData\Dto\Strengthening;
 use App\Enum\Pillar\PillarEnum;
 use InvalidArgumentException;
@@ -15,6 +16,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
         public readonly float $markBottom,
         public readonly bool $strengtheningExist,
         public readonly ?Strengthening $strengthening,
+        public readonly DefaultValues $defaultValues,
     ) {
     }
 
@@ -25,6 +27,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
             'markBottom' => $this->markBottom,
             'strengtheningExist' => $this->strengtheningExist,
             'strengthening' => $this->strengthening?->toArray(),
+            'defaultValues' => $this->defaultValues->toArray(),
         ];
     }
 
@@ -35,6 +38,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
             markBottom: $data['markBottom'] ?? 0,
             strengtheningExist: $data['strengtheningExist'],
             strengthening: isset($data['strengthening']) ? Strengthening::fromArray($data['strengthening']) : null,
+            defaultValues: DefaultValues::fromArray($data['defaultValues']),
         );
     }
 

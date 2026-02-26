@@ -220,13 +220,15 @@
 /* Группа чекбокса */
 .checkbox-group {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .checkbox-container {
     display: flex;
     align-items: center;
-    margin-top: 24px; /* Чтобы выровнять с полем ввода */
+    height: 36px;
+    justify-content: flex-start;
+    width: 100%;
 }
 
 .strengthening-checkbox {
@@ -347,7 +349,7 @@ select.form-calculation-control:disabled {
 /* Адаптивность */
 @media (max-width: 1024px) {
     .compact-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: 1fr 1fr;
     }
 }
 
