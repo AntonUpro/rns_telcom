@@ -3,6 +3,7 @@ import {ref, reactive, computed, onMounted} from 'vue';
 import EquipmentManager from "./component/Equipment/EquipmentManager.vue";
 import TotalDataManager from "./component/TotalData/TotalDataManager.vue";
 import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager.vue";
+import PlatformSectionManager from "./component/PlatformSectionManager.vue";
 
 const props = defineProps({
     user: {
@@ -192,6 +193,24 @@ const loadSavedCalculations = () => {
         savedCalculations.value = JSON.parse(saved);
     }
 };
+
+// Platform sections data
+const platformSections = ref([]);
+
+// Handler for platform sections changes
+const handlePlatformSectionsChanged = (sections) => {
+    platformSections.value = sections;
+};
+
+// Computed properties for platform summary
+const totalPlatformHeight = computed(() => {
+    return platformSections.value.reduce((sum, section) => sum + (parseFloat(section.height) || 0), 0).toFixed(2);
+});
+
+const totalElementsCount = computed(() => {
+    return platformSections.value.reduce((sum, section) => sum + (section.elements?.length || 0), 0);
+});
+
 </script>
 
 <template>
@@ -261,9 +280,27 @@ const loadSavedCalculations = () => {
             </div>
 
             <div v-if="activeTab === 'wind-platform'" class="tab-content active">
-                <!-- Содержимое таба 4 из исходного кода -->
-                <div class="form-grid">
-                    <!-- ... ваш существующий код для ветра на площадку ... -->
+                <PlatformSectionManager 
+                    :editable="true"
+                    @sections-changed="handlePlatformSectionsChanged"
+                />
+                
+                <div class="platform-summary" v-if="platformSections.length > 0">
+                    <h3>Сводка по секциям</h3>
+                    <div class="summary-stats">
+                        <div class="stat-card">
+                            <div class="stat-label">Всего секций</div>
+                            <div class="stat-value">{{ platformSections.length }}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Общая высота</div>
+                            <div class="stat-value">{{ totalPlatformHeight }} м</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Всего элементов</div>
+                            <div class="stat-value">{{ totalElementsCount }}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -292,3 +329,59 @@ const loadSavedCalculations = () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+/* Existing styles remain unchanged */
+
+/* Platform summary styles */
+.platform-summary {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.platform-summary h3 {
+    margin: 0 0 1rem 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-value {
+        font-size: 1.2rem;
+    }
+}
+</style>
