@@ -60,7 +60,7 @@ onMounted(() => {
                 <thead class="table-light">
                 <tr>
                     <th rowspan="2">№</th>
-                    <th rowspan="2">Z, м</th>
+                    <th rowspan="2">H, м</th>
                     <th rowspan="2">K(ze)</th>
                     <th rowspan="2">Wo<br>кг/м²</th>
                     <th rowspan="2">Y</th>

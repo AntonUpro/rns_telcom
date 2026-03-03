@@ -3,7 +3,7 @@ import {ref, reactive, computed, onMounted} from 'vue';
 import EquipmentManager from "./component/Equipment/EquipmentManager.vue";
 import TotalDataManager from "./component/TotalData/TotalDataManager.vue";
 import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager.vue";
-import PlatformSectionManager from "./component/PlatformSectionManager.vue";
+import PlatformSectionManager from "./component/Platform/PlatformSectionManager.vue";
 
 const props = defineProps({
     user: {
@@ -280,11 +280,10 @@ const totalElementsCount = computed(() => {
             </div>
 
             <div v-if="activeTab === 'wind-platform'" class="tab-content active">
-                <PlatformSectionManager 
-                    :editable="true"
-                    @sections-changed="handlePlatformSectionsChanged"
+                <PlatformSectionManager
+                    :calculation-id="calculationId"
                 />
-                
+
                 <div class="platform-summary" v-if="platformSections.length > 0">
                     <h3>Сводка по секциям</h3>
                     <div class="summary-stats">

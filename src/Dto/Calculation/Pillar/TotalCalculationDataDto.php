@@ -24,7 +24,7 @@ final readonly class TotalCalculationDataDto
             'kze' => round($this->kze,2),
             'windPress' => $this->windPress,
             'shadingCoefficient' => $this->shadingCoefficient,
-            'topHeight' => $this->topHeight,
+            'topHeight' => $this->topHeight / 1000,
         ];
     }
 }
