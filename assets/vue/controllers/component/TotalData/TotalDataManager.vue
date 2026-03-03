@@ -168,23 +168,23 @@ const fetchGeneralData = async () => {
         formData.allowedMoment = data.data.pillarData?.allowedMoment || null;
 
         formData.cableDiameterValues = {
-            rrl: data.data.defaultValues.cableDiameterValues?.rrl || defaultValues.cableDiameterValues?.rrl,
-            optical: data.data.defaultValues.cableDiameterValues?.optical || defaultValues.cableDiameterValues?.optical,
-            power: data.data.defaultValues.cableDiameterValues?.power || defaultValues.cableDiameterValues?.power,
-            otherEquipment: data.data.defaultValues.cableDiameterValues?.otherEquipment || defaultValues.cableDiameterValues?.otherEquipment
+            rrl: data.data.defaultValues?.cableDiameterValues?.rrl || defaultValues.cableDiameterValues?.rrl,
+            optical: data.data.defaultValues?.cableDiameterValues?.optical || defaultValues.cableDiameterValues?.optical,
+            power: data.data.defaultValues?.cableDiameterValues?.power || defaultValues.cableDiameterValues?.power,
+            otherEquipment: data.data?.defaultValues.cableDiameterValues?.otherEquipment || defaultValues.cableDiameterValues?.otherEquipment
         };
         formData.constructionValues = {
-            cableTray: data.data.defaultValues.constructionValues?.cableTray || defaultValues.constructionValues?.cableTray,
-            ladder: data.data.defaultValues.constructionValues?.ladder || defaultValues.constructionValues?.ladder,
-            cableTrayBottom: data.data.defaultValues.constructionValues?.cableTrayBottom || defaultValues.constructionValues?.cableTrayBottom,
-            ladderBottom: data.data.defaultValues.constructionValues?.ladderBottom || defaultValues.constructionValues?.ladderBottom
+            cableTray: data.data?.defaultValues.constructionValues?.cableTray || defaultValues.constructionValues?.cableTray,
+            ladder: data.data?.defaultValues.constructionValues?.ladder || defaultValues.constructionValues?.ladder,
+            cableTrayBottom: data.data?.defaultValues.constructionValues?.cableTrayBottom || defaultValues.constructionValues?.cableTrayBottom,
+            ladderBottom: data.data?.defaultValues.constructionValues?.ladderBottom || defaultValues.constructionValues?.ladderBottom
         };
         formData.shadingCoefficients = {
-            rrl: data.data.defaultValues.shadingCoefficients?.rrl || defaultValues.shadingCoefficients?.rrl,
-            panelAntenna: data.data.defaultValues.shadingCoefficients?.panelAntenna || defaultValues.shadingCoefficients?.panelAntenna,
-            radioBlocks: data.data.defaultValues.shadingCoefficients?.radioBlocks || defaultValues.shadingCoefficients?.radioBlocks,
-            cableTray: data.data.defaultValues.shadingCoefficients?.cableTray || defaultValues.shadingCoefficients?.cableTray,
-            otherEquipment: data.data.defaultValues.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment
+            rrl: data.data?.defaultValues.shadingCoefficients?.rrl || defaultValues.shadingCoefficients?.rrl,
+            panelAntenna: data.data?.defaultValues.shadingCoefficients?.panelAntenna || defaultValues.shadingCoefficients?.panelAntenna,
+            radioBlocks: data.data?.defaultValues.shadingCoefficients?.radioBlocks || defaultValues.shadingCoefficients?.radioBlocks,
+            cableTray: data.data?.defaultValues.shadingCoefficients?.cableTray || defaultValues.shadingCoefficients?.cableTray,
+            otherEquipment: data.data?.defaultValues.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment
         };
 
     } catch (error) {
