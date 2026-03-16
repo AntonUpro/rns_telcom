@@ -54,8 +54,8 @@ const formData = reactive({
     // Климатические условия
     windRegion: 'I',
     terrainType: 'A',
-    snowRegion: 'II',
-    iceRegion: 'I',
+    snowRegion: '',
+    iceRegion: '',
 
     // Данные по столбу
     pillarStamp: 'СК26.1-1',
