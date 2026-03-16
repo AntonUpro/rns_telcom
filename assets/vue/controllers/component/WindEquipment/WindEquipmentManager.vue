@@ -96,13 +96,13 @@ onMounted(() => {
                     <td>{{ row.pillarPart?.cx ?? '-' }}</td>
                     <td>{{ row.pillarPart?.press ?? '-' }}</td>
                     <!-- Кабельная трасса -->
-                    <td>{{ row.cableChanelPart?.area ?? '-' }}</td>
-                    <td>{{ row.cableChanelPart?.cx ?? '-' }}</td>
-                    <td>{{ row.cableChanelPart?.press ?? '-' }}</td>
-                    <!-- Кабельрост -->
                     <td>{{ row.cablePart?.area ?? '-' }}</td>
                     <td>{{ row.cablePart?.cx ?? '-' }}</td>
                     <td>{{ row.cablePart?.press ?? '-' }}</td>
+                    <!-- Кабельрост -->
+                    <td>{{ row.cableChanelPart?.area ?? '-' }}</td>
+                    <td>{{ row.cableChanelPart?.cx ?? '-' }}</td>
+                    <td>{{ row.cableChanelPart?.press ?? '-' }}</td>
                     <!-- Лестница -->
                     <td>{{ row.ladderPart?.area ?? '-' }}</td>
                     <td>{{ row.ladderPart?.cx ?? '-' }}</td>
