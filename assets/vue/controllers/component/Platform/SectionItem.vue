@@ -2,9 +2,9 @@
 <template>
     <div class="section-item">
         <!-- Вставка до -->
-<!--        <div class="insert-control before">-->
-<!--            <slot name="insert-before"></slot>-->
-<!--        </div>-->
+        <!--        <div class="insert-control before">-->
+        <!--            <slot name="insert-before"></slot>-->
+        <!--        </div>-->
 
         <!-- Основная секция -->
         <div class="section-content-item">

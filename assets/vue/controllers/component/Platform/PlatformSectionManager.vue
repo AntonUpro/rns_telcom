@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import SectionItem from './SectionItem.vue';
+import SectionItem2 from "./SectionItem2.vue";
 
 const props = defineProps({
     calculationId: {
@@ -22,7 +23,7 @@ const generateId = () => Date.now().toString(36) + Math.random().toString(36).su
 
 // Инициализация пустой секции
 const createEmptySection = () => ({
-    id: generateId(),
+    id: null,
     height: '',
     widthBottom: '',
     widthTop: '',
@@ -31,7 +32,7 @@ const createEmptySection = () => ({
 
 // Инициализация пустого элемента
 const createEmptyElement = () => ({
-    id: generateId(),
+    id: null,
     type: '',
     sectionType: '',
     catalogSearch: ''
@@ -92,30 +93,31 @@ const saveData = () => {
         <div class="default-values-row">
             <div class="dynamic-inputs-grid">
                 <div class="form-group compact-group">
-                    <label>Отметка установки:</label>
+                    <label>Отметка установки подкосов:</label>
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="initData.mountHeight"
+                            v-model.number="initData.mountHeightStrut"
                             class="form-calculation-control compact-input"
                             step="1"
                             min="0"
                             max="100"
                         />
-                        <span class="unit">мм</span>
+                        <span class="unit">м</span>
                     </div>
                 </div>
                 <div class="form-group compact-group">
-                    <label>Тип площадки:</label>
+                    <label>Отметка установки площадки:</label>
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="initData.typePlatform"
+                            v-model.number="initData.mountHeightPlatform"
                             class="form-calculation-control compact-input"
                             step="1"
                             min="0"
                             max="100"
                         />
+                        <span class="unit">м</span>
                     </div>
                 </div>
                 <div class="form-group compact-group">
@@ -123,7 +125,7 @@ const saveData = () => {
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="initData.beltCount"
+                            v-model.number="initData.facetsCount"
                             class="form-calculation-control compact-input"
                             step="1"
                             min="0"
@@ -140,23 +142,36 @@ const saveData = () => {
                 <button class="btn-add-section" @click="addSectionAtStart">+ Добавить секцию в начало</button>
                 <button class="btn-add-section" @click="addSectionAtStart">+ Добавить подкосы</button>
             </div>
-
-            <SectionItem
-                v-for="(section, index) in sections"
-                :key="section.id"
-                :section="section"
-                :index="index"
-                @remove-section="removeSection(index)"
-                @add-element="addElementToSection(index)"
-                @remove-element="removeElementFromSection(index, $event)"
-            >
-                <template #insert-after>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <button class="btn-remove" @click="removeSection(index)">✕</button>
-                        <button class="btn-insert" @click="insertSectionAfter(index)">+</button>
-                    </div>
-                </template>
-            </SectionItem>
+            <table>
+                <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Высота</th>
+                    <th>Ширина низа</th>
+                    <th>Ширина верха</th>
+                    <th>Элементы</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <SectionItem2
+                    v-for="(section, index) in sections"
+                    :key="section.id"
+                    :section="section"
+                    :index="index"
+                    @remove-section="removeSection(index)"
+                    @add-element="addElementToSection(index)"
+                    @remove-element="removeElementFromSection(index, $event)"
+                >
+                    <template #insert-after>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn-remove" @click="removeSection(index)">✕</button>
+                            <button class="btn-insert" @click="insertSectionAfter(index)">+</button>
+                        </div>
+                    </template>
+                </SectionItem2>
+                </tbody>
+            </table>
         </div>
 
         <div class="actions">
@@ -254,5 +269,21 @@ const saveData = () => {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
+}
+
+table {
+    border-top: 1px solid #6f7c8a;
+    border-bottom: 1px solid #6f7c8a;
+}
+
+thead {
+    font-size: 16px;
+    font-weight: bold;
+    border-bottom: 1px solid #6f7c8a;
+    margin-bottom: 8px;
+}
+
+th {
+    border-left: 1px solid #6f7c8a;
 }
 </style>

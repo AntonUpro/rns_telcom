@@ -5,7 +5,6 @@ namespace App\Entity;
 
 use App\Enum\CalculationStatusEnum;
 use App\Enum\CalculationTypeEnum;
-use App\Entity\CalculationEquipment;
 use App\Repository\CalculationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -54,7 +53,10 @@ class Calculation
     private ?CalculationData $calculationData = null;
 
     #[ORM\OneToMany(mappedBy: 'calculation', targetEntity: CalculationEquipment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private \Doctrine\Common\Collections\Collection $calculationEquipments;
+    private Collection $calculationEquipments;
+
+    #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: PillarPlatform::class, cascade: ['persist', 'remove'])]
+    private ?PillarPlatform $pillarPlatform = null;
 
     public function __construct()
     {
@@ -230,6 +232,16 @@ class Calculation
     public static function getAvailableStatuses(): array
     {
         return array_values(CalculationStatusEnum::cases());
+    }
+
+    public function getPillarPlatform(): ?PillarPlatform
+    {
+        return $this->pillarPlatform;
+    }
+
+    public function setPillarPlatform(?PillarPlatform $pillarPlatform): void
+    {
+        $this->pillarPlatform = $pillarPlatform;
     }
 
     public function toArray(): array
