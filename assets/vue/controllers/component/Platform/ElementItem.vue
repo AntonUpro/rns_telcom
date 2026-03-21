@@ -38,23 +38,23 @@ import {computed} from 'vue';
 
 const ELEMENT_TYPES = [
     {value: '', label: '— Тип элемента —'},
-    {value: 'пояс', label: 'пояс'},
-    {value: 'раскос', label: 'раскос'},
-    {value: 'распорка', label: 'распорка'},
-    {value: 'шпренгель', label: 'шпренгель'},
-    {value: 'трубостойка', label: 'трубостойка'},
-    {value: 'ограждение', label: 'ограждение'},
-    {value: 'прочее', label: 'прочее'}
+    {value: 'Пояс', label: 'Пояс'},
+    {value: 'Раскос', label: 'Раскос'},
+    {value: 'Распорка', label: 'Распорка'},
+    {value: 'Шпренгель', label: 'Шпренгель'},
+    {value: 'Трубостойка', label: 'Трубостойка'},
+    {value: 'Ограждение', label: 'Ограждение'},
+    {value: 'Прочее', label: 'Прочее'}
 ];
 
 const SECTION_TYPES = [
     {value: '', label: '— Тип сечения —'},
-    {value: 'труба круглая', label: 'труба круглая'},
-    {value: 'труба квадратная', label: 'труба квадратная'},
-    {value: 'уголок', label: 'уголок'},
-    {value: 'швеллер', label: 'швеллер'},
-    {value: 'парный уголок', label: 'парный уголок'},
-    {value: 'прочее', label: 'прочее'}
+    {value: 'Труба круглая', label: 'Труба круглая'},
+    {value: 'Труба квадратная', label: 'Труба квадратная'},
+    {value: 'Уголок', label: 'Уголок'},
+    {value: 'Швеллер', label: 'Швеллер'},
+    {value: 'Парный уголок', label: 'Парный уголок'},
+    {value: 'Прочее', label: 'Прочее'}
 ];
 
 const props = defineProps({

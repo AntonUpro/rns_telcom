@@ -11,6 +11,13 @@ const props = defineProps({
 });
 
 const sections = ref([]);
+const strut = ref({
+    id: null,
+    height:  2.5,
+    widthBottom:  0.5,
+    widthTop: 2,
+    elements: [{}, {}]
+});
 
 const initData = ref({
     mountHeight: 0,
@@ -27,7 +34,7 @@ const createEmptySection = () => ({
     height: '',
     widthBottom: '',
     widthTop: '',
-    elements: []
+    elements: [{}, {}]
 });
 
 // Инициализация пустого элемента
@@ -45,12 +52,12 @@ onMounted(async () => {
     sections.value = [
         {
             ...createEmptySection(),
-            height: 10,
-            widthBottom: 2.5,
+            height: 3,
+            widthBottom: 2,
             widthTop: 2.0,
             elements: [
-                {...createEmptyElement(), type: 'пояс', sectionType: 'труба круглая'},
-                {...createEmptyElement(), type: 'раскос', sectionType: 'уголок'}
+                {...createEmptyElement(), type: 'Пояс', sectionType: 'труба круглая'},
+                {...createEmptyElement(), type: 'Раскос', sectionType: 'уголок'}
             ]
         }
     ];
@@ -63,11 +70,27 @@ const addSectionAtEnd = () => sections.value.push(createEmptySection());
 const insertSectionBefore = (index) => sections.value.splice(index, 0, createEmptySection());
 const insertSectionAfter = (index) => sections.value.splice(index + 1, 0, createEmptySection());
 
+// Удаление подкосов
+const addStrut = () => {
+    strut.value = {
+        id: null,
+        height:  2.5,
+        widthBottom:  0.5,
+        widthTop: 2,
+        elements: [{}, {}]
+    };
+};
+
 // Удаление секции
 const removeSection = (index) => {
     if (sections.value.length > 1) {
         sections.value.splice(index, 1);
     }
+};
+
+// Удаление подкосов
+const removeStrut = () => {
+    strut.value = {};
 };
 
 // Работа с элементами
@@ -77,6 +100,14 @@ const addElementToSection = (sectionIndex) => {
 
 const removeElementFromSection = (sectionIndex, elementIndex) => {
     sections.value[sectionIndex].elements.splice(elementIndex, 1);
+};
+
+const addElementToStrut = () => {
+    strut.value.elements.push(createEmptyElement());
+};
+
+const removeElementFromStrut = (elementIndex) => {
+    strut.value.elements.splice(elementIndex, 1);
 };
 
 // Сохранение (мок)
@@ -140,7 +171,7 @@ const saveData = () => {
         <div class="sections">
             <div style="display: flex; gap: 8px;">
                 <button class="btn-add-section" @click="addSectionAtStart">+ Добавить секцию в начало</button>
-                <button class="btn-add-section" @click="addSectionAtStart">+ Добавить подкосы</button>
+                <button class="btn-add-section" @click="addStrut">+ Добавить подкосы</button>
             </div>
             <table>
                 <thead>
@@ -154,6 +185,23 @@ const saveData = () => {
                 </tr>
                 </thead>
                 <tbody>
+                <SectionItem2
+                    v-if="Object.keys(strut).length !== 0"
+                    :key="0"
+                    :section="strut"
+                    :index="0"
+                    :is-strut="true"
+                    @remove-section="removeStrut(index)"
+                    @add-element="addElementToStrut()"
+                    @remove-element="removeElementFromStrut($event)"
+                >
+                    <template #insert-after>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <button class="btn-remove" @click="removeStrut(index)">✕</button>
+                            <button class="btn-insert" @click="addSectionAtStart()">+</button>
+                        </div>
+                    </template>
+                </SectionItem2>
                 <SectionItem2
                     v-for="(section, index) in sections"
                     :key="section.id"

@@ -3,7 +3,8 @@
     <tr class="row-table">
         <td class="section-column section-number">
             <div class="form-column">
-                <h4>Секция {{ index + 1 }}</h4>
+                <h4 v-if="isStrut">Подкосы</h4>
+                <h4 v-else>Секция {{ index + 1 }}</h4>
             </div>
         </td>
         <td class="section-column section-dimensions form-column">
@@ -43,6 +44,10 @@ defineProps({
     index: {
         type: Number,
         required: true
+    },
+    isStrut: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -65,7 +70,6 @@ defineEmits(['remove-section', 'add-element', 'remove-element']);
 }
 
 .section-column {
-    vertical-align: top;
     border-left: 1px solid #6f7c8a;
     border-top: 1px solid #6f7c8a;
     padding-top: 12px;
@@ -77,6 +81,7 @@ defineEmits(['remove-section', 'add-element', 'remove-element']);
 
 .section-number {
     width: 6%;
+    text-align: center;
 }
 
 .section-dimensions {
