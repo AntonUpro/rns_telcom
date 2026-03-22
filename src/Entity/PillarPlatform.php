@@ -6,6 +6,8 @@ namespace App\Entity;
 
 use App\Repository\PillarPlatformRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PillarPlatformRepository::class)]
@@ -37,12 +39,12 @@ class PillarPlatform
     private ?DateTimeImmutable $updatedAt = null;
 
     #[ORM\OneToMany(mappedBy: 'pillarPlatform', targetEntity: PillarPlatformSection::class, cascade: ['persist', 'remove'])]
-    private array $sections;
+    private Collection $sections;
 
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
-        $this->sections = [];
+        $this->sections = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -120,7 +122,7 @@ class PillarPlatform
      */
     public function getSections(): array
     {
-        return $this->sections;
+        return $this->sections->toArray();
     }
 
     public function addSection(PillarPlatformSection $section): static

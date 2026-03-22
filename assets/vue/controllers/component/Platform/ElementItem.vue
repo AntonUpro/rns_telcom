@@ -14,8 +14,8 @@
         </select>
 
         <input
-            v-model="element.catalogSearch"
-            placeholder="Поиск по сортаменту..."
+            v-model.number="element.widthElement"
+            placeholder="Ширина сечения"
         />
         <input
             v-model.number="element.lengthElement"
@@ -34,7 +34,6 @@
 </template>
 
 <script setup>
-import {computed} from 'vue';
 
 const ELEMENT_TYPES = [
     {value: '', label: '— Тип элемента —'},

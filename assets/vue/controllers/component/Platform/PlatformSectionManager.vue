@@ -1,7 +1,6 @@
 <script setup>
 import {ref, onMounted} from 'vue';
-import SectionItem from './SectionItem.vue';
-import SectionItem2 from "./SectionItem2.vue";
+import SectionItem2 from "./SectionItem.vue";
 
 const props = defineProps({
     calculationId: {
@@ -13,20 +12,17 @@ const props = defineProps({
 const sections = ref([]);
 const strut = ref({
     id: null,
-    height:  2.5,
-    widthBottom:  0.5,
+    height: 2.5,
+    widthBottom: 0.5,
     widthTop: 2,
     elements: [{}, {}]
 });
 
-const initData = ref({
-    mountHeight: 0,
-    typePlatform: '',
-    beltCount: 4,
+const totalData = ref({
+    mountHeightStrut: 21500,
+    mountHeightPlatform: 23000,
+    facetsCount: 4,
 });
-
-// Генерация уникального ID
-const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
 // Инициализация пустой секции
 const createEmptySection = () => ({
@@ -34,15 +30,31 @@ const createEmptySection = () => ({
     height: '',
     widthBottom: '',
     widthTop: '',
-    elements: [{}, {}]
+    elements: [
+        {
+            type: 'Пояс',
+            sectionType: 'Труба круглая',
+            widthElement: 0,
+            lengthElement: 0,
+            countElement: 2
+        },
+        {
+            type: 'Пояс',
+            sectionType: 'Труба круглая',
+            widthElement: 0,
+            lengthElement: 0,
+            countElement: 2
+        }
+    ]
 });
 
 // Инициализация пустого элемента
 const createEmptyElement = () => ({
-    id: null,
-    type: '',
-    sectionType: '',
-    catalogSearch: ''
+    type: 'Пояс',
+    sectionType: 'Труба круглая',
+    widthElement: 0,
+    lengthElement: 0,
+    countElement: 2
 });
 
 // Загрузка данных при монтировании
@@ -56,8 +68,8 @@ onMounted(async () => {
             widthBottom: 2,
             widthTop: 2.0,
             elements: [
-                {...createEmptyElement(), type: 'Пояс', sectionType: 'труба круглая'},
-                {...createEmptyElement(), type: 'Раскос', sectionType: 'уголок'}
+                {...createEmptyElement(), type: 'Пояс', sectionType: 'Труба круглая'},
+                {...createEmptyElement(), type: 'Раскос', sectionType: 'Уголок'}
             ]
         }
     ];
@@ -65,17 +77,15 @@ onMounted(async () => {
 
 // Добавление секций
 const addSectionAtStart = () => sections.value.unshift(createEmptySection());
-const addSectionAtEnd = () => sections.value.push(createEmptySection());
 
-const insertSectionBefore = (index) => sections.value.splice(index, 0, createEmptySection());
 const insertSectionAfter = (index) => sections.value.splice(index + 1, 0, createEmptySection());
 
 // Удаление подкосов
 const addStrut = () => {
     strut.value = {
         id: null,
-        height:  2.5,
-        widthBottom:  0.5,
+        height: 2.5,
+        widthBottom: 0.5,
         widthTop: 2,
         elements: [{}, {}]
     };
@@ -110,12 +120,54 @@ const removeElementFromStrut = (elementIndex) => {
     strut.value.elements.splice(elementIndex, 1);
 };
 
-// Сохранение (мок)
-const saveData = () => {
-    console.log('Сохраняем данные:', {calculationId: props.calculationId, sections: sections.value});
-    // await post(`/api/calculations/${calculationId}`, { sections })
-    alert('Данные сохранены (мок)');
+const savePlatformData = async () => {
+    try {
+        const response = await fetch('/api/v1/save/calculation/platform', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                calculationId: props.calculationId,
+                totalData: totalData.value,
+                sections: sections.value,
+                strut: strut.value
+            })
+        });
+
+        const responseData = await response.json();
+
+        if (!response.ok || !responseData.success) {
+            throw new Error('Ошибка сохранения данных. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
+        }
+
+
+    } catch (error) {
+        console.error('Error get equipment:', error);
+        alert('Ошибка получения данных по оборудованию');
+    }
 };
+
+const fetchPlatformData = async () => {
+    try {
+        const url = new URL('/api/v1/calculation/platform', window.location.origin);
+        url.searchParams.set('calculationId', props.calculationId);
+        // Here you would make the actual API call
+        const response = await fetch(url.toString());
+
+        const responseData = await response.json();
+
+        if (!response.ok || !responseData.success) {
+            throw new Error('Ошибка получения данных по оборудованию. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
+        }
+
+        allEquipment.existEquipment = ensureGroup(responseData.data.existEquipment);
+        allEquipment.plainEquipment = ensureGroup(responseData.data.plainEquipment);
+        allEquipment.dismantledEquipment = ensureGroup(responseData.data.dismantledEquipment);
+    } catch (error) {
+        console.error('Error get equipment:', error);
+        alert('Ошибка получения данных по оборудованию');
+    }
+};
+
 </script>
 
 <!-- TowerWindLoadCalculator.vue -->
@@ -128,11 +180,11 @@ const saveData = () => {
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="initData.mountHeightStrut"
+                            v-model.number="totalData.mountHeightStrut"
                             class="form-calculation-control compact-input"
                             step="1"
                             min="0"
-                            max="100"
+                            max="100000"
                         />
                         <span class="unit">м</span>
                     </div>
@@ -142,11 +194,11 @@ const saveData = () => {
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="initData.mountHeightPlatform"
+                            v-model.number="totalData.mountHeightPlatform"
                             class="form-calculation-control compact-input"
                             step="1"
                             min="0"
-                            max="100"
+                            max="100000"
                         />
                         <span class="unit">м</span>
                     </div>
@@ -156,11 +208,11 @@ const saveData = () => {
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="initData.facetsCount"
+                            v-model.number="totalData.facetsCount"
                             class="form-calculation-control compact-input"
                             step="1"
                             min="0"
-                            max="100"
+                            max="10"
                         />
                         <span class="unit">шт.</span>
                     </div>
@@ -177,9 +229,9 @@ const saveData = () => {
                 <thead>
                 <tr>
                     <th>№</th>
-                    <th>Высота</th>
-                    <th>Ширина низа</th>
-                    <th>Ширина верха</th>
+                    <th>Высота мм</th>
+                    <th>Ширина низа мм</th>
+                    <th>Ширина верха мм</th>
                     <th>Элементы</th>
                     <th></th>
                 </tr>
@@ -223,7 +275,7 @@ const saveData = () => {
         </div>
 
         <div class="actions">
-            <button class="btn-save" @click="saveData">Сохранить</button>
+            <button class="btn-save" @click="savePlatformData">Сохранить</button>
         </div>
     </div>
 </template>

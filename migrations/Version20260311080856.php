@@ -41,7 +41,7 @@ final class Version20260311080856 extends AbstractMigration
                 number_section integer NOT NULL,
                 height NUMERIC(8, 3) DEFAULT NULL,
                 width_bottom NUMERIC(8, 3) DEFAULT NULL,
-                width_tom NUMERIC(8, 3) DEFAULT NULL,
+                width_top NUMERIC(8, 3) DEFAULT NULL,
                 mount_height_bottom integer NOT NULL,
                 mount_height_top integer NOT NULL,
                 elements json DEFAULT NULL,

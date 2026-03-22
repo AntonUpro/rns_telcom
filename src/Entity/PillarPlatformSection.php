@@ -29,13 +29,13 @@ class PillarPlatformSection
     private ?int $numberSection = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 3, nullable: true)]
-    private ?string $height = null;
+    private ?int $height = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 3, nullable: true)]
-    private ?string $widthBottom = null;
+    private ?int $widthBottom = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 8, scale: 3, nullable: true)]
-    private ?string $widthTop = null;
+    private ?int $widthTop = null;
 
     #[ORM\Column(type: 'integer')]
     private ?int $mountHeightBottom = null;
@@ -98,36 +98,36 @@ class PillarPlatformSection
         return $this;
     }
 
-    public function getHeight(): ?string
+    public function getHeight(): ?int
     {
         return $this->height;
     }
 
-    public function setHeight(?string $height): static
+    public function setHeight(?int $height): static
     {
         $this->height = $height;
 
         return $this;
     }
 
-    public function getWidthBottom(): ?string
+    public function getWidthBottom(): ?int
     {
         return $this->widthBottom;
     }
 
-    public function setWidthBottom(?string $widthBottom): static
+    public function setWidthBottom(?int $widthBottom): static
     {
         $this->widthBottom = $widthBottom;
 
         return $this;
     }
 
-    public function getWidthTop(): ?string
+    public function getWidthTop(): ?int
     {
         return $this->widthTop;
     }
 
-    public function setWidthTop(?string $widthTop): static
+    public function setWidthTop(?int $widthTop): static
     {
         $this->widthTop = $widthTop;
 
