@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\PillarPlatform;
 use App\Entity\PillarPlatformSection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -24,6 +25,20 @@ class PillarPlatformSectionsRepository extends ServiceEntityRepository
             ->andWhere('s.pillar_platform_id = :pillarPlatformId')
             ->setParameter('sectionNumbers', $sectionNumbers)
             ->setParameter('pillarPlatformId', $pillarPlatformId)
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
+     * @return PillarPlatformSection[]
+     */
+    public function getPlatformSectionsByPillarPlatformId(PillarPlatform $pillarPlatform): array
+    {
+        return $this->createQueryBuilder('s')
+            ->select('s')
+            ->andWhere('s.pillarPlatform = :pillarPlatformId')
+            ->setParameter('pillarPlatformId', $pillarPlatform)
+            ->orderBy('s.numberSection', 'ASC')
             ->getQuery()
             ->execute();
     }

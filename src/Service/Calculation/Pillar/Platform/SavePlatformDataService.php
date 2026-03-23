@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service\Calculation\Pillar\Platform;
 
+use App\Dto\Calculation\Pillar\Platform\Element;
 use App\Dto\Calculation\Pillar\Platform\PlatformSaveDataDto;
 use App\Entity\PillarPlatform;
 use App\Entity\PillarPlatformSection;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
-use App\Repository\PillarPlatformRepository;
 use App\Repository\PillarPlatformSectionsRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,7 +22,6 @@ class SavePlatformDataService
     public function __construct(
         private readonly CalculationRepository $calculationRepository,
         private readonly PillarPlatformSectionsRepository $pillarPlatformSectionsRepository,
-        private readonly PillarPlatformRepository $pillarPlatformRepository,
         private EntityManagerInterface $entityManager,
         private LoggerInterface $logger,
     ) {
@@ -98,7 +97,7 @@ class SavePlatformDataService
                     ->setWidthTop($section->widthTop)
                     ->setMountHeightBottom($mountHeightBottomSection)
                     ->setMountHeightTop($mountHeightBottomSection + $section->height)
-                    ->setElements($section->elements)
+                    ->setElements(array_map(fn(Element $element): array => $element->toArray(), $section->elements))
                     ->setUpdatedAt(new  DateTimeImmutable());
 
                 $this->entityManager->persist($pillarPlatformSection);

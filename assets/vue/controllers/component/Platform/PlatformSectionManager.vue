@@ -59,20 +59,7 @@ const createEmptyElement = () => ({
 
 // Загрузка данных при монтировании
 onMounted(async () => {
-    // Здесь будет запрос: await fetch(`/api/calculations/${calculationId}/sections`)
-    // Пока мокаем
-    sections.value = [
-        {
-            ...createEmptySection(),
-            height: 3,
-            widthBottom: 2,
-            widthTop: 2.0,
-            elements: [
-                {...createEmptyElement(), type: 'Пояс', sectionType: 'Труба круглая'},
-                {...createEmptyElement(), type: 'Раскос', sectionType: 'Уголок'}
-            ]
-        }
-    ];
+    fetchPlatformData(props.calculationId)
 });
 
 // Добавление секций
@@ -122,7 +109,7 @@ const removeElementFromStrut = (elementIndex) => {
 
 const savePlatformData = async () => {
     try {
-        const response = await fetch('/api/v1/save/calculation/platform', {
+        const response = await fetch('/api/v1/calculation/platform/save', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -148,8 +135,7 @@ const savePlatformData = async () => {
 
 const fetchPlatformData = async () => {
     try {
-        const url = new URL('/api/v1/calculation/platform', window.location.origin);
-        url.searchParams.set('calculationId', props.calculationId);
+        const url = new URL('/api/v1/calculation/platform/' + props.calculationId, window.location.origin);
         // Here you would make the actual API call
         const response = await fetch(url.toString());
 
@@ -159,12 +145,12 @@ const fetchPlatformData = async () => {
             throw new Error('Ошибка получения данных по оборудованию. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
         }
 
-        allEquipment.existEquipment = ensureGroup(responseData.data.existEquipment);
-        allEquipment.plainEquipment = ensureGroup(responseData.data.plainEquipment);
-        allEquipment.dismantledEquipment = ensureGroup(responseData.data.dismantledEquipment);
+        sections.value = responseData.data.sections;
+        strut.value = responseData.data.strut;
+        totalData.value = responseData.data.totalData;
     } catch (error) {
-        console.error('Error get equipment:', error);
-        alert('Ошибка получения данных по оборудованию');
+        console.error('Error get plaform data:', error);
+        alert('Ошибка получения данных по площадке');
     }
 };
 
