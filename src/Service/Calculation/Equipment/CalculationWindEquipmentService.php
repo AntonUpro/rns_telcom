@@ -93,6 +93,7 @@ final readonly class CalculationWindEquipmentService
                 cxPipeStand: 1.3,
                 shadingCoefficient: DefaultConstant::SECURITY_COEFFICIENT,
                 pressOnOneEquipment: $equipmentDto->pressOnOneEquipment(),
+                heightGroup: $equipment->getEquipmentParams()['heightGroup'],
             );
         }
 

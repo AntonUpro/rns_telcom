@@ -4,22 +4,17 @@ declare(strict_types=1);
 
 namespace App\Service\Calculation\TotalLoad;
 
-use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculator;
-use App\Dto\Calculation\Equipment\Calculate\RectangleEquipmentForCalculationDto;
-use App\Dto\Calculation\Equipment\Calculate\RoundEquipmentForCalculationDto;
 use App\Dto\Calculation\TotalLoad\EquipmentHeightTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\PillarSectionTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\PlatformSectionTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\TotalLoadResponseDto;
 use App\Dto\DefaultConstant;
 use App\Entity\CalculationData;
-use App\Entity\CalculationEquipment;
 use App\Entity\PillarPlatformSection;
-use App\Enum\Equipment\EquipmentGroupEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Exception\NotFoundException;
-use App\Repository\CalculationEquipmentRepository;
 use App\Repository\CalculationRepository;
+use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
 use App\Service\Calculation\Pillar\PillarWindLoadCalculationService;
 
 /**
@@ -39,7 +34,7 @@ final readonly class TotalLoadService
     public function __construct(
         private CalculationRepository $calculationRepository,
         private PillarWindLoadCalculationService $pillarWindLoadCalculationService,
-        private CalculationEquipmentRepository $calculationEquipmentRepository,
+        private CalculationWindEquipmentService $calculationWindEquipmentService,
     ) {
     }
 
@@ -62,7 +57,7 @@ final readonly class TotalLoadService
 
         $this->fillPillarSections($response, $calculationId);
         $this->fillPlatformSections($response, $calculation->getPillarPlatform()?->getSections() ?? [], $calculationData, $calculation->getPillarPlatform()?->getFacetsCount() ?? 1);
-        $this->fillEquipmentHeights($response, $calculationId, $calculationData);
+        $this->fillEquipmentHeights($response, $calculationId);
 
         return $response;
     }
@@ -215,47 +210,49 @@ final readonly class TotalLoadService
     private function fillEquipmentHeights(
         TotalLoadResponseDto $response,
         int $calculationId,
-        CalculationData $calculationData,
     ): void {
-        $equipments = $this->calculationEquipmentRepository->findByCalculationAndGroups(
-            $calculationId,
-            EquipmentGroupEnum::forCalculation(),
-        );
-
-        if ($equipments === []) {
+        try {
+            $equipmentResults = $this->calculationWindEquipmentService->calculate($calculationId);
+        } catch (NotFoundException) {
             return;
         }
 
-        // Группируем нагрузки по высотной отметке (mountingHeight хранится в метрах)
-        $byHeight = [];
+        // Группируем нагрузки по высотной группе (heightGroup задаётся пользователем)
+        /** @var array<int, array{heightMark: float, totalLoad: float}> $byGroup */
+        $byGroup = [];
 
-        foreach ($equipments as $equipment) {
-            $mountHeightM   = (float) $equipment->getMountingHeight();
-            $mountHeightMm  = $mountHeightM * 1000;
-            $key            = number_format($mountHeightM, 2, '.', '');
+        foreach ($equipmentResults as $byType) {
+            foreach ($byType as $results) {
+                foreach ($results as $result) {
+                    $group         = $result->heightGroup;
+                    $mountHeightMm = $result->monthHeight * 1000;
 
-            $calculator = $this->buildEquipmentCalculator($equipment, $calculationData);
-            $loadKgf = $calculator->totalLoad();
+                    if (! isset($byGroup[$group])) {
+                        $byGroup[$group] = [
+                            'heightMark' => $mountHeightMm,
+                            'totalLoad'  => 0.0,
+                        ];
+                    } else {
+                        // Берём наибольшую отметку подвеса в группе как представительную
+                        $byGroup[$group]['heightMark'] = max($byGroup[$group]['heightMark'], $mountHeightMm);
+                    }
 
-            if (! isset($byHeight[$key])) {
-                $byHeight[$key] = [
-                    'heightMark' => $mountHeightMm,
-                    'totalLoad'  => 0.0,
-                ];
+                    $byGroup[$group]['totalLoad'] += $result->pressOnOneEquipment * $result->quantity;
+                }
             }
-
-            $byHeight[$key]['totalLoad'] += $loadKgf;
         }
 
-        // Сортируем по возрастанию высоты
-        ksort($byHeight);
+        if ($byGroup === []) {
+            return;
+        }
+
+        // Сортируем по номеру высотной группы
+        ksort($byGroup);
 
         // Высота интервала — расстояние от предыдущей отметки до текущей
-        // TODO: уточнить у проектировщика, является ли «высота» интервалом между отметками
-        //       или задаётся иным способом (например, высота группы оборудования).
         $prevHeightMm = 0.0;
-        foreach ($byHeight as $row) {
-            $intervalMm  = $row['heightMark'] - $prevHeightMm;
+        foreach ($byGroup as $row) {
+            $intervalMm   = $row['heightMark'] - $prevHeightMm;
             $prevHeightMm = $row['heightMark'];
 
             $response->addEquipmentHeight(new EquipmentHeightTotalLoadDto(
@@ -264,33 +261,5 @@ final readonly class TotalLoadService
                 totalLoad:  $row['totalLoad'],
             ));
         }
-    }
-
-    private function buildEquipmentCalculator(
-        CalculationEquipment $equipment,
-        CalculationData $calculationData,
-    ): EquipmentCalculator {
-        $params = $equipment->getEquipmentParams();
-
-        $equipmentGeometry = $equipment->getEquipmentType()->isRrl()
-            ? new RoundEquipmentForCalculationDto(
-                diameter: (float) $params['diameter'],
-                weight:   (float) $params['weight'],
-            )
-            : new RectangleEquipmentForCalculationDto(
-                height: (float) $params['height'],
-                width:  (float) $params['width'],
-                depth:  (float) $params['depth'],
-                weight: (float) $params['weight'],
-            );
-
-        return new EquipmentCalculator(
-            equipment:        $equipmentGeometry,
-            windRegion:       $calculationData->getWindRegion(),
-            terrainTypeEnum:  $calculationData->getTerrainType(),
-            mountHeight:      (float) $equipment->getMountingHeight(),
-            equipmentTypeEnum: $equipment->getEquipmentType(),
-            quantity:         $equipment->getQuantity(),
-        );
     }
 }

@@ -21,6 +21,7 @@ final readonly class EquipmentCalculationResult
         public float $cxPipeStand,
         public float $shadingCoefficient,
         public float $pressOnOneEquipment,
+        public int $heightGroup,
     ) {
     }
 
@@ -41,6 +42,7 @@ final readonly class EquipmentCalculationResult
             'cxPipeStand' => $this->cxPipeStand,
             'shadingCoefficient' => $this->shadingCoefficient,
             'pressOnOneEquipment' => $this->pressOnOneEquipment,
+            'heightGroup' => $this->heightGroup,
         ];
     }
 }
