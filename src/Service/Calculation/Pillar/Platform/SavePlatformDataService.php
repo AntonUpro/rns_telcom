@@ -78,7 +78,7 @@ class SavePlatformDataService
                     ->setWidthTop($platformData->strut->widthTop)
                     ->setMountHeightBottom($platformData->totalData->mountHeightStrut)
                     ->setMountHeightTop($platformData->totalData->mountHeightPlatform)
-                    ->setElements($platformData->strut->elements)
+                    ->setElements(array_map(fn(Element $element): array => $element->toArray(), $section->elements))
                     ->setUpdatedAt(new DateTimeImmutable());
 
                 $this->entityManager->persist($pillarPlatformSection);

@@ -4,6 +4,7 @@ import EquipmentManager from "./component/Equipment/EquipmentManager.vue";
 import TotalDataManager from "./component/TotalData/TotalDataManager.vue";
 import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager.vue";
 import PlatformSectionManager from "./component/Platform/PlatformSectionManager.vue";
+import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
 
 const props = defineProps({
     user: {
@@ -304,10 +305,9 @@ const totalElementsCount = computed(() => {
             </div>
 
             <div v-if="activeTab === 'total-load'" class="tab-content active">
-                <!-- Содержимое таба 5 из исходного кода -->
-                <div class="form-grid">
-                    <!-- ... ваш существующий код для суммарной нагрузки ... -->
-                </div>
+                <TotalLoadManager
+                    :calculation-id="calculationId"
+                />
             </div>
         </div>
 
