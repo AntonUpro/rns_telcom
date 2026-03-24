@@ -18,9 +18,9 @@ final readonly class PlatformSectionTotalLoadDto
         public float $topHeight,
         /** Высота секции / подкосов, мм */
         public float $height,
-        /** Суммарная ветровая нагрузка на секцию, Н */
+        /** Суммарная ветровая нагрузка на секцию, кг */
         public float $totalLoad,
-        /** Нагрузка на 1 погонный метр 1 пояса, Н/(м·пояс) */
+        /** Нагрузка на 1 погонный метр 1 пояса, кг/(м·пояс) */
         public float $loadPerLinearMeterPerBelt,
     ) {
     }

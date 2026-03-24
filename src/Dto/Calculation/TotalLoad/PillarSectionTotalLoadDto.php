@@ -16,9 +16,9 @@ final readonly class PillarSectionTotalLoadDto
         public float $topHeight,
         /** Высота секции, мм */
         public float $sectionHeight,
-        /** Суммарная ветровая нагрузка (ствол + кабели + кабельрост + лестница), Н */
+        /** Суммарная ветровая нагрузка (ствол + кабели + кабельрост + лестница), кг */
         public float $totalLoad,
-        /** Нагрузка на 1 погонный метр, Н/м */
+        /** Нагрузка на 1 погонный метр, кг/м */
         public float $loadPerLinearMeter,
     ) {
     }

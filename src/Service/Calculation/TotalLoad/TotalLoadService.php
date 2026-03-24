@@ -30,9 +30,6 @@ use App\Service\Calculation\Pillar\PillarWindLoadCalculationService;
  */
 final readonly class TotalLoadService
 {
-    /** Коэффициент перевода кг→Н (1 кгс = 9.81 Н) */
-    private const KGF_TO_N = 9.81;
-
     /**
      * Cx для элементов площадки (пояса, раскосы) — трубчатые профили.
      * TODO: уточнить значение Cx у проектировщика (возможно зависит от типа сечения элемента).
@@ -87,15 +84,14 @@ final readonly class TotalLoadService
                 + ($pillarDto->cableChanelPart?->press ?? 0)
                 + ($pillarDto->ladderPart?->press ?? 0);
 
-            $totalLoadN  = $totalLoadKgf * self::KGF_TO_N;
-            $heightM     = $meta->heightSection > 0 ? $meta->heightSection / 1000 : 0;
+            $heightM = $meta->heightSection > 0 ? $meta->heightSection / 1000 : 0;
 
             $response->addPillarSection(new PillarSectionTotalLoadDto(
                 sectionNumber:      $meta->numberSection,
                 topHeight:          $meta->topHeight,        // мм
                 sectionHeight:      $meta->heightSection,    // мм
-                totalLoad:          $totalLoadN,
-                loadPerLinearMeter: $heightM > 0 ? $totalLoadN / $heightM : 0,
+                totalLoad:          $totalLoadKgf,
+                loadPerLinearMeter: $heightM > 0 ? $totalLoadKgf / $heightM : 0,
             ));
         }
     }
@@ -145,12 +141,11 @@ final readonly class TotalLoadService
                 facetsCount:  $facetsCount,
             );
 
-            $totalLoadN = $totalLoadKgf * self::KGF_TO_N;
-            $heightM    = $height > 0 ? $height / 1000 : 0;
+            $heightM = $height > 0 ? $height / 1000 : 0;
 
             // Нагрузка на 1 п.м. 1 пояса = F / h / n_поясов
             $loadPerLinearMeterPerBelt = ($heightM > 0 && $facetsCount > 0)
-                ? $totalLoadN / $heightM / $facetsCount
+                ? $totalLoadKgf / $heightM / $facetsCount
                 : 0;
 
             $response->addPlatformSection(new PlatformSectionTotalLoadDto(
@@ -158,7 +153,7 @@ final readonly class TotalLoadService
                 isStrut:                   $isStrut,
                 topHeight:                 $topHeight,
                 height:                    $height,
-                totalLoad:                 $totalLoadN,
+                totalLoad:                 $totalLoadKgf,
                 loadPerLinearMeterPerBelt: $loadPerLinearMeterPerBelt,
             ));
         }
@@ -240,7 +235,7 @@ final readonly class TotalLoadService
             $key            = number_format($mountHeightM, 2, '.', '');
 
             $calculator = $this->buildEquipmentCalculator($equipment, $calculationData);
-            $loadN      = $calculator->totalLoad() * self::KGF_TO_N;
+            $loadKgf = $calculator->totalLoad();
 
             if (! isset($byHeight[$key])) {
                 $byHeight[$key] = [
@@ -249,7 +244,7 @@ final readonly class TotalLoadService
                 ];
             }
 
-            $byHeight[$key]['totalLoad'] += $loadN;
+            $byHeight[$key]['totalLoad'] += $loadKgf;
         }
 
         // Сортируем по возрастанию высоты
