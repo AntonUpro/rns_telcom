@@ -10,8 +10,8 @@ namespace App\Dto\Calculation\TotalLoad;
 final readonly class EquipmentHeightTotalLoadDto
 {
     public function __construct(
-        /** Высотная отметка подвеса оборудования, мм */
-        public float $heightMark,
+        /** Высотная группа оборудования, мм */
+        public int $heightGroup,
         /**
          * Высота — интервал от предыдущей отметки до текущей, мм.
          * Определяет «зону влияния» нагрузки в высоту.
@@ -26,7 +26,7 @@ final readonly class EquipmentHeightTotalLoadDto
     public function toArray(): array
     {
         return [
-            'heightMark' => $this->heightMark,
+            'heightMark' => $this->heightGroup,
             'height'     => $this->height,
             'totalLoad'  => round($this->totalLoad, 2),
         ];

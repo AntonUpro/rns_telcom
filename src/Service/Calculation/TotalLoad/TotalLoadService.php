@@ -82,10 +82,10 @@ final readonly class TotalLoadService
             $heightM = $meta->heightSection > 0 ? $meta->heightSection / 1000 : 0;
 
             $response->addPillarSection(new PillarSectionTotalLoadDto(
-                sectionNumber:      $meta->numberSection,
-                topHeight:          $meta->topHeight,        // мм
-                sectionHeight:      $meta->heightSection,    // мм
-                totalLoad:          $totalLoadKgf,
+                sectionNumber: $meta->numberSection,
+                topHeight: $meta->topHeight,        // мм
+                sectionHeight: $meta->heightSection,    // мм
+                totalLoad: $totalLoadKgf,
                 loadPerLinearMeter: $heightM > 0 ? $totalLoadKgf / $heightM : 0,
             ));
         }
@@ -108,7 +108,7 @@ final readonly class TotalLoadService
             return;
         }
 
-        $windRegion  = $calculationData->getWindRegion();
+        $windRegion = $calculationData->getWindRegion();
         $terrainType = $calculationData->getTerrainType();
 
         if ($windRegion === null || $terrainType === null) {
@@ -117,10 +117,10 @@ final readonly class TotalLoadService
         }
 
         foreach ($platformSections as $section) {
-            $isStrut   = $section->getTypeSection() === PlatformSectionTypeEnum::STRUT->value;
-            $label     = $isStrut ? 'Подкосы' : (string) $section->getNumberSection();
-            $topHeight = (float) ($section->getMountHeightTop() ?? 0);   // мм
-            $height    = (float) ($section->getHeight() ?? 0);           // мм
+            $isStrut = $section->getTypeSection() === PlatformSectionTypeEnum::STRUT->value;
+            $label = $isStrut ? 'Подкосы' : (string)$section->getNumberSection();
+            $topHeight = (float)($section->getMountHeightTop() ?? 0);   // мм
+            $height = (float)($section->getHeight() ?? 0);           // мм
 
             // Средняя высота секции для определения k(ze)
             $middleHeightM = (($section->getMountHeightTop() ?? 0) + ($section->getMountHeightBottom() ?? 0)) / 2 / 1000;
@@ -129,11 +129,11 @@ final readonly class TotalLoadService
 
             // Расчёт суммарной ветровой нагрузки на секцию по её элементам
             $totalLoadKgf = $this->calcPlatformSectionLoad(
-                elements:     $section->getElements() ?? [],
-                heightMm:     $height,
-                kze:          $kze,
-                windRegion:   $windRegion,
-                facetsCount:  $facetsCount,
+                elements: $section->getElements() ?? [],
+                heightMm: $height,
+                kze: $kze,
+                windRegion: $windRegion,
+                facetsCount: $facetsCount,
             );
 
             $heightM = $height > 0 ? $height / 1000 : 0;
@@ -144,11 +144,11 @@ final readonly class TotalLoadService
                 : 0;
 
             $response->addPlatformSection(new PlatformSectionTotalLoadDto(
-                label:                     $label,
-                isStrut:                   $isStrut,
-                topHeight:                 $topHeight,
-                height:                    $height,
-                totalLoad:                 $totalLoadKgf,
+                label: $label,
+                isStrut: $isStrut,
+                topHeight: $topHeight,
+                height: $height,
+                totalLoad: $totalLoadKgf,
                 loadPerLinearMeterPerBelt: $loadPerLinearMeterPerBelt,
             ));
         }
@@ -177,12 +177,12 @@ final readonly class TotalLoadService
             return 0;
         }
 
-        $heightM  = $heightMm / 1000;
+        $heightM = $heightMm / 1000;
         $totalKgf = 0.0;
 
         foreach ($elements as $element) {
-            $widthM = ((float) ($element['widthElement'] ?? 0)) / 1000;
-            $count  = (int) ($element['countElement'] ?? 0);
+            $widthM = ((float)($element['widthElement'] ?? 0)) / 1000;
+            $count = (int)($element['countElement'] ?? 0);
 
             if ($widthM <= 0 || $count <= 0) {
                 continue;
@@ -224,13 +224,14 @@ final readonly class TotalLoadService
         foreach ($equipmentResults as $byType) {
             foreach ($byType as $results) {
                 foreach ($results as $result) {
-                    $group         = $result->heightGroup;
+                    $group = $result->heightGroup;
                     $mountHeightMm = $result->monthHeight * 1000;
 
                     if (! isset($byGroup[$group])) {
                         $byGroup[$group] = [
+                            'heightGroup' => $group,
                             'heightMark' => $mountHeightMm,
-                            'totalLoad'  => 0.0,
+                            'totalLoad' => 0.0,
                         ];
                     } else {
                         // Берём наибольшую отметку подвеса в группе как представительную
@@ -251,14 +252,14 @@ final readonly class TotalLoadService
 
         // Высота интервала — расстояние от предыдущей отметки до текущей
         $prevHeightMm = 0.0;
-        foreach ($byGroup as $row) {
-            $intervalMm   = $row['heightMark'] - $prevHeightMm;
+        foreach ($byGroup as $group => $row) {
+            $intervalMm = $row['heightMark'] - $prevHeightMm;
             $prevHeightMm = $row['heightMark'];
 
             $response->addEquipmentHeight(new EquipmentHeightTotalLoadDto(
-                heightMark: $row['heightMark'],
-                height:     $intervalMm,
-                totalLoad:  $row['totalLoad'],
+                heightGroup: $group,
+                height: $row['heightMark'],
+                totalLoad: $row['totalLoad'],
             ));
         }
     }
