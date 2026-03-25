@@ -14,6 +14,14 @@ const props = defineProps({
     editable: {
         type: Boolean,
         default: true
+    },
+    showErrors: {
+        type: Boolean,
+        default: false
+    },
+    isDismantled: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -23,8 +31,6 @@ const group = computed({
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val)
 });
-
-const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
 function makeDefaultRow(category) {
     return {
@@ -134,6 +140,8 @@ const toggleSection = (section) => {
                 category="rrl"
                 :rows="group.rrl"
                 :editable="editable"
+                :show-errors="showErrors"
+                :is-dismantled="isDismantled"
                 @update:rows="rows => updateRows('rrl', rows)"
                 @add-item="() => addRow('rrl')"
                 @remove-item="(idx) => removeRow('rrl', idx)"
@@ -145,6 +153,8 @@ const toggleSection = (section) => {
                 category="panel"
                 :rows="group.panel"
                 :editable="editable"
+                :show-errors="showErrors"
+                :is-dismantled="isDismantled"
                 @update:rows="rows => updateRows('panel', rows)"
                 @add-item="() => addRow('panel')"
                 @remove-item="(idx) => removeRow('panel', idx)"
@@ -156,6 +166,8 @@ const toggleSection = (section) => {
                 category="radio"
                 :rows="group.radio"
                 :editable="editable"
+                :show-errors="showErrors"
+                :is-dismantled="isDismantled"
                 @update:rows="rows => updateRows('radio', rows)"
                 @add-item="() => addRow('radio')"
                 @remove-item="(idx) => removeRow('radio', idx)"
@@ -167,6 +179,8 @@ const toggleSection = (section) => {
                 category="other"
                 :rows="group.other"
                 :editable="editable"
+                :show-errors="showErrors"
+                :is-dismantled="isDismantled"
                 @update:rows="rows => updateRows('other', rows)"
                 @add-item="() => addRow('other')"
                 @remove-item="(idx) => removeRow('other', idx)"

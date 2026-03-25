@@ -6,6 +6,8 @@ const props = defineProps({
     category: { type: String, required: true }, // 'rrl' | 'panel' | 'radio' | 'other'
     rows: { type: Array, default: () => [] },
     editable: { type: Boolean, default: true },
+    showErrors: { type: Boolean, default: false },
+    isDismantled: { type: Boolean, default: false },
 
     // Настройки поиска
     minChars: { type: Number, default: 2 },
@@ -248,6 +250,24 @@ function onKeyDown(row, idx, e) {
     }
 }
 
+function getRowErrors(item) {
+    if (!props.showErrors) return {};
+    const errors = {};
+    if (!item.fullName?.trim()) errors.fullName = true;
+    if (props.category === 'rrl') {
+        if (!item.diameter || item.diameter <= 0) errors.diameter = true;
+    } else {
+        if (!item.height || item.height <= 0) errors.height = true;
+        if (!item.width || item.width <= 0) errors.width = true;
+        if (!item.depth || item.depth <= 0) errors.depth = true;
+    }
+    if (!item.weight || item.weight <= 0) errors.weight = true;
+    if (!item.quantity || item.quantity <= 0) errors.quantity = true;
+    if (!props.isDismantled && (!item.mountHeight || item.mountHeight <= 0)) errors.mountHeight = true;
+    if (!item.heightGroup || item.heightGroup <= 0) errors.heightGroup = true;
+    return errors;
+}
+
 function onBlur(row, idx) {
     // даём шанс mousedown по пункту меню сработать раньше blur
     const key = keyOf(row, idx);
@@ -290,7 +310,7 @@ function onBlur(row, idx) {
                     v-if="editable"
                     type="text"
                     v-model="item.fullName"
-                    class="table-input"
+                    :class="['table-input', {'input-error': getRowErrors(item).fullName}]"
                     placeholder="Введите обозначение"
                     @input="scheduleSearch(item, index)"
                     @keydown="onKeyDown(item, index, $event)"
@@ -343,24 +363,24 @@ function onBlur(row, idx) {
                         v-if="editable && (!item.fromDropdown && !item.id)"
                         type="number"
                         v-model.number="item.diameter"
-                        class="table-input small-input number-input"
+                        :class="['table-input', 'small-input', 'number-input', {'input-error': getRowErrors(item).diameter}]"
                         min="0"
                         step="1"
                         placeholder="Диаметр, мм"
                     />
-                    <span v-else>{{ formatDims(item) }}</span>
+                    <span v-else :class="{'has-error': getRowErrors(item).diameter}">{{ formatDims(item) }}</span>
                 </template>
 
                 <!-- Прямоугольные: ширина×высота×глубина -->
                 <template v-else>
                     <div v-if="editable && (!item.fromDropdown && !item.id)" class="dimension-inputs">
-                        <input type="number" v-model.number="item.height" class="table-input small-input number-input" min="0" step="1" placeholder="Выс" />
+                        <input type="number" v-model.number="item.height" :class="['table-input', 'small-input', 'number-input', {'input-error': getRowErrors(item).height}]" min="0" step="1" placeholder="Выс" />
                         <span class="dimension-separator">×</span>
-                        <input type="number" v-model.number="item.width"  class="table-input small-input number-input" min="0" step="1" placeholder="Шир" />
+                        <input type="number" v-model.number="item.width"  :class="['table-input', 'small-input', 'number-input', {'input-error': getRowErrors(item).width}]" min="0" step="1" placeholder="Шир" />
                         <span class="dimension-separator">×</span>
-                        <input type="number" v-model.number="item.depth"  class="table-input small-input number-input" min="0" step="1" placeholder="Гл"  />
+                        <input type="number" v-model.number="item.depth"  :class="['table-input', 'small-input', 'number-input', {'input-error': getRowErrors(item).depth}]" min="0" step="1" placeholder="Гл"  />
                     </div>
-                    <span v-else>{{ formatDims(item) }}</span>
+                    <span v-else :class="{'has-error': getRowErrors(item).height || getRowErrors(item).width || getRowErrors(item).depth}">{{ formatDims(item) }}</span>
                 </template>
             </div>
         </td>
@@ -372,11 +392,11 @@ function onBlur(row, idx) {
                     v-if="editable && (!item.fromDropdown && !item.id)"
                     type="number"
                     v-model.number="item.weight"
-                    class="table-input number-input"
+                    :class="['table-input', 'number-input', {'input-error': getRowErrors(item).weight}]"
                     min="0"
                     step="0.1"
                 />
-                <span v-else>{{ item.weight }}</span>
+                <span v-else :class="{'has-error': getRowErrors(item).weight}">{{ item.weight }}</span>
             </div>
         </td>
 
@@ -387,7 +407,7 @@ function onBlur(row, idx) {
                     v-if="editable"
                     type="number"
                     v-model.number="item.quantity"
-                    class="table-input number-input"
+                    :class="['table-input', 'number-input', {'input-error': getRowErrors(item).quantity}]"
                     min="1"
                     step="1"
                 />
@@ -402,7 +422,7 @@ function onBlur(row, idx) {
                     v-if="editable"
                     type="number"
                     v-model.number="item.mountHeight"
-                    class="table-input number-input"
+                    :class="['table-input', 'number-input', {'input-error': getRowErrors(item).mountHeight}]"
                     min="0"
                     max="400"
                     step="0.001"
@@ -419,7 +439,7 @@ function onBlur(row, idx) {
                     v-if="editable"
                     type="number"
                     v-model.number="item.heightGroup"
-                    class="table-input number-input"
+                    :class="['table-input', 'number-input', {'input-error': getRowErrors(item).heightGroup}]"
                     min="1"
                     step="1"
                 />
@@ -527,6 +547,18 @@ function onBlur(row, idx) {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.input-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
+}
+
+.has-error {
+    display: inline-block;
+    border: 2px solid #dc3545;
+    border-radius: 4px;
+    padding: 2px 6px;
 }
 
 .number-input {

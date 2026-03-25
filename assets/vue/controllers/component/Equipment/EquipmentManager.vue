@@ -33,6 +33,38 @@ const allEquipment = reactive({
 });
 
 const showAddEquipmentPopup = ref(false);
+const showErrors = ref(false);
+
+function validateAllEquipment() {
+    const groups = {
+        existEquipment: false,
+        plainEquipment: false,
+        dismantledEquipment: true,
+    };
+    const categories = ['rrl', 'panel', 'radio', 'other'];
+
+    for (const [groupKey, isDismantled] of Object.entries(groups)) {
+        const group = allEquipment[groupKey];
+        for (const category of categories) {
+            const rows = group[category] || [];
+            for (const item of rows) {
+                if (!item.fullName?.trim()) return false;
+                if (category === 'rrl') {
+                    if (!item.diameter || item.diameter <= 0) return false;
+                } else {
+                    if (!item.height || item.height <= 0) return false;
+                    if (!item.width || item.width <= 0) return false;
+                    if (!item.depth || item.depth <= 0) return false;
+                }
+                if (!item.weight || item.weight <= 0) return false;
+                if (!item.quantity || item.quantity <= 0) return false;
+                if (!isDismantled && (!item.mountHeight || item.mountHeight <= 0)) return false;
+                if (!item.heightGroup || item.heightGroup <= 0) return false;
+            }
+        }
+    }
+    return true;
+}
 
 const openAddEquipment = () => {
     showAddEquipmentPopup.value = true;
@@ -53,18 +85,14 @@ const handleEquipmentAdded = (equipmentData) => {
 };
 
 const saveEquipment  = async () =>{
-    try {
-        for (const category in allEquipment) {
-            for (const item of Object.values(allEquipment[category])) {
-                if (category !== 'dismantledEquipment' && item.mountHeight <= 0) {
-                    throw new Error('Не указана высота подвеса оборудования');
-                }
-                if (item.quantity <= 0) {
-                    throw new Error('Не указано количество оборудования');
-                }
-            }
-        }
+    showErrors.value = true;
 
+    if (!validateAllEquipment()) {
+        alert('Пожалуйста, заполните все обязательные поля (обозначение, габариты, масса, количество, отметка подвеса, высотная группа). Значения не могут быть пустыми или равными 0.');
+        return;
+    }
+
+    try {
         const response = await fetch('/api/v1/save/calculation/equipment', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -80,6 +108,7 @@ const saveEquipment  = async () =>{
             throw new Error('Ошибка сохранения данных. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
         }
 
+        showErrors.value = false;
         allEquipment.existEquipment = ensureGroup(responseData.data.existEquipment);
         allEquipment.plainEquipment = ensureGroup(responseData.data.plainEquipment);
         allEquipment.dismantledEquipment = ensureGroup(responseData.data.dismantledEquipment);
@@ -144,16 +173,20 @@ onMounted(() => {
         <EquipmentTable
             v-model="allEquipment.existEquipment"
             :editable="editable"
+            :show-errors="showErrors"
             title="Существующее оборудование"
         />
         <EquipmentTable
             v-model="allEquipment.plainEquipment"
             :editable="editable"
+            :show-errors="showErrors"
             title="Проектируемое оборудование"
         />
         <EquipmentTable
             v-model="allEquipment.dismantledEquipment"
             :editable="editable"
+            :show-errors="showErrors"
+            :is-dismantled="true"
             title="Демонтируемое оборудование"
         />
 

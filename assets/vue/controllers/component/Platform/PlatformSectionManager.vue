@@ -10,6 +10,7 @@ const props = defineProps({
 });
 
 const sections = ref([]);
+const showErrors = ref(false);
 const strut = ref({
     id: null,
     height: 2.5,
@@ -107,7 +108,49 @@ const removeElementFromStrut = (elementIndex) => {
     strut.value.elements.splice(elementIndex, 1);
 };
 
+function validateElement(el) {
+    if (!el.type) return false;
+    if (!el.sectionType) return false;
+    if (!(Number(el.widthElement) > 0)) return false;
+    if (!(Number(el.lengthElement) > 0)) return false;
+    if (!(Number(el.countElement) > 0)) return false;
+    return true;
+}
+
+function validateSection(section) {
+    if (!(Number(section.height) > 0)) return false;
+    if (!(Number(section.widthBottom) > 0)) return false;
+    if (!(Number(section.widthTop) > 0)) return false;
+    for (const el of section.elements || []) {
+        if (!validateElement(el)) return false;
+    }
+    return true;
+}
+
+function validateAllData() {
+    if (!(Number(totalData.value.mountHeightStrut) > 0)) return false;
+    if (!(Number(totalData.value.mountHeightPlatform) > 0)) return false;
+    if (!(Number(totalData.value.facetsCount) > 0)) return false;
+
+    if (strut.value.height !== undefined) {
+        if (!validateSection(strut.value)) return false;
+    }
+
+    for (const section of sections.value) {
+        if (!validateSection(section)) return false;
+    }
+
+    return true;
+}
+
 const savePlatformData = async () => {
+    showErrors.value = true;
+
+    if (!validateAllData()) {
+        alert('Пожалуйста, заполните все обязательные поля. Значения не могут быть пустыми или равными 0.');
+        return;
+    }
+
     try {
         const response = await fetch('/api/v1/calculation/platform/save', {
             method: 'POST',
@@ -126,7 +169,7 @@ const savePlatformData = async () => {
             throw new Error('Ошибка сохранения данных. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
         }
 
-
+        showErrors.value = false;
     } catch (error) {
         console.error('Error get equipment:', error);
         alert('Ошибка получения данных по оборудованию');
@@ -167,7 +210,7 @@ const fetchPlatformData = async () => {
                         <input
                             type="number"
                             v-model.number="totalData.mountHeightStrut"
-                            class="form-calculation-control compact-input"
+                            :class="['form-calculation-control', 'compact-input', {'input-error': showErrors && !(Number(totalData.mountHeightStrut) > 0)}]"
                             step="1"
                             min="0"
                             max="100000"
@@ -181,7 +224,7 @@ const fetchPlatformData = async () => {
                         <input
                             type="number"
                             v-model.number="totalData.mountHeightPlatform"
-                            class="form-calculation-control compact-input"
+                            :class="['form-calculation-control', 'compact-input', {'input-error': showErrors && !(Number(totalData.mountHeightPlatform) > 0)}]"
                             step="1"
                             min="0"
                             max="100000"
@@ -195,7 +238,7 @@ const fetchPlatformData = async () => {
                         <input
                             type="number"
                             v-model.number="totalData.facetsCount"
-                            class="form-calculation-control compact-input"
+                            :class="['form-calculation-control', 'compact-input', {'input-error': showErrors && !(Number(totalData.facetsCount) > 0)}]"
                             step="1"
                             min="0"
                             max="10"
@@ -229,6 +272,7 @@ const fetchPlatformData = async () => {
                     :section="strut"
                     :index="0"
                     :is-strut="true"
+                    :show-errors="showErrors"
                     @remove-section="removeStrut(index)"
                     @add-element="addElementToStrut()"
                     @remove-element="removeElementFromStrut($event)"
@@ -245,6 +289,7 @@ const fetchPlatformData = async () => {
                     :key="section.id"
                     :section="section"
                     :index="index"
+                    :show-errors="showErrors"
                     @remove-section="removeSection(index)"
                     @add-element="addElementToSection(index)"
                     @remove-element="removeElementFromSection(index, $event)"
@@ -371,5 +416,10 @@ thead {
 
 th {
     border-left: 1px solid #6f7c8a;
+}
+
+.input-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 </style>

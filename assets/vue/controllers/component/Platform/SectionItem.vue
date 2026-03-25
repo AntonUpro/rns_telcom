@@ -8,13 +8,13 @@
             </div>
         </td>
         <td class="section-column section-dimensions form-column">
-            <input v-model.number="section.height" type="number" step="0.1"/>
+            <input v-model.number="section.height" type="number" step="0.1" :class="{'input-error': showErrors && !(Number(section.height) > 0)}"/>
         </td>
         <td class="section-column section-dimensions form-column">
-            <input v-model.number="section.widthBottom" type="number" step="0.01"/>
+            <input v-model.number="section.widthBottom" type="number" step="0.01" :class="{'input-error': showErrors && !(Number(section.widthBottom) > 0)}"/>
         </td>
         <td class="section-column section-dimensions form-column">
-            <input v-model.number="section.widthTop" type="number" step="0.01"/>
+            <input v-model.number="section.widthTop" type="number" step="0.01" :class="{'input-error': showErrors && !(Number(section.widthTop) > 0)}"/>
         </td>
         <td class="section-column section-elements">
             <div class="elements">
@@ -22,6 +22,7 @@
                     v-for="(element, idx) in section.elements"
                     :key="element.id"
                     :element="element"
+                    :show-errors="showErrors"
                     @remove="() => $emit('remove-element', idx)"
                 />
                 <button class="btn-add-element" @click="$emit('add-element')">+ Добавить элемент</button>
@@ -46,6 +47,10 @@ defineProps({
         required: true
     },
     isStrut: {
+        type: Boolean,
+        default: false
+    },
+    showErrors: {
         type: Boolean,
         default: false
     }
@@ -120,5 +125,10 @@ defineEmits(['remove-section', 'add-element', 'remove-element']);
     border-radius: 3px;
     cursor: pointer;
     margin-bottom: 8px;
+}
+
+.input-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
 }
 </style>
