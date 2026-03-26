@@ -5,6 +5,7 @@ import TotalDataManager from "./component/TotalData/TotalDataManager.vue";
 import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager.vue";
 import PlatformSectionManager from "./component/Platform/PlatformSectionManager.vue";
 import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
+import SoftwareCalculationManager from "./component/SoftwareCalculation/SoftwareCalculationManager.vue";
 
 const props = defineProps({
     user: {
@@ -256,6 +257,12 @@ const totalElementsCount = computed(() => {
                 >
                     5. Суммарная нагрузка
                 </button>
+                <button
+                    @click="setActiveTab('software-calc')"
+                    :class="['tab-btn', { active: activeTab === 'software-calc' }]"
+                >
+                    6. Программный расчет
+                </button>
             </div>
 
             <!-- Таб 1: Исходные данные -->
@@ -309,6 +316,13 @@ const totalElementsCount = computed(() => {
                     :calculation-id="calculationId"
                 />
             </div>
+
+            <div v-if="activeTab === 'software-calc'" class="tab-content active">
+                <SoftwareCalculationManager
+                    :calculation-id="calculationId"
+                />
+            </div>
+
         </div>
 
         <!-- Кнопки действий -->
