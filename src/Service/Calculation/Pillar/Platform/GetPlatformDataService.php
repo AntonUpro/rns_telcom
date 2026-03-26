@@ -8,7 +8,9 @@ use App\Dto\Calculation\Pillar\Platform\Element;
 use App\Dto\Calculation\Pillar\Platform\PlatformSaveDataDto;
 use App\Dto\Calculation\Pillar\Platform\PlatformSection;
 use App\Dto\Calculation\Pillar\Platform\TotalDataPlatform;
+use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
+use App\Enum\Pillar\SectionConstructTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
 use App\Repository\PillarPlatformSectionsRepository;
@@ -76,8 +78,8 @@ class GetPlatformDataService
         $elements = [];
         foreach ($sectionElements as $sectionElement) {
             $elements[] = new Element(
-                type: $sectionElement['type'],
-                sectionType: $sectionElement['sectionType'],
+                type: ElementTypeEnum::from($sectionElement['type']),
+                sectionType: SectionConstructTypeEnum::from($sectionElement['sectionType']),
                 widthElement: $sectionElement['widthElement'],
                 lengthElement: $sectionElement['lengthElement'],
                 countElement: $sectionElement['countElement'],

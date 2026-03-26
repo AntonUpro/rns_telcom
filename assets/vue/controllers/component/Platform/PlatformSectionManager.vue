@@ -11,6 +11,8 @@ const props = defineProps({
 
 const sections = ref([]);
 const showErrors = ref(false);
+const elementTypes = ref([]);
+const sectionTypes = ref([]);
 const strut = ref({
     id: null,
     height: 2.5,
@@ -33,15 +35,15 @@ const createEmptySection = () => ({
     widthTop: '',
     elements: [
         {
-            type: 'Пояс',
-            sectionType: 'Труба круглая',
+            type: 'belt',
+            sectionType: 'round_pipe',
             widthElement: 0,
             lengthElement: 0,
             countElement: 2
         },
         {
-            type: 'Пояс',
-            sectionType: 'Труба круглая',
+            type: 'belt',
+            sectionType: 'round_pipe',
             widthElement: 0,
             lengthElement: 0,
             countElement: 2
@@ -51,8 +53,8 @@ const createEmptySection = () => ({
 
 // Инициализация пустого элемента
 const createEmptyElement = () => ({
-    type: 'Пояс',
-    sectionType: 'Труба круглая',
+    type: 'belt',
+    sectionType: 'round_pipe',
     widthElement: 0,
     lengthElement: 0,
     countElement: 2
@@ -191,6 +193,8 @@ const fetchPlatformData = async () => {
         sections.value = responseData.data.sections;
         strut.value = responseData.data.strut;
         totalData.value = responseData.data.totalData;
+        elementTypes.value = responseData.data.elementTypes ?? [];
+        sectionTypes.value = responseData.data.sectionTypes ?? [];
     } catch (error) {
         console.error('Error get plaform data:', error);
         alert('Ошибка получения данных по площадке');
@@ -250,7 +254,7 @@ const fetchPlatformData = async () => {
         </div>
 
         <div class="sections">
-            <div style="display: flex; gap: 8px;">
+            <div class="sections-toolbar">
                 <button class="btn-add-section" @click="addSectionAtStart">+ Добавить секцию в начало</button>
                 <button class="btn-add-section" @click="addStrut">+ Добавить подкосы</button>
             </div>
@@ -258,9 +262,9 @@ const fetchPlatformData = async () => {
                 <thead>
                 <tr>
                     <th>№</th>
-                    <th>Высота мм</th>
-                    <th>Ширина низа мм</th>
-                    <th>Ширина верха мм</th>
+                    <th>Высота, мм</th>
+                    <th>Ширина низа, мм</th>
+                    <th>Ширина верха, мм</th>
                     <th>Элементы</th>
                     <th></th>
                 </tr>
@@ -273,6 +277,8 @@ const fetchPlatformData = async () => {
                     :index="0"
                     :is-strut="true"
                     :show-errors="showErrors"
+                    :element-types="elementTypes"
+                    :section-types="sectionTypes"
                     @remove-section="removeStrut(index)"
                     @add-element="addElementToStrut()"
                     @remove-element="removeElementFromStrut($event)"
@@ -290,6 +296,8 @@ const fetchPlatformData = async () => {
                     :section="section"
                     :index="index"
                     :show-errors="showErrors"
+                    :element-types="elementTypes"
+                    :section-types="sectionTypes"
                     @remove-section="removeSection(index)"
                     @add-element="addElementToSection(index)"
                     @remove-element="removeElementFromSection(index, $event)"
@@ -305,8 +313,10 @@ const fetchPlatformData = async () => {
             </table>
         </div>
 
-        <div class="actions">
-            <button class="btn-save" @click="savePlatformData">Сохранить</button>
+        <div class="table-footer">
+            <div class="footer-actions">
+                <button class="btn-save" @click="savePlatformData">Сохранить</button>
+            </div>
         </div>
     </div>
 </template>
@@ -316,30 +326,52 @@ const fetchPlatformData = async () => {
     font-family: Arial, sans-serif;
     margin: 0 auto;
     font-size: 14px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.default-values-row {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: #fafafa;
+}
+
+.dynamic-inputs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
 }
 
 .sections {
     display: flex;
     flex-direction: column;
+    gap: 0;
+    padding: 1rem 1.5rem;
+}
+
+.sections-toolbar {
+    display: flex;
     gap: 8px;
+    margin-bottom: 12px;
 }
 
 .btn-add-section {
-    align-self: flex-start;
     padding: 6px 12px;
     font-size: 13px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    background-color: #e8f4fd;
+    border: 1px solid #9acffa;
     border-radius: 4px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
 .btn-add-section:hover {
-    background-color: #e0e0e0;
+    background-color: #d0e8fb;
 }
 
 .btn-insert {
-    padding: 4px 8px;
     font-size: 12px;
     background-color: #e8f4fd;
     border: 1px solid #9acffa;
@@ -350,6 +382,11 @@ const fetchPlatformData = async () => {
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-insert:hover {
+    background-color: #d0e8fb;
 }
 
 .btn-remove {
@@ -359,63 +396,64 @@ const fetchPlatformData = async () => {
     align-items: center;
     justify-content: center;
     background-color: #ffebee;
-    border: 1px solid #9acffa;
+    border: 1px solid #ffcdd2;
     border-radius: 50%;
     font-size: 12px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
-.btn-insert:hover {
-    background-color: #d0e8fb;
-}
-
-.actions {
-    margin-top: 24px;
-    text-align: right;
-}
-
-.btn-save {
-    padding: 8px 16px;
-    background-color: #1976d2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.btn-save:hover {
-    background-color: #1565c0;
-}
-
-.default-values-row {
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border: 1px solid #eee;
-    border-radius: 6px;
-    background-color: #fafafa;
-}
-
-.dynamic-inputs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
+.btn-remove:hover {
+    background-color: #ffcdd2;
 }
 
 table {
-    border-top: 1px solid #6f7c8a;
-    border-bottom: 1px solid #6f7c8a;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-thead {
-    font-size: 16px;
-    font-weight: bold;
-    border-bottom: 1px solid #6f7c8a;
-    margin-bottom: 8px;
+thead tr {
+    background: #e9ecef;
 }
 
 th {
-    border-left: 1px solid #6f7c8a;
+    padding: 0.6rem 0.75rem;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    border: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+/* Футер — как в EquipmentManager */
+.table-footer {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+.footer-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-save {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-save:hover {
+    background-color: #27ae60;
 }
 
 .input-error {

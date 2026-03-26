@@ -4,6 +4,8 @@ namespace App\Controller\Api\PillarCalculation;
 
 use App\Controller\Api\AbstractApiController;
 use App\Dto\Calculation\Pillar\Platform\PlatformSaveDataDto;
+use App\Enum\Pillar\ElementTypeEnum;
+use App\Enum\Pillar\SectionConstructTypeEnum;
 use App\Service\Calculation\Pillar\Platform\GetPlatformDataService;
 use App\Service\Calculation\Pillar\Platform\SavePlatformDataService;
 use Psr\Log\LoggerInterface;
@@ -52,7 +54,11 @@ class PlatformController extends AbstractApiController
         try {
             $data = $this->getPlatformDataService->getPlatformData($calculationId);
 
-            return $this->successResponse($data->toArray());
+            $response = $data->toArray();
+            $response['elementTypes']  = ElementTypeEnum::toOptions();
+            $response['sectionTypes']  = SectionConstructTypeEnum::toOptions();
+
+            return $this->successResponse($response);
         } catch (Throwable $e) {
             $this->logger->error(
                 sprintf('Ошибка получения данных площадки: %s', $e->getMessage()),
