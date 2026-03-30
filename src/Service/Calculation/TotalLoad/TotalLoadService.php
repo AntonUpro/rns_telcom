@@ -15,7 +15,7 @@ use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
-use App\Service\Calculation\Pillar\PillarWindLoadCalculationService;
+use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
 
 /**
  * Собирает суммарную нагрузку для таба 5:

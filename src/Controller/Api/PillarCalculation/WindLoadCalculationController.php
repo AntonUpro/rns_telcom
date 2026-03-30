@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Api\PillarCalculation;
 
 use App\Controller\Api\AbstractApiController;
-use App\Service\Calculation\Pillar\PillarWindLoadCalculationService;
+use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

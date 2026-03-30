@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Calculation\Pillar;
+namespace App\Service\Calculation\Pillar\Pillar;
 
 use App\Dto\Calculation\Pillar\Calculate\SectionDto;
 use App\Dto\Calculation\Pillar\Calculate\StrengtheningDto;

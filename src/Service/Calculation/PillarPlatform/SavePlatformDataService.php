@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Calculation\Pillar\Platform;
+namespace App\Service\Calculation\PillarPlatform;
 
 use App\Dto\Calculation\Pillar\Platform\Element;
 use App\Dto\Calculation\Pillar\Platform\PlatformSaveDataDto;
