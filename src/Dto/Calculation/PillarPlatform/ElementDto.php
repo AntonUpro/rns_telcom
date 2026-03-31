@@ -20,7 +20,7 @@ final readonly class ElementDto
 
     public function areaElements(): float
     {
-        return $this->with * $this->length * $this->count;
+        return $this->with / 1000 * $this->length / 1000 * $this->count;
     }
 
     public function calcAiCxi(): float

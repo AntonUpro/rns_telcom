@@ -28,7 +28,7 @@ final readonly class ElementsCollectionDto
     {
         $sum = 0;
         foreach ($this->elements as $element) {
-            $sum += $element->calcAiCxi() * $element->areaElements();
+            $sum += $element->sectionConstructType->cx() * $element->areaElements();
         }
 
         return $sum;

@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Dto\Calculation\PillarPlatform;
 
+use App\Enum\Pillar\PlatformSectionTypeEnum;
+
 final readonly class PillarPlatformSectionDto
 {
     public function __construct(
         public int $numberSection,
+        public PlatformSectionTypeEnum $type,
         public int $heightSection,
         public int $mountingHeightSection,
         public float $areaContourSection,

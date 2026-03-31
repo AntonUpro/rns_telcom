@@ -16,6 +16,7 @@ use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
 use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
+use App\Service\Calculation\PillarPlatform\PillarPlatformCalculationService;
 
 /**
  * Собирает суммарную нагрузку для таба 5:
@@ -35,6 +36,7 @@ final readonly class TotalLoadService
         private CalculationRepository $calculationRepository,
         private PillarWindLoadCalculationService $pillarWindLoadCalculationService,
         private CalculationWindEquipmentService $calculationWindEquipmentService,
+        private PillarPlatformCalculationService $pillarPlatformCalculationService,
     ) {
     }
 
@@ -56,7 +58,7 @@ final readonly class TotalLoadService
         $response = new TotalLoadResponseDto();
 
         $this->fillPillarSections($response, $calculationId);
-        $this->fillPlatformSections($response, $calculation->getPillarPlatform()?->getSections() ?? [], $calculationData, $calculation->getPillarPlatform()?->getFacetsCount() ?? 1);
+        $this->fillPlatformSections($response, $calculationId);
         $this->fillEquipmentHeights($response, $calculationId);
 
         return $response;
@@ -100,107 +102,24 @@ final readonly class TotalLoadService
      */
     private function fillPlatformSections(
         TotalLoadResponseDto $response,
-        array $platformSections,
-        CalculationData $calculationData,
-        int $facetsCount,
+        int $calculationId,
     ): void {
-        if ($platformSections === []) {
-            return;
-        }
+        $totalLoad = $this->pillarPlatformCalculationService->calculatePillarPlatform($calculationId);
 
-        $windRegion = $calculationData->getWindRegion();
-        $terrainType = $calculationData->getTerrainType();
-
-        if ($windRegion === null || $terrainType === null) {
-            // Недостаточно исходных данных для расчёта нагрузки на площадку
-            return;
-        }
-
-        foreach ($platformSections as $section) {
-            $isStrut = $section->getTypeSection() === PlatformSectionTypeEnum::STRUT->value;
-            $label = $isStrut ? 'Подкосы' : (string)$section->getNumberSection();
-            $topHeight = (float)($section->getMountHeightTop() ?? 0);   // мм
-            $height = (float)($section->getHeight() ?? 0);           // мм
-
-            // Средняя высота секции для определения k(ze)
-            $middleHeightM = (($section->getMountHeightTop() ?? 0) + ($section->getMountHeightBottom() ?? 0)) / 2 / 1000;
-
-            $kze = $terrainType->roughnessCoefficient($middleHeightM);
-
-            // Расчёт суммарной ветровой нагрузки на секцию по её элементам
-            $totalLoadKgf = $this->calcPlatformSectionLoad(
-                elements: $section->getElements() ?? [],
-                heightMm: $height,
-                kze: $kze,
-                windRegion: $windRegion,
-                facetsCount: $facetsCount,
-            );
-
-            $heightM = $height > 0 ? $height / 1000 : 0;
-
-            // Нагрузка на 1 п.м. 1 пояса = F / h / n_поясов
-            $loadPerLinearMeterPerBelt = ($heightM > 0 && $facetsCount > 0)
-                ? $totalLoadKgf / $heightM / $facetsCount
-                : 0;
+        foreach ($totalLoad->platformSections as $section) {
+            $isStrut = $section->type === PlatformSectionTypeEnum::STRUT;
+            $label = $isStrut ? 'Подкосы' : (string)$section->numberSection;
+            $topHeight = (float)($section->mountingHeightSection + $section->heightSection );   // мм
 
             $response->addPlatformSection(new PlatformSectionTotalLoadDto(
                 label: $label,
                 isStrut: $isStrut,
                 topHeight: $topHeight,
-                height: $height,
-                totalLoad: $totalLoadKgf,
-                loadPerLinearMeterPerBelt: $loadPerLinearMeterPerBelt,
+                height: $section->heightSection,
+                totalLoad: $section->press,
+                loadPerLinearMeterPerBelt: $section->press / $section->heightSection * 1000,
             ));
         }
-    }
-
-    /**
-     * Ветровое давление на секцию площадки по её элементам.
-     *
-     * Формула: P = W0 × k(ze) × γf × Cx × A × n_элементов × n_поясов
-     * где A = ширина_элемента(м) × высота_секции(м)
-     *
-     * TODO: уточнить у проектировщика:
-     *   - следует ли умножать на facetsCount здесь или элементы уже хранятся с учётом всех поясов;
-     *   - корректный Cx для каждого типа сечения элемента (sectionType: "Труба круглая" / "Уголок" и т.д.).
-     *
-     * @param array<array{widthElement: int|float, lengthElement: int|float, countElement: int, type: string, sectionType: string}> $elements
-     */
-    private function calcPlatformSectionLoad(
-        array $elements,
-        float $heightMm,
-        float $kze,
-        mixed $windRegion,
-        int $facetsCount,
-    ): float {
-        if ($elements === [] || $heightMm <= 0) {
-            return 0;
-        }
-
-        $heightM = $heightMm / 1000;
-        $totalKgf = 0.0;
-
-        foreach ($elements as $element) {
-            $widthM = ((float)($element['widthElement'] ?? 0)) / 1000;
-            $count = (int)($element['countElement'] ?? 0);
-
-            if ($widthM <= 0 || $count <= 0) {
-                continue;
-            }
-
-            $area = $widthM * $heightM;
-
-            $pressPerElement = $windRegion->pressureKgPerM()
-                * $kze
-                * DefaultConstant::SECURITY_COEFFICIENT
-                * self::PLATFORM_ELEMENT_CX
-                * $area;
-
-            $totalKgf += $pressPerElement * $count;
-        }
-
-        // Умножаем на количество поясов, т.к. элементы хранятся для одного пояса
-        return $totalKgf * $facetsCount;
     }
 
     // ─────────────────────────────────────────────────────────────────────────

@@ -12,6 +12,7 @@ use App\Entity\PillarPlatformSection;
 use App\Enum\CalculationData\TerrainTypeEnum;
 use App\Enum\CalculationData\WindRegionEnum;
 use App\Enum\Pillar\ElementTypeEnum;
+use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Enum\Pillar\SectionConstructTypeEnum;
 
 final readonly class SectionCalculator
@@ -25,9 +26,9 @@ final readonly class SectionCalculator
 
     public function calculate(): PillarPlatformSectionDto
     {
-        $areaContourSection = $this->section->getHeight() * ($this->section->getWidthBottom() + $this->section->getWidthTop()) / 2;
+        $areaContourSection = $this->section->getHeight() / 1000 * ($this->section->getWidthBottom() + $this->section->getWidthTop()) / 2 / 1000;
 
-        $middleHeight = ($this->section->getMountHeightBottom() + $this->section->getMountHeightTop()) / 2;
+        $middleHeight = ($this->section->getMountHeightBottom() + $this->section->getMountHeightTop()) / 2 / 1000;
 
         $kze = $this->terrainTypeEnum->roughnessCoefficient($middleHeight);
 
@@ -44,6 +45,7 @@ final readonly class SectionCalculator
         $press = $areaContourSection * ($ct * $this->windRegion->pressureKgPerM() * $kze) * DefaultConstant::SECURITY_COEFFICIENT;
         return new PillarPlatformSectionDto(
             numberSection: $this->section->getNumberSection(),
+            type: PlatformSectionTypeEnum::from($this->section->getTypeSection()),
             heightSection: $this->section->getHeight(),
             mountingHeightSection: $this->section->getMountHeightBottom(),
             areaContourSection: $areaContourSection,

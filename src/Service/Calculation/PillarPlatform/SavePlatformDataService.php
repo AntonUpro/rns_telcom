@@ -67,7 +67,7 @@ class SavePlatformDataService
 
             if ($platformData->strut) {
                 $requestSectionNumbers[] = 0;
-                $sectionEntity = $existPlatformSectionByNumber[$key] ?? new PillarPlatformSection();
+                $sectionEntity = $existPlatformSectionByNumber[0] ?? new PillarPlatformSection();
 
                 $pillarPlatformSection = $sectionEntity
                     ->setPillarPlatform($pillarPlatform)

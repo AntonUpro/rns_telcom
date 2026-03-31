@@ -18,13 +18,14 @@ class SectionPermeabilityCalculator
      */
     public static function calculate(float $fi): float
     {
+        $fi = $fi * 10;
         $table = [
-            0.1 => 0.99,
-            0.2 => 0.81,
-            0.3 => 0.65,
-            0.4 => 0.48,
-            0.5 => 0.32,
-            0.6 => 0.15,
+            1 => 0.99,
+            2 => 0.81,
+            3 => 0.65,
+            4 => 0.48,
+            5 => 0.32,
+            6 => 0.15,
         ];
 
         $keys = array_keys($table);
