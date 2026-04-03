@@ -26,12 +26,6 @@ use App\Service\Calculation\PillarPlatform\PillarPlatformCalculationService;
  */
 final readonly class TotalLoadService
 {
-    /**
-     * Cx для элементов площадки (пояса, раскосы) — трубчатые профили.
-     * TODO: уточнить значение Cx у проектировщика (возможно зависит от типа сечения элемента).
-     */
-    private const PLATFORM_ELEMENT_CX = 1.4;
-
     public function __construct(
         private CalculationRepository $calculationRepository,
         private PillarWindLoadCalculationService $pillarWindLoadCalculationService,
@@ -169,11 +163,7 @@ final readonly class TotalLoadService
         // Сортируем по номеру высотной группы
         ksort($byGroup);
 
-        // Высота интервала — расстояние от предыдущей отметки до текущей
-        $prevHeightMm = 0.0;
         foreach ($byGroup as $group => $row) {
-            $intervalMm = $row['heightMark'] - $prevHeightMm;
-            $prevHeightMm = $row['heightMark'];
 
             $response->addEquipmentHeight(new EquipmentHeightTotalLoadDto(
                 heightGroup: $group,
