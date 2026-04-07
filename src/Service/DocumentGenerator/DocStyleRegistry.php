@@ -32,12 +32,12 @@ final class DocStyleRegistry
 
     public static function center(): array
     {
-        return ['size' => 10, 'name' => 'Times New Roman'];
+        return ['italic' => true, 'size' => 10, 'name' => 'Times New Roman'];
     }
 
-    public static function boldCenter(): array
+    public static function italicCenter(): array
     {
-        return ['bold' => true, 'size' => 10, 'name' => 'Times New Roman'];
+        return ['italic' => true, 'size' => 10, 'name' => 'Times New Roman'];
     }
 
     // ─── Стили параграфов ─────────────────────────────────────────────────────
@@ -50,6 +50,11 @@ final class DocStyleRegistry
     public static function paragraphLeft(): array
     {
         return ['alignment' => Jc::START];
+    }
+
+    public static function paragraphRight(): array
+    {
+        return ['alignment' => Jc::END];
     }
 
     public static function paragraphTitle(): array
@@ -77,17 +82,17 @@ final class DocStyleRegistry
 
     public static function headerCell(): array
     {
-        return ['valign' => 'center', 'bgColor' => 'D9D9D9'];
+        return ['valign' => 'center'];
     }
 
     public static function categoryRow(): array
     {
-        return ['valign' => 'center', 'bgColor' => 'E0E0E0'];
+        return ['valign' => 'center'];
     }
 
     public static function subcategoryRow(): array
     {
-        return ['valign' => 'center', 'bgColor' => 'F0F0F0'];
+        return ['valign' => 'center'];
     }
 
     public static function dataCell(): array

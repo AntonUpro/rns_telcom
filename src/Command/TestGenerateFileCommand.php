@@ -14,14 +14,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class TestGenerateFileCommand extends Command
 {
     public function __construct(
-        private GenerateEquipmentService $generateEquipmentService,
+//        private GenerateEquipmentService $generateEquipmentService,
     ) {
         parent::__construct();
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->generateEquipmentService->generate();
+//        $this->generateEquipmentService->generate();
         return Command::SUCCESS;
     }
 }

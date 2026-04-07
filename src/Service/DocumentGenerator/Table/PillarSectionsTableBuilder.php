@@ -24,28 +24,28 @@ use PhpOffice\PhpWord\Element\Table;
 final class PillarSectionsTableBuilder
 {
     private const COL_WIDTHS = [
-        500,   // №
-        700,   // z верх, м
-        700,   // h, м
-        600,   // k(ze)
-        700,   // W₀, кг/м²
+        400,   // №
+        600,   // z верх, м
+        600,   // h, м
+        500,   // k(ze)
+        600,   // W₀, кг/м²
         500,   // γ
         // Ствол
-        700,   // A, м²
-        600,   // Сх
-        700,   // P, кг
+        600,   // A, м²
+        500,   // Сх
+        600,   // P, кг
         // Кабельные полки
-        700,   // A, м²
-        600,   // Сх
-        700,   // P, кг
+        600,   // A, м²
+        500,   // Сх
+        600,   // P, кг
         // Кабели
-        700,   // A, м²
-        600,   // Сх
-        700,   // P, кг
+        600,   // A, м²
+        500,   // Сх
+        600,   // P, кг
         // Лестница
-        700,   // A, м²
-        600,   // Сх
-        700,   // P, кг
+        600,   // A, м²
+        500,   // Сх
+        600,   // P, кг
     ];
 
     private const GROUP_HEADERS = [
@@ -71,7 +71,7 @@ final class PillarSectionsTableBuilder
 
     private function addHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::boldCenter();
+        $italic   = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
         $w      = self::COL_WIDTHS;
@@ -79,32 +79,32 @@ final class PillarSectionsTableBuilder
         // ── Строка 1: базовые столбцы + названия групп ──────────────────────
         $table->addRow(600);
 
-        $table->addCell($w[0], $hCell)->addText('№', $bold, $center);
-        $table->addCell($w[1], $hCell)->addText('z верх, м', $bold, $center);
-        $table->addCell($w[2], $hCell)->addText('h, м', $bold, $center);
-        $table->addCell($w[3], $hCell)->addText('k(ze)', $bold, $center);
-        $table->addCell($w[4], $hCell)->addText('W₀, кг/м²', $bold, $center);
-        $table->addCell($w[5], $hCell)->addText('γ', $bold, $center);
+        $table->addCell($w[0], [...$hCell, 'vMerge' => 'restart'])->addText('№', $italic, $center);
+        $table->addCell($w[1], [...$hCell, 'vMerge' => 'restart'])->addText('z верх, м', $italic, $center);
+        $table->addCell($w[2], [...$hCell, 'vMerge' => 'restart'])->addText('h, м', $italic, $center);
+        $table->addCell($w[3], [...$hCell, 'vMerge' => 'restart'])->addText('k(ze)', $italic, $center);
+        $table->addCell($w[4], [...$hCell, 'vMerge' => 'restart'])->addText('W₀, кг/м²', $italic, $center);
+        $table->addCell($w[5], [...$hCell, 'vMerge' => 'restart'])->addText('γ', $italic, $center);
 
         foreach (self::GROUP_HEADERS as $i => $name) {
             $width = $w[6 + $i * 3] + $w[7 + $i * 3] + $w[8 + $i * 3];
-            $table->addCell($width, array_merge($hCell, ['gridSpan' => 3]))->addText($name, $bold, $center);
+            $table->addCell($width, array_merge($hCell, ['gridSpan' => 3]))->addText($name, $italic, $center);
         }
 
         // ── Строка 2: подзаголовки подгрупп ─────────────────────────────────
         $table->addRow(500);
 
-        $table->addCell($w[0], $hCell)->addText('№', $bold, $center);
-        $table->addCell($w[1], $hCell)->addText('z верх, м', $bold, $center);
-        $table->addCell($w[2], $hCell)->addText('h, м', $bold, $center);
-        $table->addCell($w[3], $hCell)->addText('k(ze)', $bold, $center);
-        $table->addCell($w[4], $hCell)->addText('W₀, кг/м²', $bold, $center);
-        $table->addCell($w[5], $hCell)->addText('γ', $bold, $center);
+        $table->addCell($w[0], ['vMerge' => 'continue']);
+        $table->addCell($w[1], ['vMerge' => 'continue']);
+        $table->addCell($w[2], ['vMerge' => 'continue']);
+        $table->addCell($w[3], ['vMerge' => 'continue']);
+        $table->addCell($w[4], ['vMerge' => 'continue']);
+        $table->addCell($w[5], ['vMerge' => 'continue']);
 
         for ($g = 0; $g < 4; $g++) {
-            $table->addCell($w[6 + $g * 3], $hCell)->addText('A, м²', $bold, $center);
-            $table->addCell($w[7 + $g * 3], $hCell)->addText('Сх', $bold, $center);
-            $table->addCell($w[8 + $g * 3], $hCell)->addText('P, кг', $bold, $center);
+            $table->addCell($w[6 + $g * 3], $hCell)->addText('A, м²', $italic, $center);
+            $table->addCell($w[7 + $g * 3], $hCell)->addText('Сх', $italic, $center);
+            $table->addCell($w[8 + $g * 3], $hCell)->addText('P, кг', $italic, $center);
         }
     }
 

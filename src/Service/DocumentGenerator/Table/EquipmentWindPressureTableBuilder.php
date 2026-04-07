@@ -24,6 +24,7 @@ use PhpOffice\PhpWord\Element\Table;
  */
 final class EquipmentWindPressureTableBuilder
 {
+    // суммарно 10000
     private const COL_WIDTHS = [
         2200,  // Обозначение оборудования, габариты
         500,   // N, шт
@@ -58,6 +59,12 @@ final class EquipmentWindPressureTableBuilder
         );
         $section->addTextBreak(1);
 
+        $section->addText(
+            'Таблица 2',
+            DocStyleRegistry::normalText(),
+            DocStyleRegistry::paragraphRight(),
+        );
+
         $table = $section->addTable(DocStyleRegistry::tableStyle());
 
         $this->addHeader($table);
@@ -73,16 +80,10 @@ final class EquipmentWindPressureTableBuilder
 
     private function addHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::boldCenter();
+        $bold   = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
         $w      = self::COL_WIDTHS;
-        $total  = array_sum($w);
-
-        // ── Строка: «Таблица 2» ──────────────────────────────────────────────
-        $table->addRow(400);
-        $table->addCell($total, array_merge($hCell, ['gridSpan' => self::TOTAL_COLS]))
-            ->addText('Таблица 2', $bold, $center);
 
         // ── Строка: заголовки столбцов ───────────────────────────────────────
         $table->addRow(600);
@@ -114,7 +115,7 @@ final class EquipmentWindPressureTableBuilder
      */
     private function fillData(Table $table, array $data): void
     {
-        $bold       = DocStyleRegistry::boldCenter();
+        $bold       = DocStyleRegistry::italicCenter();
         $normal     = DocStyleRegistry::center();
         $center     = DocStyleRegistry::paragraphCenter();
         $catRow     = DocStyleRegistry::categoryRow();

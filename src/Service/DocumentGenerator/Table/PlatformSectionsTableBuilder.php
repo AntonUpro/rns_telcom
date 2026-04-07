@@ -89,7 +89,7 @@ final class PlatformSectionsTableBuilder
 
     private function addHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::boldCenter();
+        $bold   = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
 

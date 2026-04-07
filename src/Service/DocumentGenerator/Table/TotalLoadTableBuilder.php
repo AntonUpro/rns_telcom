@@ -65,7 +65,7 @@ final class TotalLoadTableBuilder
 
     private function addPillarHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::boldCenter();
+        $bold   = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
         $w      = self::PILLAR_WIDTHS;
@@ -112,7 +112,7 @@ final class TotalLoadTableBuilder
 
     private function addPlatformHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::boldCenter();
+        $bold   = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
         $w      = self::PLATFORM_WIDTHS;
@@ -159,7 +159,7 @@ final class TotalLoadTableBuilder
 
     private function addEquipmentHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::boldCenter();
+        $bold   = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
         $w      = self::EQUIPMENT_WIDTHS;
