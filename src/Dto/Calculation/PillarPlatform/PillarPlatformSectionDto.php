@@ -13,6 +13,8 @@ final readonly class PillarPlatformSectionDto
         public PlatformSectionTypeEnum $type,
         public int $heightSection,
         public int $mountingHeightSection,
+        public int $widthBottom,
+        public int $widthTop,
         public float $areaContourSection,
         public float $kze,
         public float $cx,

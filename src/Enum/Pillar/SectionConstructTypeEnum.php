@@ -44,4 +44,16 @@ enum SectionConstructTypeEnum: string
             self::OTHER => 1.4,
         };
     }
+
+    public function symbol(): string
+    {
+        return match ($this) {
+            self::ROUND_PIPE   => '○',
+            self::SQUARE_PIPE  => '□',
+            self::ANGLE        => '∟',
+            self::CHANNEL      => '[',
+            self::DOUBLE_ANGLE => '∟∟',
+            self::OTHER        => '—',
+        };
+    }
 }

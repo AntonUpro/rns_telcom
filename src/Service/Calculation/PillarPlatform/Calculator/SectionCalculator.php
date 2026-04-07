@@ -48,6 +48,8 @@ final readonly class SectionCalculator
             type: PlatformSectionTypeEnum::from($this->section->getTypeSection()),
             heightSection: $this->section->getHeight(),
             mountingHeightSection: $this->section->getMountHeightBottom(),
+            widthBottom: (int) $this->section->getWidthBottom(),
+            widthTop: (int) $this->section->getWidthTop(),
             areaContourSection: $areaContourSection,
             kze: $kze,
             cx: $cx,

@@ -184,8 +184,32 @@ const saveCalculation = () => {
     alert('Расчет сохранен');
 };
 
-const exportToPDF = () => {
-    window.print();
+const isDownloading = ref(false);
+
+const downloadReport = async () => {
+    isDownloading.value = true;
+    try {
+        const response = await fetch(`/api/v1/calculation/${props.calculationId}/report`);
+
+        if (!response.ok) {
+            const data = await response.json().catch(() => ({}));
+            throw new Error(data.error ?? 'Ошибка генерации файла');
+        }
+
+        const blob = await response.blob();
+        const url  = window.URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `calculation_${props.calculationId}.docx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        alert('Ошибка: ' + error.message);
+    } finally {
+        isDownloading.value = false;
+    }
 };
 
 
@@ -333,8 +357,8 @@ const totalElementsCount = computed(() => {
 <!--            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">-->
 <!--                Сохранить расчет-->
 <!--            </button>-->
-            <button @click="exportToPDF" class="btn-action btn-secondary">
-                Экспорт в PDF
+            <button @click="downloadReport" class="btn-action btn-secondary" :disabled="isDownloading">
+                {{ isDownloading ? 'Формируется файл...' : 'Скачать расчет' }}
             </button>
 <!--            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">-->
 <!--                Экспорт в Word-->
