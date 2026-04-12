@@ -13,9 +13,9 @@ const IMAGE_FIELDS = [
     {type: 'scheme', label: 'Схема опоры'},
     {type: 'scheme_pc', label: 'Расчетная схема опоры В ПК'},
     {type: 'sections', label: 'Сечения'},
-    {type: 'mosaic_n', label: 'Мозаика максимальных усилий N'},
-    {type: 'mosaic_m', label: 'Мозаика максимальных моментов M'},
-    {type: 'mosaic_displacement', label: 'Мозаика максимальных перемещений'},
+    {type: 'mosaic_n', label: 'Мозаика усилий N'},
+    {type: 'mosaic_m', label: 'Мозаика моментов M'},
+    {type: 'mosaic_displacement', label: 'Мозаика перемещений'},
 ];
 
 // ─── Состояние ────────────────────────────────────────────────────────────────
@@ -329,7 +329,7 @@ onMounted(fetchImages);
 /* ── Сетка карточек ── */
 .sc-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
 }
 
@@ -350,6 +350,7 @@ onMounted(fetchImages);
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    height: 50px;
     padding: 10px 12px 8px;
     background: #f4f6f8;
     border-bottom: 1px solid #dee2e6;
@@ -391,7 +392,7 @@ onMounted(fetchImages);
     justify-content: center;
     gap: 8px;
     padding: 24px 16px;
-    min-height: 140px;
+    min-height: 220px;
     border: 2px dashed #ced4da;
     border-radius: 0;
     background: #f8f9fa;
@@ -432,7 +433,7 @@ onMounted(fetchImages);
 .sc-preview-img {
     display: block;
     width: 100%;
-    max-height: 160px;
+    max-height: 220px;
     object-fit: contain;
     background: #f8f9fa;
     padding: 8px;
