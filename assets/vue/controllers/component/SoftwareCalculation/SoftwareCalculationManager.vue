@@ -1,5 +1,6 @@
 <script setup>
 import {ref, onMounted} from 'vue';
+import DocumentsForm from './DocumentsForm.vue';
 
 const props = defineProps({
     calculationId: {
@@ -161,14 +162,6 @@ onMounted(fetchImages);
 
 <template>
     <div class="sw-calc-manager">
-
-        <!--        <div class="sc-section-header">-->
-        <!--            <h2 class="sc-title">6. Программный расчет опоры</h2>-->
-        <!--            <p class="sc-subtitle">-->
-        <!--                Загрузите скриншоты из программы расчёта: схему, сечения и мозаики усилий/перемещений-->
-        <!--            </p>-->
-        <!--        </div>-->
-
         <!-- Загрузка -->
         <div v-if="isLoading" class="sc-state-loading">Загрузка сохранённых изображений...</div>
 

@@ -6,6 +6,7 @@ import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager
 import PlatformSectionManager from "./component/Platform/PlatformSectionManager.vue";
 import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
 import SoftwareCalculationManager from "./component/SoftwareCalculation/SoftwareCalculationManager.vue";
+import DocumentsForm from "./component/SoftwareCalculation/DocumentsForm.vue";
 
 const props = defineProps({
     user: {
@@ -342,6 +343,9 @@ const totalElementsCount = computed(() => {
             </div>
 
             <div v-if="activeTab === 'software-calc'" class="tab-content active">
+                <!-- Форма документов -->
+                <DocumentsForm :calculation-id="calculationId" />
+                <!-- Форма скринов из лиры -->
                 <SoftwareCalculationManager
                     :calculation-id="calculationId"
                 />
