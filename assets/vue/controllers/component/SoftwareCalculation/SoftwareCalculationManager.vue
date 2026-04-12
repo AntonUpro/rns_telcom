@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted} from 'vue';
 
 const props = defineProps({
     calculationId: {
@@ -10,22 +10,23 @@ const props = defineProps({
 
 // ─── Описание полей ────────────────────────────────────────────────────────────
 const IMAGE_FIELDS = [
-    { type: 'scheme',              label: 'Расчетная схема опоры' },
-    { type: 'sections',            label: 'Сечения' },
-    { type: 'mosaic_n',            label: 'Мозаика максимальных усилий N' },
-    { type: 'mosaic_m',            label: 'Мозаика максимальных моментов M' },
-    { type: 'mosaic_displacement', label: 'Мозаика максимальных перемещений' },
+    {type: 'scheme', label: 'Схема опоры'},
+    {type: 'scheme_pc', label: 'Расчетная схема опоры В ПК'},
+    {type: 'sections', label: 'Сечения'},
+    {type: 'mosaic_n', label: 'Мозаика максимальных усилий N'},
+    {type: 'mosaic_m', label: 'Мозаика максимальных моментов M'},
+    {type: 'mosaic_displacement', label: 'Мозаика максимальных перемещений'},
 ];
 
 // ─── Состояние ────────────────────────────────────────────────────────────────
 /** Для каждого imageType хранит { previewUrl, file, saved: { id, version, ... } } */
 const images = ref(
-    Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, { previewUrl: null, file: null, saved: null }]))
+    Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, {previewUrl: null, file: null, saved: null}]))
 );
 
-const isSaving  = ref(false);
+const isSaving = ref(false);
 const isLoading = ref(false);
-const message   = ref(null);  // { type: 'success'|'error', text: string }
+const message = ref(null);  // { type: 'success'|'error', text: string }
 
 // ─── Загрузка существующих изображений ────────────────────────────────────────
 async function fetchImages() {
@@ -90,12 +91,12 @@ async function saveImages() {
         .filter(t => images.value[t].file !== null);
 
     if (pendingTypes.length === 0) {
-        message.value = { type: 'error', text: 'Нет новых изображений для сохранения' };
+        message.value = {type: 'error', text: 'Нет новых изображений для сохранения'};
         return;
     }
 
     isSaving.value = true;
-    message.value  = null;
+    message.value = null;
 
     let successCount = 0;
     const errors = [];
@@ -117,7 +118,7 @@ async function saveImages() {
             }
 
             images.value[imageType].saved = data.data;
-            images.value[imageType].file  = null;
+            images.value[imageType].file = null;
             successCount++;
         } catch (err) {
             const label = IMAGE_FIELDS.find(f => f.type === imageType)?.label ?? imageType;
@@ -128,7 +129,7 @@ async function saveImages() {
     isSaving.value = false;
 
     if (errors.length === 0) {
-        message.value = { type: 'success', text: `Сохранено изображений: ${successCount}` };
+        message.value = {type: 'success', text: `Сохранено изображений: ${successCount}`};
     } else {
         message.value = {
             type: 'error',
@@ -161,12 +162,12 @@ onMounted(fetchImages);
 <template>
     <div class="sw-calc-manager">
 
-<!--        <div class="sc-section-header">-->
-<!--            <h2 class="sc-title">6. Программный расчет опоры</h2>-->
-<!--            <p class="sc-subtitle">-->
-<!--                Загрузите скриншоты из программы расчёта: схему, сечения и мозаики усилий/перемещений-->
-<!--            </p>-->
-<!--        </div>-->
+        <!--        <div class="sc-section-header">-->
+        <!--            <h2 class="sc-title">6. Программный расчет опоры</h2>-->
+        <!--            <p class="sc-subtitle">-->
+        <!--                Загрузите скриншоты из программы расчёта: схему, сечения и мозаики усилий/перемещений-->
+        <!--            </p>-->
+        <!--        </div>-->
 
         <!-- Загрузка -->
         <div v-if="isLoading" class="sc-state-loading">Загрузка сохранённых изображений...</div>
@@ -234,7 +235,8 @@ onMounted(fetchImages);
                         @paste="onPaste(field.type, $event)"
                         @click="focusZone($event.currentTarget)"
                     >
-                        <svg class="sc-drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <svg class="sc-drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="1.5">
                             <path d="M4 16l4-4 4 4 4-6 4 6" stroke-linecap="round" stroke-linejoin="round"/>
                             <rect x="3" y="3" width="18" height="18" rx="2"/>
                         </svg>
@@ -327,7 +329,7 @@ onMounted(fetchImages);
 /* ── Сетка карточек ── */
 .sc-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 16px;
 }
 

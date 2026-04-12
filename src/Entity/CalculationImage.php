@@ -16,14 +16,16 @@ use DateTimeImmutable;
 #[ORM\HasLifecycleCallbacks]
 class CalculationImage
 {
-    public const TYPE_SCHEME             = 'scheme';
-    public const TYPE_SECTIONS           = 'sections';
-    public const TYPE_MOSAIC_N           = 'mosaic_n';
-    public const TYPE_MOSAIC_M           = 'mosaic_m';
+    public const TYPE_SCHEME = 'scheme';
+    public const TYPE_SCHEME_PC = 'scheme_pc';
+    public const TYPE_SECTIONS = 'sections';
+    public const TYPE_MOSAIC_N = 'mosaic_n';
+    public const TYPE_MOSAIC_M = 'mosaic_m';
     public const TYPE_MOSAIC_DISPLACEMENT = 'mosaic_displacement';
 
     public const ALLOWED_TYPES = [
         self::TYPE_SCHEME,
+        self::TYPE_SCHEME_PC,
         self::TYPE_SECTIONS,
         self::TYPE_MOSAIC_N,
         self::TYPE_MOSAIC_M,
@@ -184,14 +186,14 @@ class CalculationImage
     public function toArray(): array
     {
         return [
-            'id'               => $this->id,
-            'imageType'        => $this->imageType,
+            'id' => $this->id,
+            'imageType' => $this->imageType,
             'originalFileName' => $this->originalFileName,
-            'mimeType'         => $this->mimeType,
-            'fileSize'         => $this->fileSize,
-            'version'          => $this->version,
-            'createdAt'        => $this->createdAt->format('Y-m-d H:i:s'),
-            'updatedAt'        => $this->updatedAt?->format('Y-m-d H:i:s'),
+            'mimeType' => $this->mimeType,
+            'fileSize' => $this->fileSize,
+            'version' => $this->version,
+            'createdAt' => $this->createdAt->format('Y-m-d H:i:s'),
+            'updatedAt' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];
     }
 }
