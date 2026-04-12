@@ -28,27 +28,29 @@ final class PlatformSectionsTableBuilder
     private const MERGED_COLS = [0, 1, 2, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
 
     private const COL_WIDTHS = [
-        400,   // 0  №
-        700,   // 1  z, м
-        600,   // 2  k(ze)
-        900,   // 3  Элемент
-        700,   // 4  Профиль, мм
-        600,   // 5  l, м
-        500,   // 6  n, шт
-        700,   // 7  Аэл-ов, м²
-        700,   // 8  ∑Аэл-ов, м²
-        500,   // 9  Схi
-        600,   // 10 Bниз, м
-        600,   // 11 Bверх, м
-        700,   // 12 АK, м²
-        500,   // 13 Сх
-        500,   // 14 φ1
-        500,   // 15 η
-        500,   // 16 сt
-        700,   // 17 Wо, кг/м²
-        400,   // 18 Y
-        700,   // 19 P, кг
+        300,   // 0  №
+        600,   // 1  z, м
+        500,   // 2  k(ze)
+        800,   // 3  Элемент
+        600,   // 4  Профиль, мм
+        500,   // 5  l, м
+        400,   // 6  n, шт
+        600,   // 7  Аэл-ов, м²
+        600,   // 8  ∑Аэл-ов, м²
+        400,   // 9  Схi
+        500,   // 10 Bниз, м
+        500,   // 11 Bверх, м
+        600,   // 12 АK, м²
+        400,   // 13 Сх
+        400,   // 14 φ1
+        400,   // 15 η
+        400,   // 16 сt
+        600,   // 17 Wо, кг/м²
+        300,   // 18 Y
+        600,   // 19 P, кг
     ];
+
+    private const TEXT_STYLE = ['italic' => true, 'size' => 6.5, 'name' => 'Times New Roman'];
 
     private const HEADERS = [
         '№',
@@ -89,7 +91,7 @@ final class PlatformSectionsTableBuilder
 
     private function addHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::italicCenter();
+        $bold   = self::TEXT_STYLE;
         $center = DocStyleRegistry::paragraphCenter();
         $hCell  = DocStyleRegistry::headerCell();
 
@@ -123,7 +125,7 @@ final class PlatformSectionsTableBuilder
         bool $isFirst,
         int $totalRows,
     ): void {
-        $c      = DocStyleRegistry::center();
+        $c      = self::TEXT_STYLE;
         $center = DocStyleRegistry::paragraphCenter();
         $dc     = DocStyleRegistry::dataCell();
 
@@ -138,7 +140,7 @@ final class PlatformSectionsTableBuilder
         $this->addMergedCell($table, 1, $isFirst, $this->fmt($topHeightM), $totalRows, $c, $center);
 
         // ── Столбец 2: k(ze) (vMerge) ────────────────────────────────────────
-        $this->addMergedCell($table, 2, $isFirst, $this->fmt($dto->kze), $totalRows, $c, $center);
+        $this->addMergedCell($table, 2, $isFirst, $this->fmt($dto->kze, 2), $totalRows, $c, $center);
 
         // ── Столбцы 3..7: данные элемента ────────────────────────────────────
         $profile = $element->sectionConstructType->symbol() . ' ' . (int)$element->with;
@@ -153,16 +155,16 @@ final class PlatformSectionsTableBuilder
         $this->addMergedCell($table, 8, $isFirst, $this->fmt($dto->elementsCollectionDto->sumElementArea()), $totalRows, $c, $center);
 
         // ── Столбец 9: Схi (данные элемента) ─────────────────────────────────
-        $table->addCell(self::COL_WIDTHS[9], $dc)->addText($this->fmt($element->sectionConstructType->cx(), 2), $c, $center);
+        $table->addCell(self::COL_WIDTHS[9], $dc)->addText($this->fmt($element->sectionConstructType->cx(), 1), $c, $center);
 
         // ── Столбцы 10..19: секционные данные (vMerge) ───────────────────────
-        $this->addMergedCell($table, 10, $isFirst, $this->fmt($dto->widthBottom / 1000), $totalRows, $c, $center);
-        $this->addMergedCell($table, 11, $isFirst, $this->fmt($dto->widthTop / 1000), $totalRows, $c, $center);
-        $this->addMergedCell($table, 12, $isFirst, $this->fmt($dto->areaContourSection), $totalRows, $c, $center);
-        $this->addMergedCell($table, 13, $isFirst, $this->fmt($dto->cx), $totalRows, $c, $center);
-        $this->addMergedCell($table, 14, $isFirst, $this->fmt($dto->fi), $totalRows, $c, $center);
-        $this->addMergedCell($table, 15, $isFirst, $this->fmt($dto->nu), $totalRows, $c, $center);
-        $this->addMergedCell($table, 16, $isFirst, $this->fmt($dto->ct), $totalRows, $c, $center);
+        $this->addMergedCell($table, 10, $isFirst, $this->fmt($dto->widthBottom / 1000, 2), $totalRows, $c, $center);
+        $this->addMergedCell($table, 11, $isFirst, $this->fmt($dto->widthTop / 1000, 2), $totalRows, $c, $center);
+        $this->addMergedCell($table, 12, $isFirst, $this->fmt($dto->areaContourSection, 2), $totalRows, $c, $center);
+        $this->addMergedCell($table, 13, $isFirst, $this->fmt($dto->cx, 2), $totalRows, $c, $center);
+        $this->addMergedCell($table, 14, $isFirst, $this->fmt($dto->fi, 2), $totalRows, $c, $center);
+        $this->addMergedCell($table, 15, $isFirst, $this->fmt($dto->nu,2), $totalRows, $c, $center);
+        $this->addMergedCell($table, 16, $isFirst, $this->fmt($dto->ct, 2), $totalRows, $c, $center);
         $this->addMergedCell($table, 17, $isFirst, $this->fmt($dto->windPress, 0), $totalRows, $c, $center);
         $this->addMergedCell($table, 18, $isFirst, $this->fmt($dto->shadingCoefficient, 1), $totalRows, $c, $center);
         $this->addMergedCell($table, 19, $isFirst, $this->fmt($dto->press, 1), $totalRows, $c, $center);
@@ -201,7 +203,7 @@ final class PlatformSectionsTableBuilder
      */
     private function addEmptySectionRow(Table $table, PillarPlatformSectionDto $dto): void
     {
-        $c      = DocStyleRegistry::center();
+        $c      = self::TEXT_STYLE;
         $center = DocStyleRegistry::paragraphCenter();
         $dc     = DocStyleRegistry::dataCell();
         $topHeightM = ($dto->mountingHeightSection + $dto->heightSection) / 1000;
@@ -209,21 +211,21 @@ final class PlatformSectionsTableBuilder
         $table->addRow(400);
         $table->addCell(self::COL_WIDTHS[0], $dc)->addText((string)$dto->numberSection, $c, $center);
         $table->addCell(self::COL_WIDTHS[1], $dc)->addText($this->fmt($topHeightM), $c, $center);
-        $table->addCell(self::COL_WIDTHS[2], $dc)->addText($this->fmt($dto->kze), $c, $center);
+        $table->addCell(self::COL_WIDTHS[2], $dc)->addText($this->fmt($dto->kze, 2), $c, $center);
 
         for ($i = 3; $i <= 7; $i++) {
             $table->addCell(self::COL_WIDTHS[$i], $dc)->addText('—', $c, $center);
         }
 
-        $table->addCell(self::COL_WIDTHS[8],  $dc)->addText($this->fmt($dto->elementsCollectionDto->sumElementArea()), $c, $center);
+        $table->addCell(self::COL_WIDTHS[8],  $dc)->addText($this->fmt($dto->elementsCollectionDto->sumElementArea(), 2), $c, $center);
         $table->addCell(self::COL_WIDTHS[9],  $dc)->addText('—', $c, $center);
-        $table->addCell(self::COL_WIDTHS[10], $dc)->addText($this->fmt($dto->widthBottom / 1000), $c, $center);
-        $table->addCell(self::COL_WIDTHS[11], $dc)->addText($this->fmt($dto->widthTop / 1000), $c, $center);
+        $table->addCell(self::COL_WIDTHS[10], $dc)->addText($this->fmt($dto->widthBottom / 1000, 2), $c, $center);
+        $table->addCell(self::COL_WIDTHS[11], $dc)->addText($this->fmt($dto->widthTop / 1000, 2), $c, $center);
         $table->addCell(self::COL_WIDTHS[12], $dc)->addText($this->fmt($dto->areaContourSection), $c, $center);
-        $table->addCell(self::COL_WIDTHS[13], $dc)->addText($this->fmt($dto->cx), $c, $center);
-        $table->addCell(self::COL_WIDTHS[14], $dc)->addText($this->fmt($dto->fi), $c, $center);
-        $table->addCell(self::COL_WIDTHS[15], $dc)->addText($this->fmt($dto->nu), $c, $center);
-        $table->addCell(self::COL_WIDTHS[16], $dc)->addText($this->fmt($dto->ct), $c, $center);
+        $table->addCell(self::COL_WIDTHS[13], $dc)->addText($this->fmt($dto->cx, 2), $c, $center);
+        $table->addCell(self::COL_WIDTHS[14], $dc)->addText($this->fmt($dto->fi, 2), $c, $center);
+        $table->addCell(self::COL_WIDTHS[15], $dc)->addText($this->fmt($dto->nu, 2), $c, $center);
+        $table->addCell(self::COL_WIDTHS[16], $dc)->addText($this->fmt($dto->ct, 2), $c, $center);
         $table->addCell(self::COL_WIDTHS[17], $dc)->addText($this->fmt($dto->windPress, 0), $c, $center);
         $table->addCell(self::COL_WIDTHS[18], $dc)->addText($this->fmt($dto->shadingCoefficient, 1), $c, $center);
         $table->addCell(self::COL_WIDTHS[19], $dc)->addText($this->fmt($dto->press, 1), $c, $center);
