@@ -1,0 +1,174 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controller\Api\CalculationResults;
+
+use App\Controller\Api\AbstractApiController;
+use App\Enum\Gauge\GaugeProfileTypeEnum;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Throwable;
+
+#[Route('/api/v1')]
+#[IsGranted('ROLE_USER')]
+class CalculationResultsController extends AbstractApiController
+{
+    /**
+     * Стандартные типы железобетонных опор.
+     * TODO: вынести в отдельный enum или справочник БД при необходимости.
+     */
+    private const array POLE_TYPES = [
+        'СК 22.1-1',
+        'СК 26.1-1.1',
+        'СК 26.1-1.2',
+        'СК 26.2-2',
+        'СК 30.1-1',
+        'СК 30.2-2',
+        'СВ 95-2',
+        'СВ 95-3',
+        'СВ 110-2',
+        'СВ 110-3.5',
+        'СВ 110-5',
+        'СВ 164-8',
+        'СВ 164-10',
+    ];
+
+    /** Элементы для таблицы 3 (подкосы). */
+    private const array TABLE3_ELEMENTS = [
+        'подкос',
+        'стойка',
+    ];
+
+    /** Элементы для таблицы 4 (пояса надстройки). */
+    private const array TABLE4_ELEMENTS = [
+        'пояс',
+        'раскос',
+        'ограждение',
+        'рама',
+        'стойка',
+        'связь',
+    ];
+
+    public function __construct(
+        private readonly LoggerInterface $logger,
+    ) {}
+
+    /**
+     * GET /api/v1/calculation/calc-results/{calculationId}
+     *
+     * Возвращает справочные данные для таба «Результаты расчёта»:
+     *   - profileTypes  — типы стальных профилей (GaugeProfileTypeEnum)
+     *   - poleTypes     — типы ЖБ опор (для таблиц 1 и 2)
+     *   - table3Elements / table4Elements — допустимые элементы в строках таблиц
+     *   - savedData     — ранее сохранённые данные расчёта (пока null)
+     *
+     * TODO: сохранять/загружать введённые данные результатов расчёта из БД.
+     */
+    #[Route(
+        '/calculation/calc-results/{calculationId}',
+        name: 'api_calc_results_init',
+        methods: ['GET'],
+        requirements: ['calculationId' => '\d+'],
+    )]
+    public function getInitData(int $calculationId): JsonResponse
+    {
+        try {
+            return $this->successResponse([
+                'enums' => [
+                    'profileTypes' => array_map(
+                        static fn(GaugeProfileTypeEnum $case): array => [
+                            'value' => $case->value,
+                            'label' => $case->label(),
+                        ],
+                        GaugeProfileTypeEnum::cases(),
+                    ),
+                    'poleTypes'      => self::POLE_TYPES,
+                    'table3Elements' => self::TABLE3_ELEMENTS,
+                    'table4Elements' => self::TABLE4_ELEMENTS,
+                ],
+                // TODO: добавить entity CalculationResults и загружать savedData из БД
+                'savedData' => null,
+            ]);
+        } catch (Throwable $e) {
+            $this->logger->error(
+                sprintf('Ошибка загрузки данных результатов расчёта %d: %s', $calculationId, $e->getMessage()),
+                ['trace' => $e->getTraceAsString()],
+            );
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * POST /api/v1/calculation/calc-results/{calculationId}/calculate
+     *
+     * Принимает данные всех таблиц результатов и возвращает вычисленные значения.
+     *
+     * Ожидаемый формат тела запроса:
+     * {
+     *   "table1": { "rows": [{ "mark": float, "poleType": string, "mCalc": float }] },
+     *   "table2": { "rows": [{ "mark": float, "poleType": string, "crackWidthAllowable": float }] },
+     *   "table3": { "enabled": bool, "rows": [{ "element": string, "profileType": string,
+     *               "sectionDesignation": string, "area": float, "momentResistance": float,
+     *               "nCalc": float, "mCalc": float, "ry": float }] },
+     *   "table4": { "enabled": bool, "rows": [...] },
+     *   "table5": { "enabled": bool, "rows": [{ "mark": float, "profileType": string, ... }] },
+     *   "table6": { "enabled": bool, "rows": [{ "loadType": string, "n": float, "q": float, "m": float }] },
+     *   "table7": { "enabled": bool, "rows": [{ "mark": float, "angleAllowable": float }] },
+     *   "table8": { "enabled": bool, "rows": [{ "q": float, "betaU": float }] }
+     * }
+     *
+     * TODO: реализовать логику расчёта:
+     *   - table1: Мдоп по типу опоры и отметке (нужна база данных несущей способности опор),
+     *             k(max) = Mрасч / Мдоп
+     *   - table2: расч. ширина трещин из нормативных нагрузок по СП 63.13330,
+     *             k(max) = ширина_расч / ширина_доп
+     *   - table3/4: σ = Nрасч*10/A + Mрасч*100/Wy (тс→кН, приведённые единицы),
+     *               Кисп = σ / Ry
+     *   - table5: аналогично table3/4
+     */
+    #[Route(
+        '/calculation/calc-results/{calculationId}/calculate',
+        name: 'api_calc_results_calculate',
+        methods: ['POST'],
+        requirements: ['calculationId' => '\d+'],
+    )]
+    public function calculate(int $calculationId, Request $request): JsonResponse
+    {
+        try {
+            $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            $this->logger->info(
+                sprintf('Запрос расчёта результатов для расчёта %d', $calculationId),
+            );
+
+            // TODO: реализовать расчёт и вернуть строки с заполненными вычисленными полями.
+            // Пока возвращаем входные данные без изменений.
+            return $this->successResponse([
+                'message' => 'Данные приняты. Логика расчёта будет реализована.',
+                'table1'  => $payload['table1'] ?? ['rows' => []],
+                'table2'  => $payload['table2'] ?? ['rows' => []],
+                'table3'  => $payload['table3'] ?? ['enabled' => false, 'rows' => []],
+                'table4'  => $payload['table4'] ?? ['enabled' => false, 'rows' => []],
+                'table5'  => $payload['table5'] ?? ['enabled' => false, 'rows' => []],
+                // TODO: table6 — Qu, kUse (нет расчёта, только входные данные)
+                'table6'  => $payload['table6'] ?? ['enabled' => false, 'rows' => []],
+                // TODO: table7 — displacement, angleMax, kUse из программного ПК
+                'table7'  => $payload['table7'] ?? ['enabled' => false, 'rows' => []],
+                // TODO: table8 — qU, beta, kUseStability, kUseDeformation из расчёта фундамента
+                'table8'  => $payload['table8'] ?? ['enabled' => false, 'rows' => []],
+            ]);
+        } catch (Throwable $e) {
+            $this->logger->error(
+                sprintf('Ошибка расчёта результатов для расчёта %d: %s', $calculationId, $e->getMessage()),
+                ['trace' => $e->getTraceAsString()],
+            );
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+}

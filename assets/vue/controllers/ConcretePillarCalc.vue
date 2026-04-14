@@ -7,6 +7,7 @@ import PlatformSectionManager from "./component/Platform/PlatformSectionManager.
 import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
 import SoftwareCalculationManager from "./component/SoftwareCalculation/SoftwareCalculationManager.vue";
 import DocumentsForm from "./component/SoftwareCalculation/DocumentsForm.vue";
+import CalculationResultsManager from "./component/CalculationResults/CalculationResultsManager.vue";
 
 const props = defineProps({
     user: {
@@ -34,6 +35,11 @@ const calculateAll = async () => {
     isLoading.value = true;
     try {
         await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        // Расчёт раздела «Результаты расчёта»
+        if (calcResultsRef.value) {
+            await calcResultsRef.value.calculate();
+        }
 
         const windLoadPillar = calculateWindLoadPillar();
         const windLoadEquipment = calculateWindLoadEquipment();
@@ -221,6 +227,9 @@ const loadSavedCalculations = () => {
     }
 };
 
+// Ref к компоненту «Результаты расчёта» (таб 7)
+const calcResultsRef = ref(null);
+
 // Platform sections data
 const platformSections = ref([]);
 
@@ -288,6 +297,12 @@ const totalElementsCount = computed(() => {
                 >
                     6. Программный расчет
                 </button>
+                <button
+                    @click="setActiveTab('calc-results')"
+                    :class="['tab-btn', { active: activeTab === 'calc-results' }]"
+                >
+                    7. Результаты расчета
+                </button>
             </div>
 
             <!-- Таб 1: Исходные данные -->
@@ -347,6 +362,14 @@ const totalElementsCount = computed(() => {
                 <DocumentsForm :calculation-id="calculationId" />
                 <!-- Форма скринов из лиры -->
                 <SoftwareCalculationManager
+                    :calculation-id="calculationId"
+                />
+            </div>
+
+            <!-- Таб 7: Результаты расчёта -->
+            <div v-if="activeTab === 'calc-results'" class="tab-content active">
+                <CalculationResultsManager
+                    ref="calcResultsRef"
                     :calculation-id="calculationId"
                 />
             </div>
