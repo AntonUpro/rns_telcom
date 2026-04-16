@@ -23,9 +23,8 @@ const message     = ref(null);   // { type: 'success'|'error', text: string }
 // ─── Справочники (приходят с бэкенда) ─────────────────────────────────────────
 const enums = ref({
     profileTypes:   [],   // [{ value, label }]  — GaugeProfileTypeEnum
-    poleTypes:      [],   // string[]             — типы ЖБ опор
-    table3Elements: [],   // string[]             — элементы подкосов
-    table4Elements: [],   // string[]             — элементы поясов надстройки
+    pillarTypes:      [],   // string[]             — типы ЖБ опор
+    elementTypes: [],   // string[]             — элементы подкосов
 });
 
 // ─── Управление опциональными таблицами ───────────────────────────────────────
@@ -39,12 +38,12 @@ const optionalTables = ref({
 });
 
 const OPTIONAL_TABLE_META = [
-    { key: 'table3', label: 'Т3: Напряжения в подкосах' },
-    { key: 'table4', label: 'Т4: Напряжения в поясах надстройки' },
-    { key: 'table5', label: 'Т5: Усилия в площадке и стойке' },
-    { key: 'table6', label: 'Т6: Усилия в основании опоры' },
-    { key: 'table7', label: 'Т7: Деформации опоры' },
-    { key: 'table8', label: 'Т8: Расчёт основания' },
+    { key: 'table3', label: 'Напряжения в подкосах' },
+    { key: 'table4', label: 'Напряжения в поясах надстройки' },
+    { key: 'table5', label: 'Усилия в площадке и стойке' },
+    { key: 'table6', label: 'Усилия в основании опоры' },
+    { key: 'table7', label: 'Деформации опоры' },
+    { key: 'table8', label: 'Расчёт основания' },
 ];
 
 // ─── Фабрики строк ────────────────────────────────────────────────────────────
@@ -236,13 +235,13 @@ onMounted(fetchInitData);
             <!-- ── Обязательные таблицы ──────────────────────────────────────── -->
             <ResultsTable1
                 :rows="table1Rows"
-                :pole-types="enums.poleTypes"
+                :pole-types="enums.pillarTypes"
                 @update:rows="table1Rows = $event"
             />
 
             <ResultsTable2
                 :rows="table2Rows"
-                :pole-types="enums.poleTypes"
+                :pole-types="enums.pillarTypes"
                 @update:rows="table2Rows = $event"
             />
 
@@ -254,7 +253,7 @@ onMounted(fetchInitData);
                 :rows="table3Rows"
                 :profile-types="enums.profileTypes"
                 :has-element="true"
-                :element-options="enums.table3Elements"
+                :element-options="enums.elementTypes"
                 @update:rows="table3Rows = $event"
             />
 
@@ -266,7 +265,7 @@ onMounted(fetchInitData);
                 :rows="table4Rows"
                 :profile-types="enums.profileTypes"
                 :has-element="true"
-                :element-options="enums.table4Elements"
+                :element-options="enums.elementTypes"
                 @update:rows="table4Rows = $event"
             />
 

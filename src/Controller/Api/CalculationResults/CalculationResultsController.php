@@ -6,6 +6,10 @@ namespace App\Controller\Api\CalculationResults;
 
 use App\Controller\Api\AbstractApiController;
 use App\Enum\Gauge\GaugeProfileTypeEnum;
+use App\Enum\Pillar\ElementTypeEnum;
+use App\Enum\Pillar\PillarEnum;
+use App\Repository\CalculationRepository;
+use App\Service\Calculation\CalculationResult\CalculationResultService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,7 +59,10 @@ class CalculationResultsController extends AbstractApiController
 
     public function __construct(
         private readonly LoggerInterface $logger,
-    ) {}
+        private readonly CalculationRepository $calculationRepository,
+        private readonly CalculationResultService $resultService,
+    ) {
+    }
 
     /**
      * GET /api/v1/calculation/calc-results/{calculationId}
@@ -77,6 +84,13 @@ class CalculationResultsController extends AbstractApiController
     public function getInitData(int $calculationId): JsonResponse
     {
         try {
+            $calculation = $this->calculationRepository->findById($calculationId);
+            if ($calculation === null) {
+                return $this->errorResponse('Расчёт не найден', 404);
+            }
+
+            $savedData = $this->resultService->getAll($calculation);
+
             return $this->successResponse([
                 'enums' => [
                     'profileTypes' => array_map(
@@ -86,12 +100,17 @@ class CalculationResultsController extends AbstractApiController
                         ],
                         GaugeProfileTypeEnum::cases(),
                     ),
-                    'poleTypes'      => self::POLE_TYPES,
-                    'table3Elements' => self::TABLE3_ELEMENTS,
-                    'table4Elements' => self::TABLE4_ELEMENTS,
+                    'pillarTypes' => array_map(
+                        static fn(PillarEnum $case): array => [
+                            'value' => $case->value,
+                            'allowableMoment' => $case->getAllowableMomentByStrength(),
+                            'momentByCrackFormation' => $case->getMomentByCrackFormation(),
+                        ],
+                        PillarEnum::cases(),
+                    ),
+                    'elementTypes' => ElementTypeEnum::toOptions(),
                 ],
-                // TODO: добавить entity CalculationResults и загружать savedData из БД
-                'savedData' => null,
+                'savedData' => $savedData ?: null,
             ]);
         } catch (Throwable $e) {
             $this->logger->error(
@@ -140,27 +159,34 @@ class CalculationResultsController extends AbstractApiController
     public function calculate(int $calculationId, Request $request): JsonResponse
     {
         try {
+            $calculation = $this->calculationRepository->findById($calculationId);
+            if ($calculation === null) {
+                return $this->errorResponse('Расчёт не найден', 404);
+            }
+
             $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
+            $this->resultService->saveAll($calculation, $payload);
+
             $this->logger->info(
-                sprintf('Запрос расчёта результатов для расчёта %d', $calculationId),
+                sprintf('Данные результатов расчёта %d сохранены', $calculationId),
             );
 
-            // TODO: реализовать расчёт и вернуть строки с заполненными вычисленными полями.
+            // TODO: реализовать логику вычисления computed-полей и возвращать их фронтенду.
             // Пока возвращаем входные данные без изменений.
             return $this->successResponse([
                 'message' => 'Данные приняты. Логика расчёта будет реализована.',
-                'table1'  => $payload['table1'] ?? ['rows' => []],
-                'table2'  => $payload['table2'] ?? ['rows' => []],
-                'table3'  => $payload['table3'] ?? ['enabled' => false, 'rows' => []],
-                'table4'  => $payload['table4'] ?? ['enabled' => false, 'rows' => []],
-                'table5'  => $payload['table5'] ?? ['enabled' => false, 'rows' => []],
+                'table1' => $payload['table1'] ?? ['rows' => []],
+                'table2' => $payload['table2'] ?? ['rows' => []],
+                'table3' => $payload['table3'] ?? ['enabled' => false, 'rows' => []],
+                'table4' => $payload['table4'] ?? ['enabled' => false, 'rows' => []],
+                'table5' => $payload['table5'] ?? ['enabled' => false, 'rows' => []],
                 // TODO: table6 — Qu, kUse (нет расчёта, только входные данные)
-                'table6'  => $payload['table6'] ?? ['enabled' => false, 'rows' => []],
+                'table6' => $payload['table6'] ?? ['enabled' => false, 'rows' => []],
                 // TODO: table7 — displacement, angleMax, kUse из программного ПК
-                'table7'  => $payload['table7'] ?? ['enabled' => false, 'rows' => []],
+                'table7' => $payload['table7'] ?? ['enabled' => false, 'rows' => []],
                 // TODO: table8 — qU, beta, kUseStability, kUseDeformation из расчёта фундамента
-                'table8'  => $payload['table8'] ?? ['enabled' => false, 'rows' => []],
+                'table8' => $payload['table8'] ?? ['enabled' => false, 'rows' => []],
             ]);
         } catch (Throwable $e) {
             $this->logger->error(

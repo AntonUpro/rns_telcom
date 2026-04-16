@@ -190,10 +190,10 @@ const fmtK = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : 'â€
 
 .rt-table tbody tr:hover { background: #f8f9fa; }
 
-.col-n    { width: 30px; }
-.col-mark { width: 100px; }
+.col-n    { width: 50px; }
+.col-mark { width: 150px; }
 .col-type { min-width: 140px; }
-.col-val  { width: 130px; text-align: center; }
+.col-val  { width: 150px; text-align: center; }
 .col-del  { width: 32px; }
 
 .td-center { text-align: center; }
@@ -234,7 +234,7 @@ const fmtK = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : 'â€
 }
 .rt-input:focus { outline: none; border-color: #1976d2; box-shadow: 0 0 0 2px rgba(25,118,210,0.15); }
 
-.rt-input--sm { width: 90px; }
+.rt-input--sm { width: 140px; }
 
 .rt-select {
     width: 100%;

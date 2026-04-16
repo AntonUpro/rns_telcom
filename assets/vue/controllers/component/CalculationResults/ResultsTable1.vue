@@ -10,7 +10,7 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    poleTypes: {
+    pillarTypes: {
         type: Array,
         default: () => [],
     },
@@ -20,7 +20,7 @@ const emit = defineEmits(['update:rows']);
 
 const makeRow = () => ({
     mark: null,
-    poleType: '',
+    pillarTypes: '',
     mCalc: null,
     mAllowable: null,  // computed by backend
     kMax: null,        // computed by backend
@@ -78,11 +78,11 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
                         <td>
                             <select
                                 class="rt-select"
-                                :value="row.poleType"
-                                @change="updateCell(idx, 'poleType', $event.target.value)"
+                                :value="row.pillarTypes"
+                                @change="updateCell(idx, 'pillarTypes', $event.target.value)"
                             >
                                 <option value="">— выберите —</option>
-                                <option v-for="pt in poleTypes" :key="pt" :value="pt">{{ pt }}</option>
+                                <option v-for="pt in pillarTypes" :key="pt" :value="pt">{{ pt.value }}</option>
                             </select>
                         </td>
                         <td>
@@ -187,10 +187,10 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
 
 .rt-table tbody tr:hover { background: #f8f9fa; }
 
-.col-n    { width: 30px; }
-.col-mark { width: 100px; }
+.col-n    { width: 50px; }
+.col-mark { width: 150px; }
 .col-type { min-width: 140px; }
-.col-val  { width: 110px; text-align: center; }
+.col-val  { width: 150px; text-align: center; }
 .col-comp { }
 .col-del  { width: 32px; }
 
@@ -234,7 +234,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
 }
 .rt-input:focus { outline: none; border-color: #1976d2; box-shadow: 0 0 0 2px rgba(25,118,210,0.15); }
 
-.rt-input--sm { width: 90px; }
+.rt-input--sm { width: 140px; }
 
 .rt-select {
     width: 100%;

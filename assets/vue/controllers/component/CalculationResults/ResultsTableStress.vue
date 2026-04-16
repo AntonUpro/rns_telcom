@@ -134,7 +134,7 @@ const fmt = (v, decimals = 2) =>
                                 @change="updateCell(idx, 'element', $event.target.value)"
                             >
                                 <option value="">— выбрать —</option>
-                                <option v-for="opt in elementOptions" :key="opt" :value="opt">{{ opt }}</option>
+                                <option v-for="opt in elementOptions" :key="opt.value" :value="opt.label">{{ opt.label }}</option>
                             </select>
                         </td>
                         <td v-else>
