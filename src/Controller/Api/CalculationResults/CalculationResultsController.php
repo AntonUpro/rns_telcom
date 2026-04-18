@@ -175,18 +175,18 @@ class CalculationResultsController extends AbstractApiController
             // TODO: реализовать логику вычисления computed-полей и возвращать их фронтенду.
             // Пока возвращаем входные данные без изменений.
             return $this->successResponse([
-                'message' => 'Данные приняты. Логика расчёта будет реализована.',
-                'table1' => $payload['table1'] ?? ['rows' => []],
-                'table2' => $payload['table2'] ?? ['rows' => []],
-                'table3' => $payload['table3'] ?? ['enabled' => false, 'rows' => []],
-                'table4' => $payload['table4'] ?? ['enabled' => false, 'rows' => []],
-                'table5' => $payload['table5'] ?? ['enabled' => false, 'rows' => []],
-                // TODO: table6 — Qu, kUse (нет расчёта, только входные данные)
-                'table6' => $payload['table6'] ?? ['enabled' => false, 'rows' => []],
-                // TODO: table7 — displacement, angleMax, kUse из программного ПК
-                'table7' => $payload['table7'] ?? ['enabled' => false, 'rows' => []],
-                // TODO: table8 — qU, beta, kUseStability, kUseDeformation из расчёта фундамента
-                'table8' => $payload['table8'] ?? ['enabled' => false, 'rows' => []],
+                'message'              => 'Данные сохранены. Логика расчёта будет реализована.',
+                'pillar_forces'        => $payload['pillar_forces']        ?? ['rows' => []],
+                'crack_opening'        => $payload['crack_opening']        ?? ['rows' => []],
+                'brace_stress'         => $payload['brace_stress']         ?? ['enabled' => false, 'rows' => []],
+                'superstructure_stress'=> $payload['superstructure_stress']?? ['enabled' => false, 'rows' => []],
+                'platform_forces'      => $payload['platform_forces']      ?? ['enabled' => false, 'rows' => []],
+                // TODO: base_forces — нет computed-полей, только входные данные
+                'base_forces'          => $payload['base_forces']          ?? ['enabled' => false, 'rows' => []],
+                // TODO: deformation — displacement, angleMax, kUse из программного ПК
+                'deformation'          => $payload['deformation']          ?? ['enabled' => false, 'rows' => []],
+                // TODO: foundation — qU, beta, kUseStability, kUseDeformation из расчёта фундамента
+                'foundation'           => $payload['foundation']           ?? ['enabled' => false, 'rows' => []],
             ]);
         } catch (Throwable $e) {
             $this->logger->error(

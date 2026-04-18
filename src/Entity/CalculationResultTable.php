@@ -25,7 +25,7 @@ class CalculationResultTable
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Calculation $calculation;
 
-    #[ORM\Column(name: 'table_type', length: 16, enumType: ResultTableTypeEnum::class)]
+    #[ORM\Column(name: 'table_type', length: 32, enumType: ResultTableTypeEnum::class)]
     private ResultTableTypeEnum $tableType;
 
     #[ORM\Column(type: Types::BOOLEAN)]

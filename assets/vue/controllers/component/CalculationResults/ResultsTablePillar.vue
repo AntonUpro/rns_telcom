@@ -1,6 +1,6 @@
 <script setup>
 /**
- * Таблица 1. Максимальные усилия в стволе опоры от расчётных нагрузок.
+ * Максимальные усилия в стволе опоры от расчётных нагрузок.
  *
  * Поля ввода:  Отметка, м | Тип опоры | Mрасч, тс·м
  * Вычисляемые: Мдоп, тс·м | k(max)     — заполняются сервером после расчёта.
@@ -13,6 +13,10 @@ const props = defineProps({
     pillarTypes: {
         type: Array,
         default: () => [],
+    },
+    tableNumber: {
+        type: Number,
+        required: true,
     },
 });
 
@@ -45,7 +49,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
     <section class="rt-section">
         <div class="rt-section-header">
             <div>
-                <h3 class="rt-title">Таблица 1. Максимальные усилия в стволе опоры</h3>
+                <h3 class="rt-title">Таблица {{ tableNumber }}. Максимальные усилия в стволе опоры</h3>
                 <p class="rt-subtitle">Усилия от расчётных нагрузок</p>
             </div>
             <button class="rt-btn-add" @click="addRow">+ строка</button>

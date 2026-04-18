@@ -21,7 +21,11 @@
  * TODO: при изменении profileType + sectionDesignation — запрашивать с бэкенда A и Wy.
  */
 const props = defineProps({
-    title: {
+    tableNumber: {
+        type: Number,
+        required: true,
+    },
+    tableName: {
         type: String,
         required: true,
     },
@@ -91,7 +95,7 @@ const fmt = (v, decimals = 2) =>
     <section class="rt-section">
         <div class="rt-section-header">
             <div>
-                <h3 class="rt-title">{{ title }}</h3>
+                <h3 class="rt-title">Таблица {{ tableNumber }}. {{ tableName }}</h3>
                 <p v-if="subtitle" class="rt-subtitle">{{ subtitle }}</p>
             </div>
             <button class="rt-btn-add" @click="addRow">+ строка</button>

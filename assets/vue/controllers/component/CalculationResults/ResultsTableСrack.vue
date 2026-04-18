@@ -16,6 +16,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    tableNumber: {
+        type: Number,
+        required: true,
+    },
 });
 
 const emit = defineEmits(['update:rows']);
@@ -48,7 +52,7 @@ const fmtK = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '�
     <section class="rt-section">
         <div class="rt-section-header">
             <div>
-                <h3 class="rt-title">Таблица 2. Максимальное раскрытие трещин в стволе опоры</h3>
+                <h3 class="rt-title">Таблица {{ tableNumber }}. Максимальное раскрытие трещин в стволе опоры</h3>
                 <p class="rt-subtitle">От нормативных нагрузок</p>
             </div>
             <button class="rt-btn-add" @click="addRow">+ строка</button>

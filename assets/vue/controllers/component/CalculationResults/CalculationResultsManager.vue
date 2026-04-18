@@ -1,11 +1,11 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import ResultsTable1     from './ResultsTable1.vue';
-import ResultsTable2     from './ResultsTable2.vue';
+import {ref, computed, onMounted} from 'vue';
+import ResultsTablePillar from './ResultsTablePillar.vue';
+import ResultsTableCrack from './ResultsTableСrack.vue';
 import ResultsTableStress from './ResultsTableStress.vue';
-import ResultsTable6     from './ResultsTable6.vue';
-import ResultsTable7     from './ResultsTable7.vue';
-import ResultsTable8     from './ResultsTable8.vue';
+import ResultsTableMaximumForcesBase from './ResultsTableMaximumForcesBase.vue';
+import ResultsTableDeformation from './ResultsTableDeformation.vue';
+import ResultsTableBase from './ResultsTableBase.vue';
 
 const props = defineProps({
     calculationId: {
@@ -15,45 +15,45 @@ const props = defineProps({
 });
 
 // ─── Состояние загрузки / расчёта ─────────────────────────────────────────────
-const loading     = ref(false);
+const loading = ref(false);
 const calculating = ref(false);
-const error       = ref(null);
-const message     = ref(null);   // { type: 'success'|'error', text: string }
+const error = ref(null);
+const message = ref(null);   // { type: 'success'|'error', text: string }
 
 // ─── Справочники (приходят с бэкенда) ─────────────────────────────────────────
 const enums = ref({
-    profileTypes:   [],   // [{ value, label }]  — GaugeProfileTypeEnum
-    pillarTypes:      [],   // string[]             — типы ЖБ опор
-    elementTypes: [],   // string[]             — элементы подкосов
+    profileTypes: [],   // [{ value, label }]  — GaugeProfileTypeEnum
+    pillarTypes: [],   // [{ value, allowableMoment, momentByCrackFormation }]
+    elementTypes: [],   // [{ value, label }]
 });
 
 // ─── Управление опциональными таблицами ───────────────────────────────────────
 const optionalTables = ref({
-    table3: false,
-    table4: false,
-    table5: false,
-    table6: false,
-    table7: false,
-    table8: false,
+    brace_stress: false,
+    superstructure_stress: false,
+    platform_forces: false,
+    base_forces: false,
+    deformation: false,
+    foundation: false,
 });
 
 const OPTIONAL_TABLE_META = [
-    { key: 'table3', label: 'Напряжения в подкосах' },
-    { key: 'table4', label: 'Напряжения в поясах надстройки' },
-    { key: 'table5', label: 'Усилия в площадке и стойке' },
-    { key: 'table6', label: 'Усилия в основании опоры' },
-    { key: 'table7', label: 'Деформации опоры' },
-    { key: 'table8', label: 'Расчёт основания' },
+    {key: 'brace_stress', label: 'Напряжения в подкосах'},
+    {key: 'superstructure_stress', label: 'Напряжения в поясах надстройки'},
+    {key: 'platform_forces', label: 'Усилия в площадке и стойке'},
+    {key: 'base_forces', label: 'Усилия в основании опоры'},
+    {key: 'deformation', label: 'Деформации опоры'},
+    {key: 'foundation', label: 'Расчёт основания'},
 ];
 
 // ─── Фабрики строк ────────────────────────────────────────────────────────────
-const makeRow1 = () => ({
+const makePillarForcesRow = () => ({
     mark: null, poleType: '', mCalc: null,
     mAllowable: null,  // computed
     kMax: null,        // computed
 });
 
-const makeRow2 = () => ({
+const makeCrackOpeningRow = () => ({
     mark: null, poleType: '',
     crackWidthCalc: null,      // computed
     crackWidthAllowable: 0.3,
@@ -70,11 +70,11 @@ const makeStressRow = () => ({
     kUse: null,   // computed
 });
 
-const makeRow6 = () => ({
+const makeBaseForcesRow = () => ({
     loadType: '', n: null, q: null, m: null,
 });
 
-const makeRow7 = () => ({
+const makeDeformationRow = () => ({
     mark: null,
     displacement: null,    // computed
     angleMax: null,        // computed
@@ -82,7 +82,7 @@ const makeRow7 = () => ({
     kUse: null,            // computed
 });
 
-const makeRow8 = () => ({
+const makeFoundationRow = () => ({
     q: null,                 // расч. попер. сила — ввод
     qU: null,                // предельная сила — computed
     beta: null,              // расч. угловое смещение — computed
@@ -92,24 +92,36 @@ const makeRow8 = () => ({
 });
 
 // ─── Данные таблиц ────────────────────────────────────────────────────────────
-const table1Rows = ref([makeRow1()]);
-const table2Rows = ref([makeRow2()]);
-const table3Rows = ref([]);
-const table4Rows = ref([]);
-const table5Rows = ref([]);
-const table6Rows = ref([]);
-const table7Rows = ref([]);
-const table8Rows = ref([]);
+const pillarForcesRows = ref([makePillarForcesRow()]);
+const crackOpeningRows = ref([makeCrackOpeningRow()]);
+const braceStressRows = ref([]);
+const superstructureStressRows = ref([]);
+const platformForcesRows = ref([]);
+const baseForcesRows = ref([]);
+const deformationRows = ref([]);
+const foundationRows = ref([]);
 
 // Маппинг ключа таблицы → ref строк и фабрика строки
 const TABLE_ROWS_MAP = {
-    table3: { rows: table3Rows, make: makeStressRow },
-    table4: { rows: table4Rows, make: makeStressRow },
-    table5: { rows: table5Rows, make: makeStressRow },
-    table6: { rows: table6Rows, make: makeRow6 },
-    table7: { rows: table7Rows, make: makeRow7 },
-    table8: { rows: table8Rows, make: makeRow8 },
+    brace_stress: {rows: braceStressRows, make: makeStressRow},
+    superstructure_stress: {rows: superstructureStressRows, make: makeStressRow},
+    platform_forces: {rows: platformForcesRows, make: makeStressRow},
+    base_forces: {rows: baseForcesRows, make: makeBaseForcesRow},
+    deformation: {rows: deformationRows, make: makeDeformationRow},
+    foundation: {rows: foundationRows, make: makeFoundationRow},
 };
+
+// ─── Динамическая нумерация таблиц на странице ────────────────────────────────
+const tableNumbers = computed(() => {
+    let n = 0;
+    const nums = /** @type {Record<string, number>} */ ({});
+    nums.pillar_forces = ++n;
+    nums.crack_opening = ++n;
+    for (const key of Object.keys(optionalTables.value)) {
+        nums[key] = optionalTables.value[key] ? ++n : 0;
+    }
+    return nums;
+});
 
 // ─── Переключение опциональных таблиц ─────────────────────────────────────────
 const toggleOptional = (key) => {
@@ -120,21 +132,47 @@ const toggleOptional = (key) => {
     }
 };
 
+// ─── Восстановление сохранённых данных ────────────────────────────────────────
+const restoreSavedData = (savedData) => {
+    if (!savedData) return;
+
+    const restore = (key, rowsRef, defaultRow) => {
+        const saved = savedData[key];
+        if (!saved) return;
+        rowsRef.value = saved.rows?.length ? saved.rows : [defaultRow()];
+    };
+
+    restore('pillar_forces', pillarForcesRows, makePillarForcesRow);
+    restore('crack_opening', crackOpeningRows, makeCrackOpeningRow);
+    restore('brace_stress', braceStressRows, makeStressRow);
+    restore('superstructure_stress', superstructureStressRows, makeStressRow);
+    restore('platform_forces', platformForcesRows, makeStressRow);
+    restore('base_forces', baseForcesRows, makeBaseForcesRow);
+    restore('deformation', deformationRows, makeDeformationRow);
+    restore('foundation', foundationRows, makeFoundationRow);
+
+    // Включаем опциональные таблицы, которые были сохранены с enabled=true
+    for (const key of Object.keys(optionalTables.value)) {
+        if (savedData[key]?.enabled) {
+            optionalTables.value[key] = true;
+        }
+    }
+};
+
 // ─── Загрузка справочных данных ───────────────────────────────────────────────
 const fetchInitData = async () => {
     loading.value = true;
-    error.value   = null;
+    error.value = null;
     try {
         const response = await fetch(`/api/v1/calculation/calc-results/${props.calculationId}`);
-        const data     = await response.json();
+        const data = await response.json();
 
         if (!response.ok || !data.success) {
             throw new Error(data.error || 'Ошибка загрузки данных');
         }
 
         enums.value = data.data.enums;
-
-        // TODO: если data.data.savedData !== null — восстановить сохранённые строки таблиц
+        restoreSavedData(data.data.savedData);
     } catch (err) {
         error.value = err.message;
         console.error('Ошибка загрузки данных результатов:', err);
@@ -146,26 +184,29 @@ const fetchInitData = async () => {
 // ─── Расчёт (вызывается локально и из родителя через $ref) ────────────────────
 const calculate = async () => {
     calculating.value = true;
-    message.value     = null;
+    message.value = null;
 
     try {
         const payload = {
-            table1: { rows: table1Rows.value },
-            table2: { rows: table2Rows.value },
-            table3: { enabled: optionalTables.value.table3, rows: table3Rows.value },
-            table4: { enabled: optionalTables.value.table4, rows: table4Rows.value },
-            table5: { enabled: optionalTables.value.table5, rows: table5Rows.value },
-            table6: { enabled: optionalTables.value.table6, rows: table6Rows.value },
-            table7: { enabled: optionalTables.value.table7, rows: table7Rows.value },
-            table8: { enabled: optionalTables.value.table8, rows: table8Rows.value },
+            pillar_forces: {rows: pillarForcesRows.value},
+            crack_opening: {rows: crackOpeningRows.value},
+            brace_stress: {enabled: optionalTables.value.brace_stress, rows: braceStressRows.value},
+            superstructure_stress: {
+                enabled: optionalTables.value.superstructure_stress,
+                rows: superstructureStressRows.value
+            },
+            platform_forces: {enabled: optionalTables.value.platform_forces, rows: platformForcesRows.value},
+            base_forces: {enabled: optionalTables.value.base_forces, rows: baseForcesRows.value},
+            deformation: {enabled: optionalTables.value.deformation, rows: deformationRows.value},
+            foundation: {enabled: optionalTables.value.foundation, rows: foundationRows.value},
         };
 
         const response = await fetch(
             `/api/v1/calculation/calc-results/${props.calculationId}/calculate`,
             {
-                method:  'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body:    JSON.stringify(payload),
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload),
             },
         );
         const data = await response.json();
@@ -174,19 +215,19 @@ const calculate = async () => {
             throw new Error(data.error || 'Ошибка расчёта');
         }
 
-        // TODO: когда бэкенд начнёт возвращать вычисленные поля, раскомментировать:
-        // table1Rows.value = data.data.table1.rows;
-        // table2Rows.value = data.data.table2.rows;
-        // if (data.data.table3?.enabled) table3Rows.value = data.data.table3.rows;
-        // if (data.data.table4?.enabled) table4Rows.value = data.data.table4.rows;
-        // if (data.data.table5?.enabled) table5Rows.value = data.data.table5.rows;
-        // if (data.data.table6?.enabled) table6Rows.value = data.data.table6.rows;
-        // if (data.data.table7?.enabled) table7Rows.value = data.data.table7.rows;
-        // if (data.data.table8?.enabled) table8Rows.value = data.data.table8.rows;
+        // Обновляем строки вычисленными полями с бэкенда
+        if (data.data.pillar_forces?.rows) pillarForcesRows.value = data.data.pillar_forces.rows;
+        if (data.data.crack_opening?.rows) crackOpeningRows.value = data.data.crack_opening.rows;
+        if (data.data.brace_stress?.rows) braceStressRows.value = data.data.brace_stress.rows;
+        if (data.data.superstructure_stress?.rows) superstructureStressRows.value = data.data.superstructure_stress.rows;
+        if (data.data.platform_forces?.rows) platformForcesRows.value = data.data.platform_forces.rows;
+        if (data.data.base_forces?.rows) baseForcesRows.value = data.data.base_forces.rows;
+        if (data.data.deformation?.rows) deformationRows.value = data.data.deformation.rows;
+        if (data.data.foundation?.rows) foundationRows.value = data.data.foundation.rows;
 
-        message.value = { type: 'success', text: data.data.message ?? 'Данные переданы на сервер.' };
+        message.value = {type: 'success', text: data.data.message ?? 'Данные сохранены.'};
     } catch (err) {
-        message.value = { type: 'error', text: err.message };
+        message.value = {type: 'error', text: err.message};
         console.error('Ошибка расчёта результатов:', err);
     } finally {
         calculating.value = false;
@@ -194,7 +235,7 @@ const calculate = async () => {
 };
 
 // Экспортируем calculate для вызова из родителя ConcretePillarCalc через template ref
-defineExpose({ calculate });
+defineExpose({calculate});
 
 onMounted(fetchInitData);
 </script>
@@ -233,73 +274,81 @@ onMounted(fetchInitData);
             </section>
 
             <!-- ── Обязательные таблицы ──────────────────────────────────────── -->
-            <ResultsTable1
-                :rows="table1Rows"
-                :pole-types="enums.pillarTypes"
-                @update:rows="table1Rows = $event"
+            <ResultsTablePillar
+                :table-number="tableNumbers.pillar_forces"
+                :rows="pillarForcesRows"
+                :pillar-types="enums.pillarTypes"
+                @update:rows="pillarForcesRows = $event"
             />
 
-            <ResultsTable2
-                :rows="table2Rows"
+            <ResultsTableCrack
+                :table-number="tableNumbers.crack_opening"
+                :rows="crackOpeningRows"
                 :pole-types="enums.pillarTypes"
-                @update:rows="table2Rows = $event"
+                @update:rows="crackOpeningRows = $event"
             />
 
-            <!-- Таблица 3: Подкосы -->
+            <!-- Напряжения в подкосах -->
             <ResultsTableStress
-                v-if="optionalTables.table3"
-                title="Таблица 3. Максимальные напряжения в элементах подкосов"
+                v-if="optionalTables.brace_stress"
+                :table-number="tableNumbers.brace_stress"
+                table-name="Максимальные напряжения в элементах подкосов"
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
-                :rows="table3Rows"
+                :rows="braceStressRows"
                 :profile-types="enums.profileTypes"
                 :has-element="true"
                 :element-options="enums.elementTypes"
-                @update:rows="table3Rows = $event"
+                @update:rows="braceStressRows = $event"
             />
 
-            <!-- Таблица 4: Пояса надстройки -->
+            <!-- Напряжения в поясах надстройки -->
             <ResultsTableStress
-                v-if="optionalTables.table4"
-                title="Таблица 4. Максимальные напряжения в элементах поясов надстройки"
+                v-if="optionalTables.superstructure_stress"
+                :table-number="tableNumbers.superstructure_stress"
+                table-name="Максимальные напряжения в элементах поясов надстройки"
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
-                :rows="table4Rows"
+                :rows="superstructureStressRows"
                 :profile-types="enums.profileTypes"
                 :has-element="true"
                 :element-options="enums.elementTypes"
-                @update:rows="table4Rows = $event"
+                @update:rows="superstructureStressRows = $event"
             />
 
-            <!-- Таблица 5: Площадка и стойка -->
+            <!-- Усилия в площадке и стойке -->
             <ResultsTableStress
-                v-if="optionalTables.table5"
-                title="Таблица 5. Максимальные усилия в площадке"
+                v-if="optionalTables.platform_forces"
+                :table-number="tableNumbers.platform_forces"
+                table-name="Максимальные усилия в площадке и стойке"
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
-                :rows="table5Rows"
+                :rows="platformForcesRows"
                 :profile-types="enums.profileTypes"
                 :has-element="false"
                 :element-options="[]"
-                @update:rows="table5Rows = $event"
+                @update:rows="platformForcesRows = $event"
             />
 
-            <!-- Таблица 6: Усилия в основании -->
-            <ResultsTable6
-                v-if="optionalTables.table6"
-                :rows="table6Rows"
-                @update:rows="table6Rows = $event"
+            <!-- Усилия в основании опоры -->
+            <ResultsTableMaximumForcesBase
+                v-if="optionalTables.base_forces"
+                :table-number="tableNumbers.base_forces"
+                :rows="baseForcesRows"
+                @update:rows="baseForcesRows = $event"
             />
 
-            <!-- Таблица 7: Деформации опоры -->
-            <ResultsTable7
-                v-if="optionalTables.table7"
-                :rows="table7Rows"
-                @update:rows="table7Rows = $event"
+            <!-- Деформации опоры -->
+            <ResultsTableDeformation
+                v-if="optionalTables.deformation"
+                :table-number="tableNumbers.deformation"
+                :rows="deformationRows"
+                @update:rows="deformationRows = $event"
             />
 
-            <!-- Таблица 8: Расчёт основания -->
-            <ResultsTable8
-                v-if="optionalTables.table8"
-                :rows="table8Rows"
-                @update:rows="table8Rows = $event"
+            <!-- Расчёт основания -->
+            <ResultsTableBase
+                v-if="optionalTables.foundation"
+                :table-number="tableNumbers.foundation"
+                :rows="foundationRows"
+                @update:rows="foundationRows = $event"
             />
 
             <!-- ── Статус ─────────────────────────────────────────────────────── -->
@@ -337,7 +386,7 @@ onMounted(fetchInitData);
     padding: 20px;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     font-family: Arial, sans-serif;
     font-size: 13px;
     color: #212529;
@@ -350,8 +399,18 @@ onMounted(fetchInitData);
     font-size: 14px;
     text-align: center;
 }
-.crm-state--loading { background: #e3f2fd; color: #1976d2; border: 1px solid #90caf9; }
-.crm-state--error   { background: #ffebee; color: #b71c1c; border: 1px solid #ef9a9a; }
+
+.crm-state--loading {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
+}
+
+.crm-state--error {
+    background: #ffebee;
+    color: #b71c1c;
+    border: 1px solid #ef9a9a;
+}
 
 /* ── Панель дополнительных таблиц ── */
 .crm-optional-panel {
@@ -429,8 +488,18 @@ onMounted(fetchInitData);
     font-size: 13px;
     font-weight: 500;
 }
-.crm-message--ok  { background: #d4edda; color: #1a6e3c; border: 1px solid #c3e6cb; }
-.crm-message--err { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+.crm-message--ok {
+    background: #d4edda;
+    color: #1a6e3c;
+    border: 1px solid #c3e6cb;
+}
+
+.crm-message--err {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
 
 /* ── Тулбар ── */
 .crm-toolbar {
@@ -462,13 +531,31 @@ onMounted(fetchInitData);
     white-space: nowrap;
     transition: background 0.15s;
 }
-.crm-btn-calc:hover:not(:disabled) { background: #1565c0; }
-.crm-btn-calc:disabled { background: #90bde8; cursor: not-allowed; }
+
+.crm-btn-calc:hover:not(:disabled) {
+    background: #1565c0;
+}
+
+.crm-btn-calc:disabled {
+    background: #90bde8;
+    cursor: not-allowed;
+}
 
 /* ── Адаптив ── */
 @media (max-width: 768px) {
-    .crm-container { padding: 12px; gap: 12px; }
-    .crm-toolbar   { flex-direction: column; align-items: flex-start; }
-    .crm-optional-header { flex-direction: column; gap: 8px; }
+    .crm-container {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .crm-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .crm-optional-header {
+        flex-direction: column;
+        gap: 8px;
+    }
 }
 </style>

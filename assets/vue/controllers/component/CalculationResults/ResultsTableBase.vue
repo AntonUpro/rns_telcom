@@ -26,6 +26,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    tableNumber: {
+        type: Number,
+        required: true,
+    },
 });
 
 const emit = defineEmits(['update:rows']);
@@ -59,7 +63,7 @@ const isExceeded = (v) => v !== null && v !== undefined && Number(v) > 1;
     <section class="rt-section">
         <div class="rt-section-header">
             <div>
-                <h3 class="rt-title">Таблица 8. Результаты расчёта основания опоры</h3>
+                <h3 class="rt-title">Таблица {{ tableNumber }}. Результаты расчёта основания опоры</h3>
                 <p class="rt-subtitle">Устойчивость и деформации фундамента</p>
             </div>
             <button class="rt-btn-add" @click="addRow">+ строка</button>
