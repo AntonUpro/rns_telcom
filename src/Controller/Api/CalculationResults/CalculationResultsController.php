@@ -108,7 +108,7 @@ class CalculationResultsController extends AbstractApiController
                         ],
                         PillarEnum::cases(),
                     ),
-                    'elementTypes' => ElementTypeEnum::toOptions(),
+//                    'elementTypes' => ElementTypeEnum::toOptions(),
                 ],
                 'savedData' => $savedData ?: null,
             ]);

@@ -277,14 +277,12 @@ onMounted(fetchInitData);
             <ResultsTablePillar
                 :table-number="tableNumbers.pillar_forces"
                 :rows="pillarForcesRows"
-                :pillar-types="enums.pillarTypes"
                 @update:rows="pillarForcesRows = $event"
             />
 
             <ResultsTableCrack
                 :table-number="tableNumbers.crack_opening"
                 :rows="crackOpeningRows"
-                :pole-types="enums.pillarTypes"
                 @update:rows="crackOpeningRows = $event"
             />
 

@@ -13,8 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 final class CalculationResultService
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly CalculationResultTableRepository $repository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly CalculationResultTableRepository $calculationResultTableRepository,
     ) {
     }
 
@@ -31,7 +31,7 @@ final class CalculationResultService
      */
     public function saveAll(Calculation $calculation, array $payload): void
     {
-        $existing = $this->repository->findAllByCalculationIndexed($calculation);
+        $existing = $this->calculationResultTableRepository->findAllByCalculationIndexed($calculation);
 
         foreach (ResultTableTypeEnum::cases() as $type) {
             $key = $type->value;
@@ -48,14 +48,14 @@ final class CalculationResultService
 
             if ($entity === null) {
                 $entity = new CalculationResultTable($calculation, $type);
-                $this->em->persist($entity);
+                $this->entityManager->persist($entity);
             }
 
             $entity->setEnabled($enabled);
             $entity->setRows($rows);
         }
 
-        $this->em->flush();
+        $this->entityManager->flush();
     }
 
     /**
@@ -66,7 +66,7 @@ final class CalculationResultService
      */
     public function getAll(Calculation $calculation): array
     {
-        $entities = $this->repository->findAllByCalculationIndexed($calculation);
+        $entities = $this->calculationResultTableRepository->findAllByCalculationIndexed($calculation);
 
         $result = [];
         foreach ($entities as $key => $entity) {
@@ -74,6 +74,10 @@ final class CalculationResultService
                 'enabled' => $entity->isEnabled(),
                 'rows'    => $entity->getRows(),
             ];
+        }
+
+        if (empty($result)) {
+            $result = $this->addDefaultData($calculation);
         }
 
         return $result;
@@ -86,7 +90,7 @@ final class CalculationResultService
         Calculation $calculation,
         ResultTableTypeEnum $tableType,
     ): ?CalculationResultTable {
-        return $this->repository->findByCalculationAndType($calculation, $tableType);
+        return $this->calculationResultTableRepository->findByCalculationAndType($calculation, $tableType);
     }
 
     /**
@@ -94,12 +98,33 @@ final class CalculationResultService
      */
     public function deleteAll(Calculation $calculation): void
     {
-        $entities = $this->repository->findByCalculation($calculation);
+        $entities = $this->calculationResultTableRepository->findByCalculation($calculation);
 
         foreach ($entities as $entity) {
-            $this->em->remove($entity);
+            $this->entityManager->remove($entity);
         }
 
-        $this->em->flush();
+        $this->entityManager->flush();
+    }
+
+    private function addDefaultData(Calculation $calculation): array
+    {
+        $pillarEnum = $calculation->getCalculationData()->getConcretePillarSpecificData()->toEnumPillar();
+
+        $result[ResultTableTypeEnum::PILLAR_FORCES->value] = [
+            'enabled' => true,
+            'rows'    => [
+                ['mark' => 0, 'pillarType' => $pillarEnum->value, 'mAllowable' => $pillarEnum->getAllowableMomentByStrength()],
+            ],
+        ];
+
+        $result[ResultTableTypeEnum::CRACK_OPENING->value] = [
+            'enabled' => true,
+            'rows'    => [
+                ['mark' => 0, 'pillarType' => $pillarEnum->value, 'crackWidthAllowable' => 0.3],
+            ],
+        ];
+
+        return $result;
     }
 }

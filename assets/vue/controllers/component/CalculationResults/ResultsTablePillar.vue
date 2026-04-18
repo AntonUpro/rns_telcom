@@ -10,10 +10,6 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    pillarTypes: {
-        type: Array,
-        default: () => [],
-    },
     tableNumber: {
         type: Number,
         required: true,
@@ -24,7 +20,7 @@ const emit = defineEmits(['update:rows']);
 
 const makeRow = () => ({
     mark: null,
-    pillarTypes: '',
+    pillarType: '',
     mCalc: null,
     mAllowable: null,  // computed by backend
     kMax: null,        // computed by backend
@@ -79,16 +75,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
                                 placeholder="0.000"
                             />
                         </td>
-                        <td>
-                            <select
-                                class="rt-select"
-                                :value="row.pillarTypes"
-                                @change="updateCell(idx, 'pillarTypes', $event.target.value)"
-                            >
-                                <option value="">— выберите —</option>
-                                <option v-for="pt in pillarTypes" :key="pt" :value="pt">{{ pt.value }}</option>
-                            </select>
-                        </td>
+                        <td class="rt-select">{{ row.pillarType }}</td>
                         <td>
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
