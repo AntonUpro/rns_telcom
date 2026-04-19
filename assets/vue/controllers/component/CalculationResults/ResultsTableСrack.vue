@@ -83,15 +83,14 @@ const fmtK = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : 'â€
                             />
                         </td>
                         <td class="rt-select">{{ row.pillarType }}</td>
-                        <td class="td-computed">{{ fmt(row.crackWidthCalc) }}</td>
                         <td>
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
-                                :value="row.crackWidthAllowable"
-                                @input="updateCell(idx, 'crackWidthAllowable', $event.target.valueAsNumber)"
-                                placeholder="0.300"
+                                :value="row.crackWidthCalc"
+                                @input="updateCell(idx, 'crackWidthCalc', $event.target.valueAsNumber)"
                             />
                         </td>
+                        <td class="td-computed">{{ fmt(row.crackWidthAllowable) }}</td>
                         <td class="td-computed td-kmax" :class="{ 'td-warn': row.kMax !== null && row.kMax > 1 }">
                             {{ fmtK(row.kMax) }}
                         </td>
@@ -185,11 +184,11 @@ const fmtK = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : 'â€
 
 .rt-table tbody tr:hover { background: #f8f9fa; }
 
-.col-n    { width: 50px; }
-.col-mark { width: 150px; }
-.col-type { min-width: 140px; }
-.col-val  { width: 150px; text-align: center; }
-.col-del  { width: 32px; }
+.col-n    { min-width: 50px; }
+.col-mark { min-width: 150px; }
+.col-type { width: 140px; }
+.col-val  { min-width: 150px; text-align: center; }
+.col-del  { min-width: 32px; }
 
 .td-center { text-align: center; }
 

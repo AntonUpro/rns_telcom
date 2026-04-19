@@ -328,12 +328,12 @@ const fmt = (v, decimals = 2) =>
 
 .rt-table tbody tr:hover { background: #f8f9fa; }
 
-.col-n     { width: 28px; }
+.col-n     { min-width: 50px; }
 .col-elem  { min-width: 100px; }
 .col-mark  { width: 90px; }
-.col-ptype { min-width: 130px; }
+.col-ptype { width: 130px; }
 .col-sec   { min-width: 110px; }
-.col-num   { width: 80px; text-align: center; }
+.col-num   { min-width: 100px; text-align: center; }
 .col-del   { width: 28px; }
 
 .hint {

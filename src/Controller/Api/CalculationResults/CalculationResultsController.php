@@ -6,6 +6,7 @@ namespace App\Controller\Api\CalculationResults;
 
 use App\Controller\Api\AbstractApiController;
 use App\Enum\Gauge\GaugeProfileTypeEnum;
+use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PillarEnum;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\CalculationResult\CalculationResultCalculatorService;
@@ -65,13 +66,12 @@ class CalculationResultsController extends AbstractApiController
                         ],
                         GaugeProfileTypeEnum::cases(),
                     ),
-                    'pillarTypes' => array_map(
-                        static fn(PillarEnum $case): array => [
+                    'elementTypes' => array_map(
+                        static fn(ElementTypeEnum $case): array => [
                             'value' => $case->value,
-                            'allowableMoment' => $case->getAllowableMomentByStrength(),
-                            'momentByCrackFormation' => $case->getMomentByCrackFormation(),
+                            'label' => $case->label(),
                         ],
-                        PillarEnum::cases(),
+                        ElementTypeEnum::cases(),
                     ),
                 ],
                 'savedData' => $savedData ?: null,

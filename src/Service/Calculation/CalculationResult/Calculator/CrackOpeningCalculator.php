@@ -18,7 +18,7 @@ final class CrackOpeningCalculator implements TableCalculatorInterface
             $crackWidthCalc = $row->crackWidthCalc;
 
             $kMax = ($crackWidthCalc !== null && $row->crackWidthAllowable > 0)
-                ? round($crackWidthCalc / $row->crackWidthAllowable, 4)
+                ? round($crackWidthCalc / $row->crackWidthAllowable, 2)
                 : null;
 
             return $row->withComputed($crackWidthCalc, $kMax)->toArray();
