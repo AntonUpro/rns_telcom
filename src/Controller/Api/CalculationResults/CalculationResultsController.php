@@ -6,9 +6,9 @@ namespace App\Controller\Api\CalculationResults;
 
 use App\Controller\Api\AbstractApiController;
 use App\Enum\Gauge\GaugeProfileTypeEnum;
-use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PillarEnum;
 use App\Repository\CalculationRepository;
+use App\Service\Calculation\CalculationResult\CalculationResultCalculatorService;
 use App\Service\Calculation\CalculationResult\CalculationResultService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,46 +21,11 @@ use Throwable;
 #[IsGranted('ROLE_USER')]
 class CalculationResultsController extends AbstractApiController
 {
-    /**
-     * Стандартные типы железобетонных опор.
-     * TODO: вынести в отдельный enum или справочник БД при необходимости.
-     */
-    private const array POLE_TYPES = [
-        'СК 22.1-1',
-        'СК 26.1-1.1',
-        'СК 26.1-1.2',
-        'СК 26.2-2',
-        'СК 30.1-1',
-        'СК 30.2-2',
-        'СВ 95-2',
-        'СВ 95-3',
-        'СВ 110-2',
-        'СВ 110-3.5',
-        'СВ 110-5',
-        'СВ 164-8',
-        'СВ 164-10',
-    ];
-
-    /** Элементы для таблицы 3 (подкосы). */
-    private const array TABLE3_ELEMENTS = [
-        'подкос',
-        'стойка',
-    ];
-
-    /** Элементы для таблицы 4 (пояса надстройки). */
-    private const array TABLE4_ELEMENTS = [
-        'пояс',
-        'раскос',
-        'ограждение',
-        'рама',
-        'стойка',
-        'связь',
-    ];
-
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly CalculationRepository $calculationRepository,
         private readonly CalculationResultService $resultService,
+        private readonly CalculationResultCalculatorService $calculatorService,
     ) {
     }
 
@@ -108,7 +73,6 @@ class CalculationResultsController extends AbstractApiController
                         ],
                         PillarEnum::cases(),
                     ),
-//                    'elementTypes' => ElementTypeEnum::toOptions(),
                 ],
                 'savedData' => $savedData ?: null,
             ]);
@@ -166,28 +130,15 @@ class CalculationResultsController extends AbstractApiController
 
             $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-            $this->resultService->saveAll($calculation, $payload);
+            $computed = $this->calculatorService->calculateAll($payload);
+
+            $this->resultService->saveAll($calculation, $computed);
 
             $this->logger->info(
-                sprintf('Данные результатов расчёта %d сохранены', $calculationId),
+                sprintf('Результаты расчёта %d вычислены и сохранены', $calculationId),
             );
 
-            // TODO: реализовать логику вычисления computed-полей и возвращать их фронтенду.
-            // Пока возвращаем входные данные без изменений.
-            return $this->successResponse([
-                'message'              => 'Данные сохранены. Логика расчёта будет реализована.',
-                'pillar_forces'        => $payload['pillar_forces']        ?? ['rows' => []],
-                'crack_opening'        => $payload['crack_opening']        ?? ['rows' => []],
-                'brace_stress'         => $payload['brace_stress']         ?? ['enabled' => false, 'rows' => []],
-                'superstructure_stress'=> $payload['superstructure_stress']?? ['enabled' => false, 'rows' => []],
-                'platform_forces'      => $payload['platform_forces']      ?? ['enabled' => false, 'rows' => []],
-                // TODO: base_forces — нет computed-полей, только входные данные
-                'base_forces'          => $payload['base_forces']          ?? ['enabled' => false, 'rows' => []],
-                // TODO: deformation — displacement, angleMax, kUse из программного ПК
-                'deformation'          => $payload['deformation']          ?? ['enabled' => false, 'rows' => []],
-                // TODO: foundation — qU, beta, kUseStability, kUseDeformation из расчёта фундамента
-                'foundation'           => $payload['foundation']           ?? ['enabled' => false, 'rows' => []],
-            ]);
+            return $this->successResponse($computed);
         } catch (Throwable $e) {
             $this->logger->error(
                 sprintf('Ошибка расчёта результатов для расчёта %d: %s', $calculationId, $e->getMessage()),
