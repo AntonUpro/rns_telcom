@@ -22,6 +22,19 @@ class GaugeIBeamRepository extends ServiceEntityRepository
     }
 
     /** @return GaugeIBeam[] */
+    public function searchByQuery(string $query, int $limit = 15): array
+    {
+        return $this->createQueryBuilder('b')
+            ->join('b.profile', 'p')
+            ->where('p.designation LIKE :q OR p.name LIKE :q')
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('p.designation', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return GaugeIBeam[] */
     public function findAllOrderedByHeight(): array
     {
         return $this->createQueryBuilder('b')

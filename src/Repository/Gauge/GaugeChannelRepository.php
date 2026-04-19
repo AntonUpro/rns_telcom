@@ -22,6 +22,19 @@ class GaugeChannelRepository extends ServiceEntityRepository
     }
 
     /** @return GaugeChannel[] */
+    public function searchByQuery(string $query, int $limit = 15): array
+    {
+        return $this->createQueryBuilder('c')
+            ->join('c.profile', 'p')
+            ->where('p.designation LIKE :q OR p.name LIKE :q')
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('p.designation', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return GaugeChannel[] */
     public function findAllOrderedByHeight(): array
     {
         return $this->createQueryBuilder('c')

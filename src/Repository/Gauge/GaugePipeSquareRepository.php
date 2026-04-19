@@ -22,6 +22,19 @@ class GaugePipeSquareRepository extends ServiceEntityRepository
     }
 
     /** @return GaugePipeSquare[] */
+    public function searchByQuery(string $query, int $limit = 15): array
+    {
+        return $this->createQueryBuilder('s')
+            ->join('s.profile', 'p')
+            ->where('p.designation LIKE :q OR p.name LIKE :q')
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('p.designation', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return GaugePipeSquare[] */
     public function findAllOrderedBySide(): array
     {
         return $this->createQueryBuilder('p')

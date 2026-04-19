@@ -22,6 +22,19 @@ class GaugeRoundSolidRepository extends ServiceEntityRepository
     }
 
     /** @return GaugeRoundSolid[] */
+    public function searchByQuery(string $query, int $limit = 15): array
+    {
+        return $this->createQueryBuilder('r')
+            ->join('r.profile', 'p')
+            ->where('p.designation LIKE :q OR p.name LIKE :q')
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('p.designation', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /** @return GaugeRoundSolid[] */
     public function findAllOrderedByDiameter(): array
     {
         return $this->createQueryBuilder('r')
