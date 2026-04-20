@@ -190,8 +190,12 @@ const fetchPlatformData = async () => {
             throw new Error('Ошибка получения данных по оборудованию. Ошибка: ' + responseData.error ? responseData.error : 'Неизвестная ошибка');
         }
 
-        sections.value = responseData.data.sections;
-        strut.value = responseData.data.strut;
+        if (responseData.data.sections) {
+            sections.value = responseData.data.sections;
+        }
+        if (responseData.data.strut) {
+            strut.value = responseData.data.strut;
+        }
         if (responseData.data.totalData) {
             totalData.value = responseData.data.totalData;
         }
@@ -273,7 +277,6 @@ const fetchPlatformData = async () => {
                 </thead>
                 <tbody>
                 <SectionItem2
-                    v-if="Object.keys(strut).length !== 0"
                     :key="0"
                     :section="strut"
                     :index="0"
