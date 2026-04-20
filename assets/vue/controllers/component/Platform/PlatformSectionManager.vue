@@ -192,7 +192,9 @@ const fetchPlatformData = async () => {
 
         sections.value = responseData.data.sections;
         strut.value = responseData.data.strut;
-        totalData.value = responseData.data.totalData;
+        if (responseData.data.totalData) {
+            totalData.value = responseData.data.totalData;
+        }
         elementTypes.value = responseData.data.elementTypes ?? [];
         sectionTypes.value = responseData.data.sectionTypes ?? [];
     } catch (error) {
