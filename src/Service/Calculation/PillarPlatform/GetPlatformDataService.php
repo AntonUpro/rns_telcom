@@ -23,7 +23,7 @@ class GetPlatformDataService
     ) {
     }
 
-    public function getPlatformData(int $calculationId): PlatformSaveDataDto
+    public function getPlatformData(int $calculationId): ?PlatformSaveDataDto
     {
         $calculation = $this->calculationRepository->findById($calculationId);
 
@@ -33,7 +33,7 @@ class GetPlatformDataService
 
         $platformData = $calculation->getPillarPlatform();
         if (! $platformData) {
-            throw new NotFoundException(sprintf('Not found pillar platform data for calculation with id %s', $calculationId));
+            return null;
         }
 
         $sections = [];

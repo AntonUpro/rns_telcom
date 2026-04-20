@@ -37,7 +37,7 @@ class PlatformController extends AbstractApiController
             $this->savePlatformDataService->savePlatformData($platformSaveDataDto);
 
             $platformSaveDataDto = $this->getPlatformDataService->getPlatformData($platformSaveDataDto->calculationId);
-            return $this->successResponse($platformSaveDataDto->toArray());
+            return $this->successResponse($platformSaveDataDto?->toArray());
         } catch (Throwable $e) {
             $this->logger->error(
                 sprintf('Ошибка сохранения данных площадки: %s', $e->getMessage()),
@@ -53,7 +53,7 @@ class PlatformController extends AbstractApiController
         try {
             $data = $this->getPlatformDataService->getPlatformData($calculationId);
 
-            $response = $data->toArray();
+            $response = $data?->toArray();
             $response['elementTypes']  = ElementTypeEnum::toOptions();
             $response['sectionTypes']  = SectionConstructTypeEnum::toOptions();
 
