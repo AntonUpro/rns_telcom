@@ -158,7 +158,11 @@ final class EquipmentWindPressureTableBuilder
 
         $table->addRow(400);
 
-        $table->addCell($w[0],  $cellStyle)->addText($r->fullName, $fontStyle, DocStyleRegistry::paragraphLeft());
+        $designationCell = $table->addCell($w[0], $cellStyle);
+        $designationCell->addText($r->fullName, $fontStyle, DocStyleRegistry::paragraphLeft());
+        if (!empty($r->operator)) {
+            $designationCell->addText($r->operator, $fontStyle, DocStyleRegistry::paragraphLeft());
+        }
         $table->addCell($w[1],  $cellStyle)->addText((string)$r->quantity, $fontStyle, $paraStyle);
         $table->addCell($w[2],  $cellStyle)->addText($this->fmt($r->monthHeight), $fontStyle, $paraStyle);
         $table->addCell($w[3],  $cellStyle)->addText($this->fmt($r->kze), $fontStyle, $paraStyle);

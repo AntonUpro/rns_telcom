@@ -205,13 +205,16 @@ const downloadReport = async () => {
 
         const blob = await response.blob();
         const url  = window.URL.createObjectURL(blob);
+
         const a    = document.createElement('a');
         a.href     = url;
         a.download = `calculation_${props.calculationId}.docx`;
         document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 100);
     } catch (error) {
         alert('Ошибка: ' + error.message);
     } finally {
@@ -384,7 +387,7 @@ const totalElementsCount = computed(() => {
 <!--            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">-->
 <!--                Сохранить расчет-->
 <!--            </button>-->
-            <button @click="downloadReport" class="btn-action btn-secondary" :disabled="isDownloading">
+            <button type="button" @click.prevent="downloadReport" class="btn-action btn-secondary" :disabled="isDownloading">
                 {{ isDownloading ? 'Формируется файл...' : 'Скачать расчет' }}
             </button>
 <!--            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">-->

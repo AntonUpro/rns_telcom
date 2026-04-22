@@ -37,6 +37,7 @@ final readonly class GetCalculationEquipmentService
                 mountHeight: $equipmentItem->getMountingHeight(),
                 heightGroup: $equipmentItem->getEquipmentParams()['heightGroup'] ?? 0,
                 quantity: $equipmentItem->getQuantity(),
+                operator: $equipmentItem->getOperator(),
             );
         }
 

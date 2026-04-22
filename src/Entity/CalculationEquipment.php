@@ -51,6 +51,9 @@ class CalculationEquipment
     #[Assert\NotBlank(message: 'Параметры оборудования обязательны')]
     private array $equipmentParams = [];
 
+    #[ORM\Column(name: 'operator', length: 255, nullable: true)]
+    private ?string $operator = null;
+
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 
@@ -169,6 +172,18 @@ class CalculationEquipment
         return $this;
     }
 
+    public function getOperator(): ?string
+    {
+        return $this->operator;
+    }
+
+    public function setOperator(?string $operator): static
+    {
+        $this->operator = $operator;
+
+        return $this;
+    }
+
     public static function getEquipmentGroups(): array
     {
         return array_values(EquipmentGroupEnum::cases());
@@ -191,6 +206,7 @@ class CalculationEquipment
             'mounting_height' => $this->mountingHeight,
             'quantity' => $this->quantity,
             'equipment_params' => $this->equipmentParams,
+            'operator' => $this->operator,
             'created_at' => $this->createdAt->format('Y-m-d H:i:s'),
             'updated_at' => $this->updatedAt?->format('Y-m-d H:i:s'),
         ];

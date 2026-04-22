@@ -63,10 +63,15 @@ function addIds(arr) {
 }
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-// ---------------------- Автокомплит ----------------------
+// ---------------------- Автокомплит (наименование) ----------------------
 const sMap = reactive({}); // key -> { open, items, loading, error, active, query }
 const timers = new Map();   // key -> setTimeout id
 const controllers = new Map(); // key -> AbortController
+
+// ---------------------- Автокомплит (оператор) ----------------------
+const oMap = reactive({}); // key -> { open, items, loading, error, active, query }
+const oTimers = new Map();
+const oControllers = new Map();
 
 function keyOf(item, idx) { return item?.id ?? idx; }
 function getState(key) {
@@ -273,14 +278,128 @@ function onBlur(row, idx) {
     const key = keyOf(row, idx);
     setTimeout(() => closeDropdown(key), 150);
 }
+
+// ─── Автокомплит оператора ────────────────────────────────────────────────
+
+function operatorStateFor(item, idx) {
+    const key = keyOf(item, idx);
+    if (!oMap[key]) {
+        oMap[key] = { open: false, items: [], loading: false, error: null, active: 0, query: '' };
+    }
+    return oMap[key];
+}
+
+async function apiSearchOperator(query, signal) {
+    const url = new URL('/api/v1/operator/search', window.location.origin);
+    url.searchParams.set('query', query);
+
+    const res = await fetch(url.toString(), { signal });
+    if (!res.ok) throw new Error('Ошибка поиска');
+
+    const data = await res.json();
+    if (!data?.success) throw new Error(data?.message || 'Ошибка поиска');
+
+    return data.data;
+}
+
+function scheduleOperatorSearch(row, idx) {
+    if (!props.editable) return;
+    const key  = keyOf(row, idx);
+    const q    = (row.operator || '').trim();
+    const st   = operatorStateFor(row, idx);
+    st.query   = q;
+
+    if (q.length < props.minChars) {
+        st.open    = false;
+        st.items   = [];
+        st.loading = false;
+        st.error   = null;
+        const t = oTimers.get(key);
+        if (t) { clearTimeout(t); oTimers.delete(key); }
+        const c = oControllers.get(key);
+        if (c) { c.abort(); oControllers.delete(key); }
+        return;
+    }
+
+    st.loading = true;
+    st.error   = null;
+    st.open    = true;
+
+    const t = oTimers.get(key);
+    if (t) { clearTimeout(t); oTimers.delete(key); }
+    oTimers.set(key, setTimeout(() => performOperatorSearch(key, q), props.debounceMs));
+}
+
+function performOperatorSearch(key, q) {
+    const c = oControllers.get(key);
+    if (c) { c.abort(); oControllers.delete(key); }
+
+    const ctrl = new AbortController();
+    oControllers.set(key, ctrl);
+
+    apiSearchOperator(q, ctrl.signal)
+        .then(list => {
+            const st = oMap[key];
+            if (!st || st.query !== q) return;
+            st.items   = Array.isArray(list) ? list : [];
+            st.loading = false;
+            st.error   = null;
+            st.active  = 0;
+            st.open    = true;
+        })
+        .catch(err => {
+            if (err?.name === 'AbortError') return;
+            const st = oMap[key];
+            if (!st) return;
+            st.loading = false;
+            st.error   = err?.message || 'Ошибка поиска';
+            st.items   = [];
+        });
+}
+
+function selectOperator(row, idx, res) {
+    row.operator = res.name;
+    const key    = keyOf(row, idx);
+    if (oMap[key]) oMap[key].open = false;
+}
+
+function onOperatorMouseEnter(row, idx, rIdx) {
+    operatorStateFor(row, idx).active = rIdx;
+}
+
+function onOperatorKeyDown(row, idx, e) {
+    const st = operatorStateFor(row, idx);
+    if (!st.open || !st.items.length) return;
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        st.active = (st.active + 1) % st.items.length;
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        st.active = (st.active - 1 + st.items.length) % st.items.length;
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const item = st.items[st.active];
+        if (item) selectOperator(row, idx, item);
+    } else if (e.key === 'Escape') {
+        e.preventDefault();
+        st.open = false;
+    }
+}
+
+function onOperatorBlur(row, idx) {
+    const key = keyOf(row, idx);
+    setTimeout(() => { if (oMap[key]) oMap[key].open = false; }, 150);
+}
 </script>
 
 <template>
     <!-- Заголовок раздела -->
     <tr class="section-row">
-        <td colspan="5" class="section-title">
+        <td class="section-title">
             <div>{{ label }}</div>
         </td>
+        <td></td>
         <td></td>
         <td></td>
         <td></td>
@@ -319,7 +438,7 @@ function onBlur(row, idx) {
                 <span v-else>{{ item.fullName }}</span>
             </div>
 
-            <!-- Выпадающее окно с подсказками -->
+            <!-- Выпадающее окно с подсказками (наименование) -->
             <div
                 v-if="stateFor(item, index).open"
                 class="autocomplete-panel"
@@ -348,6 +467,49 @@ function onBlur(row, idx) {
                             <div class="meta">
                                 {{ formatDimsForResult(res, category) }} • {{ formatWeight(res.weight) }} кг
                             </div>
+                        </li>
+                    </ul>
+                </template>
+            </div>
+
+        </td>
+
+        <!-- Оператор -->
+        <td class="cell-operator">
+            <div class="editable-cell autocomplete-root">
+                <input
+                    v-if="editable"
+                    type="text"
+                    v-model="item.operator"
+                    class="table-input"
+                    placeholder="Введите оператора"
+                    @input="scheduleOperatorSearch(item, index)"
+                    @keydown="onOperatorKeyDown(item, index, $event)"
+                    @blur="onOperatorBlur(item, index)"
+                />
+                <span v-else>{{ item.operator ?? '—' }}</span>
+            </div>
+
+            <div v-if="operatorStateFor(item, index).open" class="autocomplete-panel">
+                <div class="autocomplete-status" v-if="operatorStateFor(item, index).loading">
+                    Поиск...
+                </div>
+                <div class="autocomplete-status error" v-else-if="operatorStateFor(item, index).error">
+                    {{ operatorStateFor(item, index).error }}
+                </div>
+                <template v-else>
+                    <div class="autocomplete-status" v-if="!operatorStateFor(item, index).items.length">
+                        Нет результатов
+                    </div>
+                    <ul class="autocomplete-list" v-else>
+                        <li
+                            v-for="(res, rIdx) in operatorStateFor(item, index).items"
+                            :key="res.id ?? rIdx"
+                            :class="['autocomplete-item', { active: operatorStateFor(item, index).active === rIdx }]"
+                            @mousedown.prevent="selectOperator(item, index, res)"
+                            @mouseenter="onOperatorMouseEnter(item, index, rIdx)"
+                        >
+                            <div class="title">{{ res.name }}</div>
                         </li>
                     </ul>
                 </template>
@@ -617,6 +779,13 @@ function onBlur(row, idx) {
     display: flex;
     gap: 0.25rem;
     justify-content: center;
+}
+
+/* Ячейка оператора */
+.cell-operator {
+    text-align: left !important;
+    position: relative;
+    overflow: visible;
 }
 
 /* Автокомплит */

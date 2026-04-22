@@ -22,6 +22,7 @@ final readonly class EquipmentCalculationResult
         public float $shadingCoefficient,
         public float $pressOnOneEquipment,
         public int $heightGroup,
+        public ?string $operator = null,
     ) {
     }
 
@@ -43,6 +44,7 @@ final readonly class EquipmentCalculationResult
             'shadingCoefficient' => $this->shadingCoefficient,
             'pressOnOneEquipment' => $this->pressOnOneEquipment,
             'heightGroup' => $this->heightGroup,
+            'operator' => $this->operator,
         ];
     }
 }

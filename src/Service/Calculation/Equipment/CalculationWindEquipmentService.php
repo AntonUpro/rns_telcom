@@ -94,6 +94,7 @@ final readonly class CalculationWindEquipmentService
                 shadingCoefficient: DefaultConstant::SECURITY_COEFFICIENT,
                 pressOnOneEquipment: $equipmentDto->pressOnOneEquipment(),
                 heightGroup: $equipment->getEquipmentParams()['heightGroup'],
+                operator: $equipment->getOperator(),
             );
         }
 

@@ -103,6 +103,7 @@ class CalculationEquipmentRepository extends ServiceEntityRepository
             ->setEquipmentType($equipmentDto->type)
             ->setQuantity($equipmentDto->quantity)
             ->setMountingHeight($equipmentDto->mountHeight)
+            ->setOperator($equipmentDto->operator)
             ->setEquipmentParams(
                 [
                     'equipmentId' => $equipmentDto->equipmentId,

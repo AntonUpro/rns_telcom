@@ -37,6 +37,7 @@ function makeDefaultRow(category) {
         id: null,
         equipmentId: 0,
         fullName: '',
+        operator: null,
         type: category,
         diameter: 0,
         height: 0,
@@ -124,6 +125,7 @@ const toggleSection = (section) => {
             <thead>
             <tr>
                 <th class="column-designation">Обозначение</th>
+                <th class="column-operator">Оператор</th>
                 <th class="column-dimensions">Габариты, мм</th>
                 <th class="column-weight">Масса, кг</th>
                 <th class="column-quantity">Кол-во</th>
@@ -190,6 +192,7 @@ const toggleSection = (section) => {
             <tr class="summary-row">
                 <td class="summary-label">ИТОГО:</td>
                 <td class="summary-value">—</td>
+                <td class="summary-value">—</td>
                 <td class="summary-value">{{ formatWeight(totalWeight) }}</td>
                 <td class="summary-value">{{ totalQuantity }}</td>
                 <td class="summary-value">—</td>
@@ -255,20 +258,25 @@ const toggleSection = (section) => {
 
 /* Колонки */
 .column-designation {
-    width: 31%;
+    width: 22%;
     text-align: left !important;
+}
+
+.column-operator {
+    width: 15%;
+    text-align: left !important;
+}
+
+.column-dimensions {
+    width: 20%;
+}
+
+.column-weight {
+    width: 9%;
 }
 
 .column-quantity {
     width: 8%;
-}
-
-.column-dimensions {
-    width: 25%;
-}
-
-.column-weight {
-    width: 10%;
 }
 
 .column-height {

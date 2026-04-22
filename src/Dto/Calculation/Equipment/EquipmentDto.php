@@ -25,6 +25,8 @@ final readonly class EquipmentDto
         #[Assert\NotBlank(message: 'Необходимо указать количество оборудования')]
         #[Assert\Range(min: 1, max: 300, minMessage: 'Минимальное колчество оборудования 1')]
         public int $quantity,
+
+        public ?string $operator = null,
     ) {
     }
 
@@ -43,6 +45,7 @@ final readonly class EquipmentDto
             mountHeight: $data['mountHeight'],
             heightGroup: $data['heightGroup'] ?? 0,
             quantity: $data['quantity'],
+            operator: $data['operator'] ?? null,
         );
     }
 
@@ -61,6 +64,7 @@ final readonly class EquipmentDto
             'mountHeight' => $this->mountHeight,
             'heightGroup' => $this->heightGroup,
             'quantity' => $this->quantity,
+            'operator' => $this->operator,
         ];
     }
 }
