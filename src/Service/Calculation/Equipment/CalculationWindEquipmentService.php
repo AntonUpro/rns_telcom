@@ -9,6 +9,8 @@ use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculator;
 use App\Dto\Calculation\Equipment\Calculate\RectangleEquipmentForCalculationDto;
 use App\Dto\Calculation\Equipment\Calculate\RoundEquipmentForCalculationDto;
 use App\Dto\DefaultConstant;
+use App\Entity\CalculationEquipment;
+use App\Entity\Equipment;
 use App\Enum\Equipment\EquipmentGroupEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationEquipmentRepository;
@@ -95,9 +97,25 @@ final readonly class CalculationWindEquipmentService
                 pressOnOneEquipment: $equipmentDto->pressOnOneEquipment(),
                 heightGroup: $equipment->getEquipmentParams()['heightGroup'],
                 operator: $equipment->getOperator(),
+                dimensions: $this->dimensionsBuilder($equipment),
             );
         }
 
         return $result;
+    }
+
+    private function dimensionsBuilder(CalculationEquipment $equipment): string
+    {
+        if ($equipment->getEquipmentType()->isRrl()) {
+            return sprintf('(Ø%s мм; %s кг)', $equipment->getEquipmentParams()['diameter'], $equipment->getEquipmentParams()['weight']);
+        }
+
+        return sprintf(
+            '(%sx%sx%s мм; %s кг)',
+            $equipment->getEquipmentParams()['height'],
+            $equipment->getEquipmentParams()['width'],
+            $equipment->getEquipmentParams()['depth'],
+            $equipment->getEquipmentParams()['weight'],
+        );
     }
 }

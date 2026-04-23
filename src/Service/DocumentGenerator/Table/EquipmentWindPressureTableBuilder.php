@@ -132,16 +132,16 @@ final class EquipmentWindPressureTableBuilder
                 ->addText($groupLabel, $bold, $center);
 
             foreach ($byType as $typeValue => $results) {
-                $typeLabel = EquipmentTypeEnum::from($typeValue)->label();
+                $typeValueEnum = EquipmentTypeEnum::from($typeValue);
 
                 // ── Строка подгруппы (РРЛ / Панельная / Радиоблок) ──────────
                 $table->addRow(400);
                 $table->addCell($total, array_merge($subRow, ['gridSpan' => self::TOTAL_COLS]))
-                    ->addText($typeLabel, $bold, $center);
+                    ->addText($typeValueEnum->label(), $bold, $center);
 
                 // ── Строки оборудования ──────────────────────────────────────
-                foreach ($results as $r) {
-                    $this->addResultRow($table, $r, $dataCell, $normal, $center);
+                foreach ($results as $result) {
+                    $this->addResultRow($table, $result, $dataCell, $normal, $center);
                 }
             }
         }
@@ -159,9 +159,10 @@ final class EquipmentWindPressureTableBuilder
         $table->addRow(400);
 
         $designationCell = $table->addCell($w[0], $cellStyle);
-        $designationCell->addText($r->fullName, $fontStyle, DocStyleRegistry::paragraphLeft());
+        $designationCell->addText($r->fullName, $fontStyle, DocStyleRegistry::paragraphCenter());
+        $designationCell->addText($r->dimensions, $fontStyle, DocStyleRegistry::paragraphCenter());
         if (!empty($r->operator)) {
-            $designationCell->addText($r->operator, $fontStyle, DocStyleRegistry::paragraphLeft());
+            $designationCell->addText($r->operator, $fontStyle, DocStyleRegistry::paragraphCenter());
         }
         $table->addCell($w[1],  $cellStyle)->addText((string)$r->quantity, $fontStyle, $paraStyle);
         $table->addCell($w[2],  $cellStyle)->addText($this->fmt($r->monthHeight), $fontStyle, $paraStyle);

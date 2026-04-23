@@ -381,9 +381,9 @@ const totalElementsCount = computed(() => {
 
         <!-- Кнопки действий -->
         <div class="calc-actions">
-            <button @click="calculateAll" class="btn-action btn-action-calc" :disabled="isLoading">
-                {{ isLoading ? 'Выполняется расчет...' : 'Выполнить расчет' }}
-            </button>
+<!--            <button @click="calculateAll" class="btn-action btn-action-calc" :disabled="isLoading">-->
+<!--                {{ isLoading ? 'Выполняется расчет...' : 'Выполнить расчет' }}-->
+<!--            </button>-->
 <!--            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">-->
 <!--                Сохранить расчет-->
 <!--            </button>-->
