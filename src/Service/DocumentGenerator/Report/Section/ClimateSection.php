@@ -22,22 +22,22 @@ final class ClimateSection implements SectionBuilderInterface
         $para = DocStyleRegistry::paragraphLeft();
         $ind  = DocStyleRegistry::paragraphIndent();
 
-        $section->addText('Расположение объекта:', $body, $ind);
         $section->addTextBreak(1);
+        $section->addText('Расположение объекта:', $body, $ind);
 
         // Тип местности
         $terrainType = $data?->getTerrainType();
         $terrainLabel = $terrainType !== null
-            ? $terrainType->value . ' — ' . $terrainType->description()
+            ? $terrainType->value
             : '—';
-        $section->addText('— тип местности ' . $terrainLabel . ';', $body, $para);
+        $section->addText('• тип местности ' . $terrainLabel . ';', $body, $para);
 
         // Ветровой район
         $windRegion = $data?->getWindRegion();
         if ($windRegion !== null) {
             $section->addText(
                 sprintf(
-                    '— ветровой район %s, нормативная ветровая нагрузка %d кгс/м² (%d Па);',
+                    '• ветровой район %s, нормативная ветровая нагрузка %d кгс/м² (%d Па);',
                     $windRegion->value,
                     $windRegion->pressureKgPerM(),
                     $windRegion->pressure(),
@@ -46,11 +46,11 @@ final class ClimateSection implements SectionBuilderInterface
                 $para,
             );
         } else {
-            $section->addText('— ветровой район —;', $body, $para);
+            $section->addText('• ветровой район —;', $body, $para);
         }
 
         $section->addText(
-            '— коэффициент надёжности для ветровой нагрузки 1,4;',
+            '• коэффициент надёжности для ветровой нагрузки 1,4;',
             $body,
             $para,
         );
@@ -61,7 +61,7 @@ final class ClimateSection implements SectionBuilderInterface
             $thickness = $icingRegion->thicknessMm();
             $section->addText(
                 sprintf(
-                    '— гололёдный район %s (%s), толщина стенки гололёда не менее %d мм;',
+                    '• гололёдный район %s (%s), толщина стенки гололёда не менее %d мм;',
                     $icingRegion->value,
                     $icingRegion->description(),
                     $thickness['min'],
@@ -70,11 +70,11 @@ final class ClimateSection implements SectionBuilderInterface
                 $para,
             );
         } else {
-            $section->addText('— гололёдный район —;', $body, $para);
+            $section->addText('• гололёдный район —;', $body, $para);
         }
 
         $section->addText(
-            '— коэффициент надёжности для гололёдной нагрузки 1,8;',
+            '• коэффициент надёжности для гололёдной нагрузки 1,8;',
             $body,
             $para,
         );
@@ -93,11 +93,11 @@ final class ClimateSection implements SectionBuilderInterface
                 $para,
             );
         } else {
-            $section->addText('— снеговой район —;', $body, $para);
+            $section->addText('• снеговой район —;', $body, $para);
         }
 
         $section->addText(
-            '— коэффициент надёжности для снеговой нагрузки 1,4.',
+            '• коэффициент надёжности для снеговой нагрузки 1,4.',
             $body,
             $para,
         );

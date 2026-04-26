@@ -119,12 +119,12 @@ final class DocStyleRegistry
 
     public static function bodyText(): array
     {
-        return ['size' => 10, 'name' => 'Times New Roman'];
+        return ['size' => 12, 'italic' => true, 'name' => 'Times New Roman'];
     }
 
     public static function bodyTextBold(): array
     {
-        return ['bold' => true, 'size' => 10, 'name' => 'Times New Roman'];
+        return ['bold' => true, 'size' => 12, 'italic' => true, 'name' => 'Times New Roman'];
     }
 
     public static function paragraphJustified(): array

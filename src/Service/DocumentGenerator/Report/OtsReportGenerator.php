@@ -35,6 +35,9 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
+use PhpOffice\PhpWord\Element\Section;
+use RuntimeException;
+use ZipArchive;
 
 /**
  * Генерирует полный отчёт ОТС (обследование технического состояния) в формате DOCX.
@@ -89,7 +92,7 @@ final readonly class OtsReportGenerator
 
         // ── Содержание ────────────────────────────────────────────────────────
         $section->addTitle('СОДЕРЖАНИЕ', 1);
-        $section->addTOC(['size' => 10, 'name' => 'Times New Roman'], [], 1, 2);
+        $section->addTOC(DocStyleRegistry::sectionTitle(), [], 1, 2);
         $section->addPageBreak();
 
         // ── Разделы 1–13 ──────────────────────────────────────────────────────
@@ -98,18 +101,22 @@ final readonly class OtsReportGenerator
 
         $this->addHeading1($section, '2. ЦЕЛЬ ПРОВЕДЕНИЯ РАСЧЁТА И ОБСЛЕДОВАНИЯ');
         (new PurposeSection())->build($section, $context);
+        $section->addPageBreak();
 
         $this->addHeading1($section, '3. ПРЕДОСТАВЛЕННАЯ ДОКУМЕНТАЦИЯ');
         (new DocumentationSection())->build($section, $context);
+        $section->addPageBreak();
 
         $this->addHeading1($section, '4. ГЕОГРАФИЧЕСКИЕ ПАРАМЕТРЫ И КЛИМАТИЧЕСКИЕ УСЛОВИЯ РАСПОЛОЖЕНИЯ СООРУЖЕНИЯ');
         (new ClimateSection())->build($section, $context);
 
         $this->addHeading1($section, '5. ХАРАКТЕРИСТИКИ МАТЕРИАЛА КОНСТРУКЦИЙ');
         (new MaterialSection())->build($section, $context);
+        $section->addPageBreak();
 
         $this->addHeading1($section, '6. КОНСТРУКТИВНОЕ РЕШЕНИЕ СООРУЖЕНИЯ');
         (new StructuralSection())->build($section, $context);
+        $section->addPageBreak();
 
         $this->addHeading1($section, '7. СХЕМА ОПОРЫ');
         (new PillarSchemeSection())->build($section, $context);
@@ -176,6 +183,7 @@ final readonly class OtsReportGenerator
 
         $filePath = sprintf('%s/ots_report_%d.docx', rtrim($outputDir, '/'), $calculationId);
         IOFactory::createWriter($phpWord, 'Word2007')->save($filePath);
+        $this->injectPageBorders($filePath);
 
         return $filePath;
     }
@@ -184,13 +192,14 @@ final readonly class OtsReportGenerator
     {
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Times New Roman');
-        $phpWord->setDefaultFontSize(10);
+        $phpWord->setDefaultFontSize(12);
 
         // Стили уровней заголовков для автоматического содержания
         $phpWord->addTitleStyle(1, [
             'bold'  => true,
             'size'  => 12,
             'name'  => 'Times New Roman',
+            'italic'  => true,
         ], [
             'alignment'   => Jc::CENTER,
             'spaceBefore' => Converter::cmToTwip(0.3),
@@ -215,11 +224,39 @@ final readonly class OtsReportGenerator
             'marginTop'    => Converter::cmToTwip(2.0),
             'marginBottom' => Converter::cmToTwip(2.0),
         ]);
+        $phpWord->setDefaultParagraphStyle(['line-spacing' => 150]);
 
         return $phpWord;
     }
 
-    private function addHeading1(\PhpOffice\PhpWord\Element\Section $section, string $text): void
+    private function injectPageBorders(string $docxPath): void
+    {
+        $zip = new ZipArchive();
+        if ($zip->open($docxPath) !== true) {
+            throw new RuntimeException(sprintf('Не удалось открыть файл "%s" для добавления рамки', $docxPath));
+        }
+
+        $xml = $zip->getFromName('word/document.xml');
+        if ($xml === false) {
+            $zip->close();
+            throw new RuntimeException('Не удалось прочитать word/document.xml из архива');
+        }
+
+        // offsetFrom="page": space задаётся от края листа в пунктах (0.5cm≈14pt, 2cm≈57pt)
+        $borders = '<w:pgBorders w:offsetFrom="page">'
+            . '<w:top w:val="single" w:sz="6" w:space="14" w:color="000000"/>'
+            . '<w:left w:val="single" w:sz="6" w:space="57" w:color="000000"/>'
+            . '<w:bottom w:val="single" w:sz="6" w:space="14" w:color="000000"/>'
+            . '<w:right w:val="single" w:sz="6" w:space="14" w:color="000000"/>'
+            . '</w:pgBorders>';
+
+        $xml = str_replace('</w:sectPr>', $borders . '</w:sectPr>', $xml);
+
+        $zip->addFromString('word/document.xml', $xml);
+        $zip->close();
+    }
+
+    private function addHeading1(Section $section, string $text): void
     {
         $section->addTitle($text, 1);
     }
