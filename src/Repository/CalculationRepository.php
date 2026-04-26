@@ -22,4 +22,16 @@ final class CalculationRepository extends ServiceEntityRepository
     {
         return $this->find($calculationId);
     }
+
+    public function getUserCalculationStats(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('u.id, u.firstName, u.lastName, u.email, COUNT(c.id) AS total')
+            ->join('c.user', 'u')
+            ->groupBy('u.id, u.firstName, u.lastName, u.email')
+            ->orderBy('total', 'DESC')
+            ->setMaxResults(20)
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

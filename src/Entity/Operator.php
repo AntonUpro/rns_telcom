@@ -20,14 +20,13 @@ class Operator
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private string $name;
+    private ?string $name = null;
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
     private DateTimeImmutable $createdAt;
 
-    public function __construct(string $name)
+    public function __construct()
     {
-        $this->name      = $name;
         $this->createdAt = new DateTimeImmutable();
     }
 

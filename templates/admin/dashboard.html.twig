@@ -1,0 +1,116 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block page_title %}Панель управления{% endblock %}
+
+{% block main %}
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card text-bg-primary">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="fa fa-users fa-2x opacity-75"></i>
+                <div>
+                    <div class="fs-4 fw-bold">{{ totalUsers }}</div>
+                    <div class="small">Пользователей</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card text-bg-success">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="fa fa-calculator fa-2x opacity-75"></i>
+                <div>
+                    <div class="fs-4 fw-bold">{{ totalCalculations }}</div>
+                    <div class="small">Расчётов</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card text-bg-warning">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="fa fa-broadcast-tower fa-2x opacity-75"></i>
+                <div>
+                    <div class="fs-4 fw-bold">{{ totalEquipment }}</div>
+                    <div class="small">Оборудования</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card text-bg-info">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i class="fa fa-building fa-2x opacity-75"></i>
+                <div>
+                    <div class="fs-4 fw-bold">{{ totalOperators }}</div>
+                    <div class="small">Операторов</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card">
+            <div class="card-header fw-semibold">Последние расчёты</div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Название</th>
+                            <th>Пользователь</th>
+                            <th>Статус</th>
+                            <th>Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for calc in recentCalculations %}
+                        <tr>
+                            <td class="text-muted">{{ calc.id }}</td>
+                            <td>{{ calc.name }}</td>
+                            <td>{{ calc.user ? calc.user.fullName : '—' }}</td>
+                            <td>
+                                <span class="badge text-bg-{{ calc.status.color() }}">
+                                    {{ calc.status.label() }}
+                                </span>
+                            </td>
+                            <td class="text-muted small">{{ calc.createdAt|date('d.m.Y') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted py-3">Расчётов нет</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card">
+            <div class="card-header fw-semibold">Активность пользователей</div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Пользователь</th>
+                            <th class="text-end">Расчётов</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stat in userStats %}
+                        <tr>
+                            <td>{{ stat.firstName }} {{ stat.lastName }}</td>
+                            <td class="text-end fw-semibold">{{ stat.total }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="2" class="text-center text-muted py-3">Нет данных</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
