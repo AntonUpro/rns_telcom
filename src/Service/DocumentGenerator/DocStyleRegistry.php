@@ -104,4 +104,46 @@ final class DocStyleRegistry
     {
         return ['valign' => 'center', 'gridSpan' => $span];
     }
+
+    // ─── Стили для полного отчёта ОТС ────────────────────────────────────────
+
+    public static function sectionHeading(): array
+    {
+        return ['bold' => true, 'size' => 12, 'name' => 'Times New Roman'];
+    }
+
+    public static function subSectionHeading(): array
+    {
+        return ['bold' => true, 'size' => 11, 'name' => 'Times New Roman'];
+    }
+
+    public static function bodyText(): array
+    {
+        return ['size' => 10, 'name' => 'Times New Roman'];
+    }
+
+    public static function bodyTextBold(): array
+    {
+        return ['bold' => true, 'size' => 10, 'name' => 'Times New Roman'];
+    }
+
+    public static function paragraphJustified(): array
+    {
+        return ['alignment' => Jc::BOTH, 'spaceAfter' => 0];
+    }
+
+    public static function paragraphIndent(): array
+    {
+        return ['alignment' => Jc::BOTH, 'indentation' => ['firstLine' => Converter::cmToTwip(1.25)], 'spaceAfter' => 0];
+    }
+
+    public static function tableStyleReport(): array
+    {
+        return [
+            'borderSize'  => 1,
+            'borderColor' => '000000',
+            'cellMargin'  => 40,
+            'alignment'   => JcTable::CENTER,
+        ];
+    }
 }

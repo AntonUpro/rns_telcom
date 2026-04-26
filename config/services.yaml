@@ -29,3 +29,7 @@ services:
     App\Command\GenerateCalculationReportCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    App\Command\GenerateOtsReportCommand:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
