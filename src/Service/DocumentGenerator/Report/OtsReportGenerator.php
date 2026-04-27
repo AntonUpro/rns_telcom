@@ -6,6 +6,7 @@ namespace App\Service\DocumentGenerator\Report;
 
 use App\Exception\NotFoundException;
 use App\Repository\CalculationDocumentRepository;
+use App\Repository\CalculationImageRepository;
 use App\Repository\CalculationRepository;
 use App\Repository\CalculationReportFileRepository;
 use App\Repository\CalculationResultTableRepository;
@@ -62,12 +63,14 @@ use ZipArchive;
 final readonly class OtsReportGenerator
 {
     public function __construct(
-        private CalculationRepository           $calculationRepository,
-        private CalculationDocumentRepository   $documentRepository,
+        private CalculationRepository $calculationRepository,
+        private CalculationDocumentRepository $documentRepository,
+        private CalculationImageRepository $imageRepository,
         private CalculationResultTableRepository $resultTableRepository,
         private CalculationReportFileRepository $reportFileRepository,
-        private WindLoadsSection                $windLoadsSection,
-    ) {}
+        private WindLoadsSection $windLoadsSection,
+    ) {
+    }
 
     /**
      * @throws NotFoundException     если расчёт не найден
@@ -81,10 +84,10 @@ final readonly class OtsReportGenerator
         }
 
         $context = new ReportContext(
-            calculation:  $calculation,
-            documents:    $this->documentRepository->findByCalculation($calculationId),
+            calculation: $calculation,
+            documents: $this->documentRepository->findByCalculation($calculationId),
             resultTables: $this->resultTableRepository->findAllByCalculationIndexed($calculation),
-            reportFiles:  $this->reportFileRepository->findByCalculation($calculationId),
+            calculationImages: $this->imageRepository->findByCalculation($calculationId),
         );
 
         $phpWord = $this->createDocument();
@@ -128,9 +131,11 @@ final readonly class OtsReportGenerator
 
         $this->addHeading1($section, '9. ВЕРТИКАЛЬНЫЕ НАГРУЗКИ');
         (new VerticalLoadsSection())->build($section, $context);
+        $section->addPageBreak();
 
         $this->addHeading1($section, '10. ОСНОВНЫЕ РАСЧЁТНЫЕ ПОЛОЖЕНИЯ');
         (new CalculationBasisSection())->build($section, $context);
+        $section->addPageBreak();
 
         $this->addHeading1($section, '11. ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
         (new ProgramCalculationSection())->build($section, $context);
@@ -177,7 +182,7 @@ final readonly class OtsReportGenerator
         (new EquipmentListAppendix())->build($section, $context);
 
         // ── Сохранение ────────────────────────────────────────────────────────
-        if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true)) {
+        if (! is_dir($outputDir) && ! mkdir($outputDir, 0755, true)) {
             throw new \RuntimeException(sprintf('Не удалось создать директорию "%s"', $outputDir));
         }
 
@@ -196,32 +201,32 @@ final readonly class OtsReportGenerator
 
         // Стили уровней заголовков для автоматического содержания
         $phpWord->addTitleStyle(1, [
-            'bold'  => true,
-            'size'  => 12,
-            'name'  => 'Times New Roman',
-            'italic'  => true,
+            'bold' => true,
+            'size' => 12,
+            'name' => 'Times New Roman',
+            'italic' => true,
         ], [
-            'alignment'   => Jc::CENTER,
+            'alignment' => Jc::CENTER,
             'spaceBefore' => Converter::cmToTwip(0.3),
-            'spaceAfter'  => Converter::cmToTwip(0.3),
+            'spaceAfter' => Converter::cmToTwip(0.3),
         ]);
 
         $phpWord->addTitleStyle(2, [
-            'bold'  => true,
-            'size'  => 11,
-            'name'  => 'Times New Roman',
+            'bold' => true,
+            'size' => 11,
+            'name' => 'Times New Roman',
         ], [
-            'alignment'   => Jc::START,
+            'alignment' => Jc::START,
             'spaceBefore' => Converter::cmToTwip(0.2),
-            'spaceAfter'  => Converter::cmToTwip(0.2),
+            'spaceAfter' => Converter::cmToTwip(0.2),
         ]);
 
         // Единственная секция A4 с полями по ГОСТ
         $phpWord->addSection([
-            'paperSize'    => 'A4',
-            'marginLeft'   => Converter::cmToTwip(3.0),
-            'marginRight'  => Converter::cmToTwip(1.5),
-            'marginTop'    => Converter::cmToTwip(2.0),
+            'paperSize' => 'A4',
+            'marginLeft' => Converter::cmToTwip(3.0),
+            'marginRight' => Converter::cmToTwip(1.5),
+            'marginTop' => Converter::cmToTwip(2.0),
             'marginBottom' => Converter::cmToTwip(2.0),
         ]);
         $phpWord->setDefaultParagraphStyle(['line-spacing' => 150]);

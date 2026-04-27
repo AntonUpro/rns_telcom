@@ -22,8 +22,7 @@ final class ClimateSection implements SectionBuilderInterface
         $para = DocStyleRegistry::paragraphLeft();
         $ind  = DocStyleRegistry::paragraphIndent();
 
-        $section->addTextBreak(1);
-        $section->addText('Расположение объекта:', $body, $ind);
+        $section->addText('Расположение объекта:', $body, $para);
 
         // Тип местности
         $terrainType = $data?->getTerrainType();
@@ -85,7 +84,7 @@ final class ClimateSection implements SectionBuilderInterface
             $snowKgm2 = (int) round($snowRegion->snowLoad() * 100);
             $section->addText(
                 sprintf(
-                    '— снеговой район %s, нормативный вес снегового покрова %d кгс/м²;',
+                    '• снеговой район %s, нормативный вес снегового покрова %d кгс/м²;',
                     $snowRegion->value,
                     $snowKgm2,
                 ),

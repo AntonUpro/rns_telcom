@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\DocumentGenerator\Report\Section;
 
+use App\Entity\CalculationImage;
 use App\Entity\CalculationReportFile;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
@@ -17,11 +18,13 @@ use PhpOffice\PhpWord\SimpleType\Jc;
  */
 final class PillarSchemeSection implements SectionBuilderInterface
 {
+    const FILEPATh = 'Схема опоры';
+
     public function build(Section $section, ReportContext $context): void
     {
-        $files = $context->getReportFilesByType(CalculationReportFile::TYPE_PILLAR);
+        $file = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
 
-        if (empty($files)) {
+        if (empty($file)) {
             $section->addText(
                 '[Схема опоры не загружена]',
                 DocStyleRegistry::bodyText(),
@@ -31,19 +34,17 @@ final class PillarSchemeSection implements SectionBuilderInterface
             return;
         }
 
-        foreach ($files as $file) {
-            $path = $file->getFilePath();
-            if (!file_exists($path)) {
-                continue;
-            }
-
-            $section->addImage($path, [
-                'width'          => Converter::cmToPoint(15),
-                'height'         => Converter::cmToPoint(20),
-                'wrappingStyle'  => 'inline',
-                'alignment'      => Jc::CENTER,
-            ]);
-            $section->addTextBreak(1);
+        $path = $file->getFilePath();
+        if (! file_exists($path)) {
+            return;
         }
+
+        $section->addImage($path, [
+            'width' => Converter::cmToPoint(15),
+            'height' => Converter::cmToPoint(20),
+            'wrappingStyle' => 'inline',
+            'alignment' => Jc::CENTER,
+        ]);
+        $section->addTextBreak(1);
     }
 }

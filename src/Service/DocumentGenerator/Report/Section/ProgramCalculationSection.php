@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\DocumentGenerator\Report\Section;
 
+use App\Entity\CalculationImage;
 use App\Entity\CalculationReportFile;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
@@ -24,44 +25,77 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $center = ['alignment' => Jc::CENTER];
 
         $section->addText(
-            'Расчётная схема опоры и результаты программного расчёта приведены ниже.',
+            'Расчётная схема опоры',
             $body,
-            $left,
+            $center,
         );
         $section->addTextBreak(1);
 
-        $files = $context->getReportFilesByType(CalculationReportFile::TYPE_EQUIPMENT);
+        $imageSchemePC = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
+        $imageMosaicSections = $context->getCalculationImageByType(CalculationImage::TYPE_SECTIONS);
 
-        if (empty($files)) {
-            $section->addText('[Изображения результатов расчёта не загружены]', $body, $center);
-            $section->addTextBreak(1);
-            return;
-        }
-
-        $captions = [
-            'Расчётная схема опоры',
-            'Мозаика максимальных усилий N (продольных сил) в стволе опоры',
-            'Мозаика максимальных усилий Q (поперечных сил) в стволе опоры',
-            'Мозаика максимальных усилий М (моментов) в стволе опоры',
-            'Мозаика максимальных отклонений ствола опоры от вертикали',
-        ];
-
-        foreach ($files as $i => $file) {
-            $path = $file->getFilePath();
-            if (!file_exists($path)) {
-                continue;
-            }
-
-            $section->addImage($path, [
-                'width'         => Converter::cmToPoint(14),
-                'height'        => Converter::cmToPoint(18),
+        if (file_exists($imageSchemePC->getFilePath()) && file_exists($imageMosaicSections->getFilePath())) {
+            $section->addImage($imageSchemePC->getFilePath(), [
+                'width'         => Converter::cmToPoint(8),
+                'height'        => Converter::cmToPoint(22),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);
+            $section->addImage($imageMosaicSections->getFilePath(), [
+                'width'         => Converter::cmToPoint(5),
+                'height'        => Converter::cmToPoint(8),
+                'wrappingStyle' => 'inline',
+                'alignment'     => Jc::CENTER,
+            ]);
+        }
+        $section->addPageBreak(1);
 
-            $caption = $captions[$i] ?? sprintf('Рисунок %d', $i + 1);
-            $section->addText($caption, DocStyleRegistry::italicCenter(), $center);
-            $section->addTextBreak(1);
+        $section->addText(
+            'Мозаика максимальных усилий N (продольных сил) в стволе опоры',
+            $body,
+            $center,
+        );
+        $imageMosaicN = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_N);
+        if (file_exists($imageMosaicN->getFilePath())) {
+            $section->addImage($imageMosaicN->getFilePath(), [
+                'width'         => Converter::cmToPoint(8),
+                'height'        => Converter::cmToPoint(24),
+                'wrappingStyle' => 'inline',
+                'alignment'     => Jc::CENTER,
+            ]);
+        }
+        $section->addPageBreak(1);
+
+        $section->addText(
+            'Мозаика максимальных усилий М (моментов) в стволе опоры',
+            $body,
+            $center,
+        );
+        $imageMosaicM = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_M);
+        if (file_exists($imageMosaicM->getFilePath())) {
+            $section->addImage($imageMosaicM->getFilePath(), [
+                'width'         => Converter::cmToPoint(8),
+                'height'        => Converter::cmToPoint(24),
+                'wrappingStyle' => 'inline',
+                'alignment'     => Jc::CENTER,
+            ]);
+        }
+        $section->addPageBreak(1);
+
+
+        $section->addText(
+            'Мозаика максимальных отклонений ствола опоры от вертикали',
+            $body,
+            $center,
+        );
+        $imageMosaicDis = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_DISPLACEMENT);
+        if (file_exists($imageMosaicDis->getFilePath())) {
+            $section->addImage($imageMosaicDis->getFilePath(), [
+                'width'         => Converter::cmToPoint(8),
+                'height'        => Converter::cmToPoint(24),
+                'wrappingStyle' => 'inline',
+                'alignment'     => Jc::CENTER,
+            ]);
         }
     }
 }

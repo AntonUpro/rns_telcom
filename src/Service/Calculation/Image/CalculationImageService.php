@@ -43,7 +43,7 @@ class CalculationImageService
 
         $extension    = strtolower($file->getClientOriginalExtension() ?: 'png');
         $storedName   = $imageType . '_' . uniqid('', true) . '.' . $extension;
-        $relativePath = $calculationId . '/' . $storedName;
+        $relativePath = $this->uploadsBaseDir . '/' . $calculationId . '/' . $storedName;
 
         // Получаем метаданные ДО move(), так как после него временный файл удаляется
         $originalName = $file->getClientOriginalName() ?: $storedName;

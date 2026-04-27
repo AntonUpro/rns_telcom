@@ -7,6 +7,7 @@ namespace App\Service\DocumentGenerator\Report;
 use App\Entity\Calculation;
 use App\Entity\CalculationData;
 use App\Entity\CalculationDocument;
+use App\Entity\CalculationImage;
 use App\Entity\CalculationReportFile;
 use App\Entity\CalculationResultTable;
 use App\Enum\Calculation\ResultTableTypeEnum;
@@ -14,16 +15,17 @@ use App\Enum\Calculation\ResultTableTypeEnum;
 final class ReportContext
 {
     /**
-     * @param CalculationDocument[]                  $documents
-     * @param array<string, CalculationResultTable>  $resultTables  keyed by ResultTableTypeEnum::value
-     * @param CalculationReportFile[]                $reportFiles
+     * @param CalculationDocument[] $documents
+     * @param array<string, CalculationResultTable> $resultTables keyed by ResultTableTypeEnum::value
+     * @param CalculationImage[] $calculationImages
      */
     public function __construct(
         public readonly Calculation $calculation,
-        public readonly array       $documents,
-        public readonly array       $resultTables,
-        public readonly array       $reportFiles,
-    ) {}
+        public readonly array $documents,
+        public readonly array $resultTables,
+        public readonly array $calculationImages,
+    ) {
+    }
 
     public function getData(): ?CalculationData
     {
@@ -49,23 +51,27 @@ final class ReportContext
         return $this->resultTables[$type->value] ?? null;
     }
 
-    /** @return CalculationReportFile[] */
-    public function getReportFilesByType(string $type): array
+    /** @return CalculationImage */
+    public function getCalculationImageByType(string $type): ?CalculationImage
     {
-        return array_values(
-            array_filter($this->reportFiles, fn(CalculationReportFile $f) => $f->getType() === $type)
-        );
+        foreach ($this->calculationImages as $calculationImage) {
+            if ($calculationImage->getImageType() === $type) {
+                return $calculationImage;
+            }
+        }
+
+        return null;
     }
 
     public function hasAnyExceededKuse(): bool
     {
         foreach ($this->resultTables as $table) {
-            if (!$table->isEnabled()) {
+            if (! $table->isEnabled()) {
                 continue;
             }
             foreach ($table->getRows() as $row) {
                 foreach (['kMax', 'kUse', 'kUseStability', 'kUseDeformation'] as $field) {
-                    if (isset($row[$field]) && $row[$field] !== null && (float) $row[$field] > 1.0) {
+                    if (isset($row[$field]) && $row[$field] !== null && (float)$row[$field] > 1.0) {
                         return true;
                     }
                 }
@@ -82,7 +88,7 @@ final class ReportContext
         }
         $max = null;
         foreach ($table->getRows() as $row) {
-            $k = isset($row['kMax']) ? (float) $row['kMax'] : null;
+            $k = isset($row['kMax']) ? (float)$row['kMax'] : null;
             if ($k !== null && ($max === null || $k > $max)) {
                 $max = $k;
             }
@@ -93,12 +99,12 @@ final class ReportContext
     public function getDeformationMaxKuse(): ?float
     {
         $table = $this->getResultTable(ResultTableTypeEnum::DEFORMATION);
-        if ($table === null || !$table->isEnabled()) {
+        if ($table === null || ! $table->isEnabled()) {
             return null;
         }
         $max = null;
         foreach ($table->getRows() as $row) {
-            $k = isset($row['kUse']) ? (float) $row['kUse'] : null;
+            $k = isset($row['kUse']) ? (float)$row['kUse'] : null;
             if ($k !== null && ($max === null || $k > $max)) {
                 $max = $k;
             }

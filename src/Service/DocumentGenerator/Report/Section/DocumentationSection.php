@@ -36,7 +36,7 @@ final class DocumentationSection implements SectionBuilderInterface
                     $doc->getName(),
                     0,
                     $body,
-                    ['listType' => ListItem::TYPE_NUMBER],
+                    ['listType' => ListItem::TYPE_BULLET_FILLED],
                     $left,
                 );
             }
