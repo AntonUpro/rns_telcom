@@ -22,7 +22,7 @@ final class DocStyleRegistry
 
     public static function normalText(): array
     {
-        return ['size' => 10, 'italic' => true, 'name' => 'Times New Roman'];
+        return ['size' => 12, 'italic' => true, 'name' => 'Times New Roman'];
     }
 
     public static function bold(): array
@@ -44,7 +44,7 @@ final class DocStyleRegistry
 
     public static function paragraphCenter(): array
     {
-        return ['alignment' => Jc::CENTER];
+        return ['alignment' => Jc::CENTER, 'line-spacing' => 0];
     }
 
     public static function paragraphLeft(): array
@@ -55,6 +55,11 @@ final class DocStyleRegistry
     public static function paragraphRight(): array
     {
         return ['alignment' => Jc::END];
+    }
+
+    public static function paragraphLineSpacing(): array
+    {
+        return ['line-spacing' => 0];
     }
 
     public static function paragraphTitle(): array

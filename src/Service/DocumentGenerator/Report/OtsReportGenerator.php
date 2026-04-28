@@ -213,11 +213,12 @@ final readonly class OtsReportGenerator
 
         $phpWord->addTitleStyle(2, [
             'bold' => true,
-            'size' => 11,
+            'size' => 12,
             'name' => 'Times New Roman',
+            'italic' => true,
         ], [
-            'alignment' => Jc::START,
-            'spaceBefore' => Converter::cmToTwip(0.2),
+            'alignment' => Jc::BOTH,
+            'indentFirstLine' =>  Converter::cmToTwip(1.25),
             'spaceAfter' => Converter::cmToTwip(0.2),
         ]);
 

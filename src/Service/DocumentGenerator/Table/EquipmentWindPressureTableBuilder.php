@@ -49,18 +49,15 @@ final class EquipmentWindPressureTableBuilder
      */
     public function build(Section $section, array $data): void
     {
-        $section->addText('Ветровое давление на навесное оборудование', DocStyleRegistry::sectionTitle(), DocStyleRegistry::paragraphTitle());
-        $section->addTextBreak(1);
-
         $section->addText(
             'Состав оборудования принят в соответствии с предоставленной документацией и результатами натурного обследования:',
             DocStyleRegistry::normalText(),
-            DocStyleRegistry::paragraphLeft(),
+            DocStyleRegistry::paragraphIndent(),
         );
         $section->addTextBreak(1);
 
         $section->addText(
-            'Таблица 2',
+            'Таблица 3',
             DocStyleRegistry::normalText(),
             DocStyleRegistry::paragraphRight(),
         );

@@ -77,8 +77,13 @@ final class PlatformSectionsTableBuilder
 
     public function build(Section $section, TotalPillarPlatformCalculationDto $data): void
     {
-        $section->addText('Площадка и подкосы', DocStyleRegistry::sectionTitle(), DocStyleRegistry::paragraphTitle());
-        $section->addTextBreak(1);
+        $section->addText('Площадка и подкосы:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndent());
+
+        $section->addText(
+            'Таблица 2',
+            DocStyleRegistry::normalText(),
+            DocStyleRegistry::paragraphRight(),
+        );
 
         $table = $section->addTable(DocStyleRegistry::tableStyle());
 

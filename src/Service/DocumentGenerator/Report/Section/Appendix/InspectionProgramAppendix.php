@@ -18,7 +18,7 @@ final class InspectionProgramAppendix implements SectionBuilderInterface
     public function build(Section $section, ReportContext $context): void
     {
         $body = DocStyleRegistry::bodyText();
-        $left = DocStyleRegistry::paragraphLeft();
+        $indent = DocStyleRegistry::paragraphIndent();
 
         $items = [
             'Выполнен сбор и анализ проектной, исполнительной и эксплуатационно-технической документации (при наличии).',
@@ -26,13 +26,7 @@ final class InspectionProgramAppendix implements SectionBuilderInterface
         ];
 
         foreach ($items as $i => $item) {
-            $section->addListItem(
-                $item,
-                0,
-                $body,
-                ['listType' => ListItem::TYPE_NUMBER],
-                $left,
-            );
+            $section->addText($item, $body, $indent);
         }
 
         $subItems = [
@@ -45,16 +39,14 @@ final class InspectionProgramAppendix implements SectionBuilderInterface
         ];
 
         foreach ($subItems as $sub) {
-            $section->addText('— ' . $sub, $body, $left);
+            $section->addListItem($sub, 0, $body, ['listType' => ListItem::TYPE_BULLET_FILLED]);
         }
 
-        $section->addListItem(
+        $section->addText(
             'Выполнены поверочные расчёты конструкций с учётом расчётных нагрузок, '
             . 'а также с учётом дефектов и повреждений конструкций, выявленных по результатам натурного обследования.',
-            0,
             $body,
-            ['listType' => ListItem::TYPE_NUMBER],
-            $left,
+            $indent,
         );
 
         $section->addTextBreak(1);

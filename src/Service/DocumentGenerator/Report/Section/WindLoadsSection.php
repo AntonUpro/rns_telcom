@@ -25,13 +25,14 @@ use PhpOffice\PhpWord\Element\Section;
 final class WindLoadsSection implements SectionBuilderInterface
 {
     public function __construct(
-        private readonly PillarWindLoadCalculationService   $pillarWindService,
-        private readonly CalculationWindEquipmentService    $equipmentWindService,
-        private readonly PillarPlatformCalculationService   $platformService,
-        private readonly PillarSectionsTableBuilder         $pillarBuilder,
-        private readonly EquipmentWindPressureTableBuilder  $equipmentBuilder,
-        private readonly PlatformSectionsTableBuilder       $platformBuilder,
-    ) {}
+        private readonly PillarWindLoadCalculationService $pillarWindService,
+        private readonly CalculationWindEquipmentService $equipmentWindService,
+        private readonly PillarPlatformCalculationService $platformService,
+        private readonly PillarSectionsTableBuilder $pillarBuilder,
+        private readonly EquipmentWindPressureTableBuilder $equipmentBuilder,
+        private readonly PlatformSectionsTableBuilder $platformBuilder,
+    ) {
+    }
 
     public function build(Section $section, ReportContext $context): void
     {
@@ -41,7 +42,7 @@ final class WindLoadsSection implements SectionBuilderInterface
         $this->buildEquipmentSubsection($section, $calcId);
     }
 
-    private function buildPillarSubsection(Section $section, int $calcId): void
+    private function buildPillarSubsection(Section $section, int $calculationId): void
     {
         $section->addTitle('8.1 ВЕТРОВОЕ ДАВЛЕНИЕ НА СТВОЛ ОПОРЫ', 2);
 
@@ -49,12 +50,11 @@ final class WindLoadsSection implements SectionBuilderInterface
             'Состав нагрузки принят в соответствии с предоставленной документацией '
             . 'и результатами натурного обследования.',
             DocStyleRegistry::bodyText(),
-            DocStyleRegistry::paragraphLeft(),
+            DocStyleRegistry::paragraphIndent(),
         );
-        $section->addTextBreak(1);
 
         try {
-            $pillarSections = $this->pillarWindService->calculate($calcId);
+            $pillarSections = $this->pillarWindService->calculate($calculationId);
             $this->pillarBuilder->build($section, $pillarSections);
         } catch (\Throwable) {
             $section->addText('[Данные о стволе опоры недоступны]', DocStyleRegistry::bodyText(), DocStyleRegistry::paragraphLeft());
@@ -63,8 +63,8 @@ final class WindLoadsSection implements SectionBuilderInterface
         $section->addTextBreak(1);
 
         try {
-            $platformData = $this->platformService->calculatePillarPlatform($calcId);
-            if (!empty($platformData->platformSections)) {
+            $platformData = $this->platformService->calculatePillarPlatform($calculationId);
+            if (! empty($platformData->platformSections)) {
                 $this->platformBuilder->build($section, $platformData);
                 $section->addTextBreak(1);
             }

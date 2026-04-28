@@ -39,9 +39,10 @@ final class ReferenceDocumentsAppendix implements SectionBuilderInterface
 
     public function build(Section $section, ReportContext $context): void
     {
-        $italic = DocStyleRegistry::italicCenter();
+        $italic = DocStyleRegistry::normalText();
         $body   = DocStyleRegistry::bodyText();
         $center = DocStyleRegistry::paragraphCenter();
+        $lineSpacingZero = DocStyleRegistry::paragraphLineSpacing();
         $left   = DocStyleRegistry::paragraphLeft();
 
         $w   = [2500, 7500];
@@ -53,8 +54,8 @@ final class ReferenceDocumentsAppendix implements SectionBuilderInterface
 
         foreach (self::DOCUMENTS as [$code, $name]) {
             $tbl->addRow(400);
-            $tbl->addCell($w[0], DocStyleRegistry::dataCell())->addText($code, DocStyleRegistry::center(), $center);
-            $tbl->addCell($w[1], DocStyleRegistry::dataCell())->addText($name, DocStyleRegistry::center(), $left);
+            $tbl->addCell($w[0], DocStyleRegistry::dataCell())->addText($code, DocStyleRegistry::normalText(), $center);
+            $tbl->addCell($w[1], DocStyleRegistry::dataCell())->addText($name, DocStyleRegistry::normalText(), [...$left, ...$lineSpacingZero]);
         }
 
         $section->addTextBreak(1);

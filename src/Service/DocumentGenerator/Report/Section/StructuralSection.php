@@ -17,9 +17,8 @@ final class StructuralSection implements SectionBuilderInterface
 {
     public function build(Section $section, ReportContext $context): void
     {
-        $data    = $context->getData();
-        $height  = $context->getHeightM();
-        $address = $context->getAddress();
+        $data = $context->getData();
+        $height = $context->getHeightM();
         $amsType = $data?->getAmsType() ?? '—';
 
         $body = DocStyleRegistry::bodyText();
@@ -27,30 +26,33 @@ final class StructuralSection implements SectionBuilderInterface
 
         $section->addText(
             sprintf(
-                'Ствол опоры Н=%s м представляет собой %s, установленную по адресу: %s.',
+                'Ствол опоры Н=%s м представляет собой железобетонную коническую центрифугированную стойку типа %s, с поперечным сечением в виде кольца переменного диаметра, защемленную в грунт.',
                 $height,
                 $amsType,
-                $address,
             ),
             $body,
             $para,
         );
-        $section->addTextBreak(1);
 
         $section->addText(
-            'Для подъёма на опору предусмотрена вертикальная лестница, закреплённая к стволу опоры '
-            . 'с помощью стягивания хомутов.',
+            'Опора выполнена из железобетона с преднапрягаемой и ненапрягаемой арматурой. Опора предназначена для размещения антенного об орудования сотовой связи.',
             $body,
             $para,
         );
-        $section->addTextBreak(1);
 
         $section->addText(
-            'Существующая кабельная трасса проложена по существующим кабельным полкам, '
-            . 'закреплённым к конструкциям лестницы.',
+            'Опора предназначена для размещения антенного оборудования сотовой связи.',
             $body,
             $para,
         );
-        $section->addTextBreak(1);
+
+        $section->addText(
+            sprintf('Для подъема на опору предусмотрена вертикальная лестница с корзиной ограждения, закрепленная к стволу опоры. Кабели проложены по кабельросту расположенному параллельно лестнице. ' .
+                'На отметке +%.3f м установлена площадка для размещения и обслуживания антенного оборудования, закрепленная к опоре с помощью металлического оголовка.',
+                $height,
+            ),
+            $body,
+            $para,
+        );
     }
 }

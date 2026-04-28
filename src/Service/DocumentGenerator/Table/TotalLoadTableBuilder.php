@@ -28,7 +28,7 @@ final class TotalLoadTableBuilder
 {
     // ─── Ширины столбцов ──────────────────────────────────────────────────────
 
-    private const PILLAR_WIDTHS   = [700, 1400, 1400, 1600, 1600];
+    private const PILLAR_WIDTHS = [700, 1400, 1400, 1600, 1600];
     private const PLATFORM_WIDTHS = [1400, 1400, 1400, 1600, 1600];
     private const EQUIPMENT_WIDTHS = [1000, 1600, 1600];
 
@@ -65,10 +65,10 @@ final class TotalLoadTableBuilder
 
     private function addPillarHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::italicCenter();
+        $bold = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
-        $hCell  = DocStyleRegistry::headerCell();
-        $w      = self::PILLAR_WIDTHS;
+        $hCell = DocStyleRegistry::headerCell();
+        $w = self::PILLAR_WIDTHS;
 
         $table->addRow(600);
         $table->addCell($w[0], $hCell)->addText('№ секции', $bold, $center);
@@ -80,10 +80,10 @@ final class TotalLoadTableBuilder
 
     private function addPillarRow(Table $table, array $row): void
     {
-        $c      = DocStyleRegistry::center();
+        $c = DocStyleRegistry::center();
         $center = DocStyleRegistry::paragraphCenter();
-        $dc     = DocStyleRegistry::dataCell();
-        $w      = self::PILLAR_WIDTHS;
+        $dc = DocStyleRegistry::dataCell();
+        $w = self::PILLAR_WIDTHS;
 
         $table->addRow(400);
         $table->addCell($w[0], $dc)->addText((string)$row['sectionNumber'], $c, $center);
@@ -112,10 +112,10 @@ final class TotalLoadTableBuilder
 
     private function addPlatformHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::italicCenter();
+        $bold = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
-        $hCell  = DocStyleRegistry::headerCell();
-        $w      = self::PLATFORM_WIDTHS;
+        $hCell = DocStyleRegistry::headerCell();
+        $w = self::PLATFORM_WIDTHS;
 
         $table->addRow(600);
         $table->addCell($w[0], $hCell)->addText('Элемент', $bold, $center);
@@ -127,10 +127,10 @@ final class TotalLoadTableBuilder
 
     private function addPlatformRow(Table $table, array $row): void
     {
-        $c      = DocStyleRegistry::center();
+        $c = DocStyleRegistry::center();
         $center = DocStyleRegistry::paragraphCenter();
-        $dc     = DocStyleRegistry::dataCell();
-        $w      = self::PLATFORM_WIDTHS;
+        $dc = DocStyleRegistry::dataCell();
+        $w = self::PLATFORM_WIDTHS;
 
         $table->addRow(400);
         $table->addCell($w[0], $dc)->addText($row['label'], $c, $center);
@@ -159,10 +159,10 @@ final class TotalLoadTableBuilder
 
     private function addEquipmentHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::italicCenter();
+        $bold = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
-        $hCell  = DocStyleRegistry::headerCell();
-        $w      = self::EQUIPMENT_WIDTHS;
+        $hCell = DocStyleRegistry::headerCell();
+        $w = self::EQUIPMENT_WIDTHS;
 
         $table->addRow(600);
         $table->addCell($w[0], $hCell)->addText('№ группы', $bold, $center);
@@ -172,10 +172,10 @@ final class TotalLoadTableBuilder
 
     private function addEquipmentRow(Table $table, array $row): void
     {
-        $c      = DocStyleRegistry::center();
+        $c = DocStyleRegistry::center();
         $center = DocStyleRegistry::paragraphCenter();
-        $dc     = DocStyleRegistry::dataCell();
-        $w      = self::EQUIPMENT_WIDTHS;
+        $dc = DocStyleRegistry::dataCell();
+        $w = self::EQUIPMENT_WIDTHS;
 
         $table->addRow(400);
         $table->addCell($w[0], $dc)->addText((string)$row['heightMark'], $c, $center);

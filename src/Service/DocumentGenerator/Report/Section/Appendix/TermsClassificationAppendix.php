@@ -36,13 +36,12 @@ final class TermsClassificationAppendix implements SectionBuilderInterface
     {
         $bodyBold = DocStyleRegistry::bodyTextBold();
         $body     = DocStyleRegistry::bodyText();
-        $para     = DocStyleRegistry::paragraphLeft();
+        $para     = DocStyleRegistry::paragraphIndent();
 
         foreach (self::TERMS as $term => $definition) {
             $textRun = $section->addTextRun($para);
             $textRun->addText($term . ' ', $bodyBold);
             $textRun->addText('— ' . $definition, $body);
-            $section->addTextBreak(1);
         }
     }
 }
