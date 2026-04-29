@@ -20,6 +20,7 @@ use App\Enum\CalculationStatusEnum;
 use App\Exception\NotFoundCalculationDataException;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
+use App\Repository\CustomerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Throwable;
@@ -29,6 +30,7 @@ final readonly class PillarCalculationService
 {
     public function __construct(
         private CalculationRepository $calculationRepository,
+        private CustomerRepository $customerRepository,
         private EntityManagerInterface $entityManager,
     ) {
     }
@@ -49,11 +51,15 @@ final readonly class PillarCalculationService
         try {
             $this->entityManager->beginTransaction();
 
+            $customer = $calculationDataDto->totalData->customer
+                ? $this->customerRepository->find($calculationDataDto->totalData->customer)
+                : null;
+
             $calculationData->setObjectCode($calculationDataDto->totalData->objectCode);
             $calculationData->setBaseStationNumber($calculationDataDto->totalData->stationNumber);
             $calculationData->setRegion($calculationDataDto->totalData->region);
             $calculationData->setLocality($calculationDataDto->totalData->locality);
-            $calculationData->setCustomer($calculationDataDto->totalData->customer);
+            $calculationData->setCustomer($customer);
             $calculationData->setAmsType($calculationDataDto->totalData->amsType);
             $calculationData->setAmsHeight((string)$calculationDataDto->totalData->amsHeight);
             $calculationData->setSurveyDate($calculationDataDto->totalData->inspectionDate
@@ -114,7 +120,7 @@ final readonly class PillarCalculationService
                 stationNumber: $calculation->getCalculationData()->getBaseStationNumber(),
                 region: $calculation->getCalculationData()->getRegion(),
                 locality: $calculation->getCalculationData()->getLocality(),
-                customer: $calculation->getCalculationData()->getCustomer(),
+                customer: $calculation->getCalculationData()->getCustomer()?->getId(),
                 amsType: $calculation->getCalculationData()->getAmsType(),
                 amsHeight: (float)$calculation->getCalculationData()->getAmsHeight(),
                 inspectionDate: $calculation->getCalculationData()->getSurveyDate()?->format('Y-m-d'),

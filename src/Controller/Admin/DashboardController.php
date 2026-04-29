@@ -11,6 +11,7 @@ use App\Controller\Admin\Gauge\GaugePipeRoundCrudController;
 use App\Controller\Admin\Gauge\GaugePipeSquareCrudController;
 use App\Controller\Admin\Gauge\GaugeRoundSolidCrudController;
 use App\Entity\Calculation;
+use App\Entity\Customer;
 use App\Entity\Equipment;
 use App\Entity\Gauge\GaugeAngleEqual;
 use App\Entity\Gauge\GaugeChannel;
@@ -89,6 +90,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Каталог');
         yield MenuItem::linkToCrud('Оборудование', 'fa fa-broadcast-tower', Equipment::class);
         yield MenuItem::linkToCrud('Операторы', 'fa fa-building', Operator::class);
+        yield MenuItem::linkToCrud('Заказчики', 'fa fa-handshake', Customer::class);
 
         yield MenuItem::section('Сортамент');
         yield MenuItem::linkToCrud('Уголок равнополочный', 'fa fa-ruler-combined', GaugeAngleEqual::class);

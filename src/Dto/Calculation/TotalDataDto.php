@@ -21,8 +21,7 @@ class TotalDataDto
         #[Assert\Length(max: 100)]
         public ?string $locality = null,
 
-        #[Assert\Length(max: 150)]
-        public ?string $customer = null,
+        public ?int $customer = null,
 
         #[Assert\Length(max: 100)]
         public ?string $amsType = null,
@@ -66,7 +65,7 @@ class TotalDataDto
             stationNumber: $data['stationNumber'] ?? null,
             region: $data['region'] ?? null,
             locality: $data['locality'] ?? null,
-            customer: $data['customer'] ?? null,
+            customer: isset($data['customer']) ? (int) $data['customer'] : null,
             amsType: $data['amsType'] ?? null,
             amsHeight: isset($data['amsHeight']) ? (float) $data['amsHeight'] : null,
             inspectionDate: $data['inspectionDate'] ?? null,

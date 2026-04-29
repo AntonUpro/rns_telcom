@@ -44,7 +44,7 @@ const formData = reactive({
     stationNumber: '',
     region: '',
     locality: '',
-    customer: '',
+    customer: null,
     amsType: '',
     amsHeight: 0,
     inspectionDate: new Date().toISOString().split('T')[0],
@@ -103,6 +103,7 @@ const isSaving = ref(false);
 const savedCalculations = ref([]);
 
 // Dynamic data from API
+const customers = ref([]);
 const windRegions = ref([]);
 const terrainTypes = ref([]);
 const snowRegions = ref([]);
@@ -146,7 +147,7 @@ const fetchGeneralData = async () => {
         formData.stationNumber = data.data.totalData?.stationNumber || '';
         formData.region = data.data.totalData?.region || '';
         formData.locality = data.data.totalData?.locality || '';
-        formData.customer = data.data.totalData?.customer || '';
+        formData.customer = data.data.totalData?.customer || null;
         formData.amsType = data.data.totalData?.amsType || '';
         formData.amsHeight = data.data.totalData?.amsHeight || '';
         formData.inspectionDate = data.data.totalData?.inspectionDate || '';
@@ -217,6 +218,8 @@ const fetchPillarTotalInfo = async () => {
         }
 
         // Populate dynamic data
+        customers.value = data.data.customers || [];
+
         windRegions.value = Object.entries(data.data.windRegions || {}).map(([value, label]) => ({
             value,
             label
@@ -449,12 +452,12 @@ onMounted(async () => {
                 </div>
                 <div class="form-group compact-group">
                     <label>Заказчик:</label>
-                    <input
-                        type="text"
-                        v-model="formData.customer"
-                        class="form-calculation-control compact-input"
-                        placeholder="Введите заказчика"
-                    />
+                    <select v-model="formData.customer" class="form-calculation-control compact-input">
+                        <option :value="null">— Выберите заказчика —</option>
+                        <option v-for="c in customers" :key="c.id" :value="c.id">
+                            {{ c.name }}
+                        </option>
+                    </select>
                 </div>
                 <div class="form-group compact-group">
                     <label>Тип АМС:</label>
@@ -466,7 +469,7 @@ onMounted(async () => {
                     />
                 </div>
                 <div class="form-group compact-group">
-                    <label>Высота АМС:</label>
+                    <label>Высота АМС (полная):</label>
                     <div class="input-with-unit">
                         <input
                             type="number"

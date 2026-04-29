@@ -59,7 +59,7 @@ class PillarCalculationDataDto
                 stationNumber: $formData['totalData']['stationNumber'] ?? null,
                 region: $formData['totalData']['region'] ?? null,
                 locality: $formData['totalData']['locality'] ?? null,
-                customer: $formData['totalData']['customer'] ?? null,
+                customer: isset($formData['totalData']['customer']) ? (int) $formData['totalData']['customer'] : null,
                 amsType: $formData['totalData']['amsType'] ?? null,
                 amsHeight: isset($formData['totalData']['amsHeight']) ? (float) $formData['totalData']['amsHeight'] : null,
                 inspectionDate: $formData['totalData']['inspectionDate'] ?? null,

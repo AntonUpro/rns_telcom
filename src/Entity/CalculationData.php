@@ -3,6 +3,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Customer;
 use App\Entity\JsonData\AbstractJsonData;
 use App\Entity\JsonData\ConcretePillarSpecificData;
 use App\Enum\CalculationData\IcingRegionEnum;
@@ -49,9 +50,9 @@ class CalculationData
     private ?string $locality = null;
 
     // Заказчик
-    #[ORM\Column(length: 150, nullable: true)]
-    #[Assert\Length(max: 150)]
-    private ?string $customer = null;
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
+    private ?Customer $customer = null;
 
     // Тип амс
     #[ORM\Column(length: 100, nullable: true)]
@@ -182,12 +183,12 @@ class CalculationData
         return $this;
     }
 
-    public function getCustomer(): ?string
+    public function getCustomer(): ?Customer
     {
         return $this->customer;
     }
 
-    public function setCustomer(?string $customer): static
+    public function setCustomer(?Customer $customer): static
     {
         $this->customer = $customer;
 
@@ -356,7 +357,7 @@ class CalculationData
             'baseStationNumber' => $this->baseStationNumber,
             'region' => $this->region,
             'locality' => $this->locality,
-            'customer' => $this->customer,
+            'customer' => $this->customer?->getId(),
             'amsType' => $this->amsType,
             'amsHeight' => $this->amsHeight,
             'surveyDate' => $this->surveyDate?->format('Y-m-d'),

@@ -11,6 +11,7 @@ use App\Enum\CalculationData\SnowRegionEnum;
 use App\Enum\CalculationData\TerrainTypeEnum;
 use App\Enum\CalculationData\WindRegionEnum;
 use App\Enum\Pillar\PillarEnum;
+use App\Service\Customer\CustomerService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ use Throwable;
 class GetPillarTotalInfoController extends AbstractApiController
 {
     public function __construct(
+        private readonly CustomerService $customerService,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -32,6 +34,7 @@ class GetPillarTotalInfoController extends AbstractApiController
     {
         try {
             return $this->successResponse([
+                'customers'   => $this->customerService->getActiveList(),
                 'windRegions' => WindRegionEnum::choices(),
                 'terrainTypes' => TerrainTypeEnum::choices(),
                 'icingRegions' => IcingRegionEnum::choices(),

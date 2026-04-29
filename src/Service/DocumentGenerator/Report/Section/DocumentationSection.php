@@ -29,7 +29,7 @@ final class DocumentationSection implements SectionBuilderInterface
         );
 
         if (empty($context->documents)) {
-            $section->addText('— документы не указаны.', $body, $para);
+            $section->addText('- документы не указаны.', $body, $para);
         } else {
             foreach ($context->documents as $i => $doc) {
                 $section->addListItem(
