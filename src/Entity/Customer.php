@@ -19,8 +19,11 @@ class Customer
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private string $name;
+    #[ORM\Column(name: 'legal_name', length: 255)]
+    private string $legalName;
+
+    #[ORM\Column(name: 'ots_name', length: 255)]
+    private string $otsName;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $code = null;
@@ -50,14 +53,26 @@ class Customer
         return $this->id;
     }
 
-    public function getName(): string
+    public function getLegalName(): string
     {
-        return $this->name;
+        return $this->legalName;
     }
 
-    public function setName(string $name): static
+    public function setLegalName(string $legalName): static
     {
-        $this->name = $name;
+        $this->legalName = $legalName;
+
+        return $this;
+    }
+
+    public function getOtsName(): string
+    {
+        return $this->otsName;
+    }
+
+    public function setOtsName(string $otsName): static
+    {
+        $this->otsName = $otsName;
 
         return $this;
     }

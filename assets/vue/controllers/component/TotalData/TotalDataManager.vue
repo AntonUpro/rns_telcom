@@ -455,7 +455,7 @@ onMounted(async () => {
                     <select v-model="formData.customer" class="form-calculation-control compact-input">
                         <option :value="null">— Выберите заказчика —</option>
                         <option v-for="c in customers" :key="c.id" :value="c.id">
-                            {{ c.name }}
+                            {{ c.otsName }}
                         </option>
                     </select>
                 </div>

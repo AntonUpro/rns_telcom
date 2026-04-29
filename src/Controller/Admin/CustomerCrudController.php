@@ -27,7 +27,7 @@ class CustomerCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Заказчик')
             ->setEntityLabelInPlural('Заказчики')
             ->setDefaultSort(['name' => 'ASC'])
-            ->setSearchFields(['name', 'code']);
+            ->setSearchFields(['legalName', 'otsName', 'code']);
     }
 
     public function configureActions(Actions $actions): Actions
@@ -42,7 +42,8 @@ class CustomerCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield TextField::new('name', 'Название');
+        yield TextField::new('legalName', 'Юридическое название');
+        yield TextField::new('otsName', 'Название в РНС');
         yield TextField::new('code', 'Код')->setRequired(false);
         yield BooleanField::new('isActive', 'Активен');
         yield DateTimeField::new('createdAt', 'Создано')

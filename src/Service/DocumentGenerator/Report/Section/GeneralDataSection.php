@@ -18,7 +18,7 @@ final class GeneralDataSection implements SectionBuilderInterface
     public function build(Section $section, ReportContext $context): void
     {
         $data     = $context->getData();
-        $customer = $data?->getCustomer()?->getName() ?? '—';
+        $customer = $data?->getCustomer()?->getLegalName() ?? '—';
         $height   = $context->getHeightM();
         $address  = $context->getAddress();
 

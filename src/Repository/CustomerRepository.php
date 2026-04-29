@@ -20,6 +20,6 @@ class CustomerRepository extends ServiceEntityRepository
 
     public function findAllActive(): array
     {
-        return $this->findBy(['isActive' => true], ['name' => 'ASC']);
+        return $this->findBy(['isActive' => true], ['legalName' => 'ASC']);
     }
 }

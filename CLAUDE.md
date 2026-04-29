@@ -1,205 +1,65 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
-## Overview
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
-RNS Telcom is a **Symfony 7.4** web application for engineering/telecommunications infrastructure load calculations (wind, snow, icing loads on pillars and equipment). It uses PHP 8.4, PostgreSQL 16, Vue.js 3.5, and Stimulus.js, all running in Docker.
+## 1. Think Before Coding
 
-## Common Commands
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
 
-All commands run inside Docker. Use `make exec` to get a shell in the app container, or prefix with `docker exec -it rns-telcom-app`.
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
 
-```bash
-# Docker lifecycle
-make up          # Build and start all containers (app, db, nginx)
-make down        # Stop and remove containers
-make exec        # Shell into the PHP app container
-make ps          # Show running containers
+## 2. Simplicity First
 
-# Inside the container (or via docker exec -it rns-telcom-app ...)
-vendor/bin/phpstan analyse          # Static analysis (lint) — PHPStan not installed, use php -l instead
-./bin/phpunit                       # Run all tests
-./bin/phpunit --filter TestName     # Run a single test
-bin/console doctrine:migrations:migrate   # Apply DB migrations
-bin/console make:migration                # Generate new migration
-bin/console cache:clear                   # Clear Symfony cache
+**Minimum code that solves the problem. Nothing speculative.**
 
-# Frontend (run inside container)
-npm run dev      # Build assets for development
-npm run build    # Build assets for production
-# Or via make:
-make nm          # Runs npm run dev inside the container
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
 
-# Install dependencies
-make ci          # Runs composer install inside the container
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
 
-# Production
-make up-prod     # Start with docker-compose-prod.yaml
-make down-prod   # Stop production stack
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
 ```
 
-App is served at `http://localhost:8123` (configurable via `NGINX_PORT`). PostgreSQL is on port `6441`.
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-## Architecture
+---
 
-### Domain
-The application calculates structural loads (primarily wind loads) on telecom infrastructure — concrete pillars, platforms, and equipment (antennas, cables, ladders, etc.). Results are used to generate `.docx` reports via `phpoffice/phpword`.
-
-### Key Data Flow
-1. A `Calculation` is created (linked to a Bitrix CRM deal via `BitrixService`/`BitrixClient`).
-2. `CalculationData` stores climate/terrain inputs (wind region, snow region, icing region, terrain type) using PHP Enums in `src/Enum/CalculationData/`.
-3. Equipment is attached via `CalculationEquipment` (references the `Equipment` catalog).
-4. Wind load calculations run through services in `src/Service/Calculation/` and calculators in `src/Service/Calculation/Pillar/Calculator/`.
-5. Pillar geometry (sections, platforms) lives in `PillarPlatform` / `PillarPlatformSection` entities.
-6. Calculation result tables (structural checks) are stored in `CalculationResultTable` — one row per table type per calculation, rows stored as JSONB.
-7. Documents are generated by `src/Service/DocumentGenerator/CalculationReportGenerator.php`.
-
-### Source Structure
-
-```
-src/
-├── Calculator/          # Low-level math (CalculatorKLambda — aerodynamic coefficients)
-├── Client/              # HTTP clients (BitrixClient for CRM integration)
-├── Command/             # Symfony CLI commands
-├── Controller/
-│   ├── Api/
-│   │   ├── AbstractApiController.php          # Base class: successResponse / errorResponse helpers
-│   │   ├── BitrixController.php
-│   │   ├── CalculationResults/
-│   │   │   └── CalculationResultsController.php  # GET init-data + POST calculate/save
-│   │   ├── Common/
-│   │   │   ├── Document/  # Upload/manage calculation documents
-│   │   │   ├── Equipment/ # Equipment CRUD + wind load calculation
-│   │   │   └── Image/     # Calculation images
-│   │   ├── PillarCalculation/  # General data, wind load, platforms
-│   │   ├── Report/             # Download .docx report
-│   │   └── TotalLoad/          # Aggregate loads
-│   ├── Calculation/     # Web page controllers (Twig)
-│   ├── DashboardController.php
-│   └── SecurityController.php
-├── Dto/                 # Data transfer objects (input/output shapes)
-│   └── Calculation/
-│       ├── CalculationResult/    # CalculationResultDto, TablePayloadDto
-│       ├── Equipment/Calculate/  # Per-equipment calculation DTOs + calculators
-│       └── Pillar/               # Pillar section/platform DTOs + PillarCalculator
-├── Entity/
-│   ├── JsonData/               # Embedded JSON value objects stored in JSONB columns
-│   ├── Calculation.php
-│   ├── CalculationData.php
-│   ├── CalculationDocument.php
-│   ├── CalculationEquipment.php
-│   ├── CalculationImage.php
-│   ├── CalculationReportFile.php
-│   ├── CalculationResultTable.php  # Stores structural check table rows as JSONB
-│   ├── Equipment.php
-│   ├── PillarPlatform.php
-│   ├── PillarPlatformSection.php
-│   └── User.php
-├── Enum/
-│   ├── Calculation/
-│   │   └── ResultTableTypeEnum.php  # pillar_forces | crack_opening | brace_stress |
-│   │                                #  superstructure_stress | platform_forces |
-│   │                                #  base_forces | deformation | foundation
-│   ├── CalculationData/  # WindRegionEnum, SnowRegionEnum, IcingRegionEnum, TerrainTypeEnum
-│   ├── CalculationStatusEnum.php
-│   ├── CalculationTypeEnum.php
-│   ├── Equipment/        # EquipmentGroupEnum, EquipmentTypeEnum
-│   ├── Gauge/            # GaugeProfileTypeEnum
-│   └── Pillar/           # PillarEnum, FormConstructEnum, PlatformSectionTypeEnum,
-│                         # SectionConstructTypeEnum, ElementTypeEnum
-├── Repository/
-│   ├── CalculationResultTableRepository.php  # findByCalculation, findAllByCalculationIndexed
-│   ├── Gauge/            # Per-profile-type repositories (GaugeAngleEqual, GaugeChannel, etc.)
-│   └── ...               # Standard Doctrine repositories for each entity
-├── Service/
-│   ├── BitrixService.php
-│   ├── Calculation/
-│   │   ├── CalculationResult/
-│   │   │   └── CalculationResultService.php  # saveAll / getAll / getTable / deleteAll
-│   │   ├── Document/    # CalculationDocumentService
-│   │   ├── Equipment/   # Wind load for equipment items
-│   │   ├── Image/       # CalculationImageService
-│   │   ├── Pillar/      # Wind load for pillar sections and platforms
-│   │   │   ├── Calculator/   # CableChanelCalculator, LadderCalculator, CableCalculator, PillarCalculator
-│   │   │   └── Pillar/       # PillarWindLoadCalculationService, SectionBuilderService
-│   │   ├── PillarPlatform/   # Platform save/get/calculate
-│   │   └── TotalLoad/        # TotalLoadService
-│   ├── DocumentGenerator/    # CalculationReportGenerator + table builders + DocStyleRegistry
-│   └── Equipment/            # AddEquipmentService, SearchEquipmentService
-└── Security/            # Custom authenticator
-```
-
-### Frontend
-
-- **Stimulus** controllers in `assets/controllers/` handle page interactions.
-- **Vue 3** components in `assets/vue/` are mounted via `symfony/ux-vue`.
-- Entry point: `assets/app.js`. Webpack Encore builds to `public/build/`.
-- Templates are Twig (`templates/`), with Vue/Stimulus components embedded.
-- Root component: `assets/vue/controllers/ConcretePillarCalc.vue` — orchestrates all tabs.
-
-#### Vue component groups (`assets/vue/controllers/component/`)
-
-| Directory / file | Purpose |
-|---|---|
-| `CalculationResults/` | Structural check result tables (8 types, see below) |
-| `Equipment/` | Equipment manager, add popup, section/table views |
-| `Platform/` | Platform section manager + items |
-| `SoftwareCalculation/` | Documents form + software calculation manager |
-| `TotalData/` | Summary data view |
-| `TotalLoad/` | Total load display |
-| `WindEquipment/` | Wind equipment table |
-| `EquipmentTab.vue` | Equipment tab wrapper |
-
-#### CalculationResults components
-
-All result table components receive a `tableNumber` prop (Number) computed dynamically in `CalculationResultsManager.vue` based on which optional tables are visible — so the displayed number always reflects the actual order on screen.
-
-| File | Table key | Description |
-|---|---|---|
-| `ResultsTablePillar.vue` | `pillar_forces` | Усилия в стволе опоры (всегда видима) |
-| `ResultsTableСrack.vue` | `crack_opening` | Раскрытие трещин (всегда видима) |
-| `ResultsTableStress.vue` | `brace_stress` / `superstructure_stress` / `platform_forces` | Универсальный компонент напряжений (опционально) |
-| `ResultsTableMaximumForcesBase.vue` | `base_forces` | Усилия в основании (опционально) |
-| `ResultsTableDeformation.vue` | `deformation` | Деформации опоры (опционально) |
-| `ResultsTableBase.vue` | `foundation` | Расчёт основания (опционально) |
-
-Payload keys sent to backend match `ResultTableTypeEnum` values exactly.
-
-### API Layer
-
-API controllers extend `AbstractApiController` (`src/Controller/Api/AbstractApiController.php`), which provides `successResponse()` and `errorResponse()` JSON helpers. Routes follow REST conventions under `/api/v1/`.
-
-Key endpoints:
-- `GET  /api/v1/calculation/calc-results/{id}` — returns enums + savedData from DB
-- `POST /api/v1/calculation/calc-results/{id}/calculate` — saves all tables + returns computed fields
-
-### Database
-
-Doctrine ORM with attribute-based mapping. Entities use `#[ORM\Entity]` attributes. JSONB columns are used in:
-- `CalculationResultTable.rows` — all structural check table rows per table type
-- `CalculationEquipment.equipment_params` — equipment-specific parameters
-- `PillarPlatformSection.data` — platform section data
-- `CalculationData.specific_data` — pillar-type-specific inputs
-
-#### `calculation_result_table` schema
-```
-id               BIGSERIAL PK
-calculation_id   INT  FK → calculations (CASCADE DELETE)
-table_type       VARCHAR(32)  — enum value from ResultTableTypeEnum
-enabled          BOOLEAN      — false for hidden optional tables
-rows             JSONB        — array of row objects (input + computed fields)
-updated_at       TIMESTAMPTZ
-UNIQUE (calculation_id, table_type)
-```
-
-#### Steel profile catalog tables (gauge_*)
-`gauge_profile_type` → `gauge_profile` → specific tables: `gauge_angle_equal`, `gauge_channel`, `gauge_i_beam`, `gauge_pipe_round`, `gauge_pipe_square`, `gauge_round_solid`.
-
-Migrations are in `migrations/`. Last applied: `Version20260418100000` (renamed `table_type` values to semantic keys).
-
-## Configuration
-
-- `.env` — defaults (committed). `.env.local` — local overrides (git-ignored, holds secrets).
-- `config/packages/` — per-bundle Symfony config.
-- `webpack.config.js` — Webpack Encore asset pipeline.
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.

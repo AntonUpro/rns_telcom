@@ -18,8 +18,9 @@ final readonly class CustomerService
     {
         return array_map(
             static fn(Customer $customer): array => [
-                'id'   => $customer->getId(),
-                'name' => $customer->getName(),
+                'id'        => $customer->getId(),
+                'otsName'   => $customer->getOtsName(),
+                'legalName' => $customer->getLegalName(),
             ],
             $this->customerRepository->findAllActive()
         );
