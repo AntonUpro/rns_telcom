@@ -212,10 +212,11 @@ class CalculationData
         return $this->amsHeight;
     }
 
-    public function getAmsHeightMm(): float
+    public function getPillarHeightMm(): float
     {
-        return (float) $this->amsHeight * 1000;
+        return (float) $this->getConcretePillarSpecificData()?->pillarHeight * 1000;
     }
+
 
     public function setAmsHeight(?string $amsHeight): static
     {

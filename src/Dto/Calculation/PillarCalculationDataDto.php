@@ -74,6 +74,8 @@ class PillarCalculationDataDto
             ),
             pillarData: new PillarDataDto(
                 pillarStamp: $formData['pillarData']['pillarStamp'] ?? null,
+                pillarHeight: $formData['pillarData']['pillarHeight'] ?? null,
+                markBottom: $formData['pillarData']['markBottom'] ?? null,
                 strengtheningExist: isset($formData['pillarData']['strengtheningExist'])
                     ? filter_var($formData['pillarData']['strengtheningExist'], FILTER_VALIDATE_BOOLEAN)
                     : false,

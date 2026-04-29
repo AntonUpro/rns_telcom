@@ -13,6 +13,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
 {
     public function __construct(
         public readonly ?string $pillarStamp,
+        public readonly ?float $pillarHeight,
         public readonly float $markBottom,
         public readonly bool $strengtheningExist,
         public readonly ?Strengthening $strengthening,
@@ -24,6 +25,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
     {
         return [
             'pillarStamp' => $this->pillarStamp,
+            'pillarHeight' => $this->pillarHeight,
             'markBottom' => $this->markBottom,
             'strengtheningExist' => $this->strengtheningExist,
             'strengthening' => $this->strengthening?->toArray(),
@@ -35,6 +37,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
     {
         return new static(
             pillarStamp: $data['pillarStamp'],
+            pillarHeight: $data['pillarHeight'] ?? null,
             markBottom: $data['markBottom'] ?? 0,
             strengtheningExist: $data['strengtheningExist'],
             strengthening: isset($data['strengthening']) ? Strengthening::fromArray($data['strengthening']) : null,

@@ -43,8 +43,8 @@ class PillarWindLoadCalculationService
         $sections = new SectionCollectionDto();
         $sectionCalculations = $this->sectionBuilderService->build(
             pillarEnum: $calculationData->getConcretePillarSpecificData()?->toEnumPillar(),
-            height: $calculationData->getAmsHeightMm(),
-            markBottom: $calculationData->getConcretePillarSpecificData()->buttomMark ?? 0,
+            height: $calculationData->getPillarHeightMm(),
+            markBottom: $calculationData->getConcretePillarSpecificData()->markBottom ?? 0,
             strengtheningDto: $calculationData->getConcretePillarSpecificData()->strengtheningExist
                 ? new StrengtheningDto(
                     height: $calculationData->getConcretePillarSpecificData()->strengthening->strengtheningHeight,
@@ -59,7 +59,7 @@ class PillarWindLoadCalculationService
                 windRegionEnum: $calculationData->getWindRegion(),
                 terrainTypeEnum: $calculationData->getTerrainType(),
                 pillarEnum: $calculationData->getConcretePillarSpecificData()?->toEnumPillar(),
-                height: $calculationData->getAmsHeightMm(),
+                height: $calculationData->getPillarHeightMm(),
             );
 
             $cableChanelCalculator = new CableChanelCalculator(
@@ -119,7 +119,7 @@ class PillarWindLoadCalculationService
             throw new NotFoundException('Не указан тип местности');
         }
 
-        if (! $calculationData->getAmsHeight()) {
+        if (! $calculationData->getConcretePillarSpecificData()?->pillarHeight) {
             throw new NotFoundException('Не указана высота опоры');
         }
 

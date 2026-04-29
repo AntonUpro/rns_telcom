@@ -12,6 +12,14 @@ class PillarDataDto
         #[Assert\Length(max: 100)]
         public ?string $pillarStamp = null,
 
+        #[Assert\Type('numeric')]
+        #[Assert\Range(min: 0, max: 26)]
+        public ?float $pillarHeight = null,
+
+        #[Assert\Type('numeric')]
+        #[Assert\Range(min: -10, max: 26)]
+        public ?float $markBottom = null,
+
         #[Assert\Type('bool')]
         public ?bool $strengtheningExist = false,
 
@@ -42,6 +50,8 @@ class PillarDataDto
     {
         return [
             'pillarStamp' => $this->pillarStamp,
+            'pillarHeight' => $this->pillarHeight,
+            'markBottom' => $this->markBottom,
             'strengtheningExist' => $this->strengtheningExist,
             'strengtheningGeometry' => $this->strengtheningGeometry,
             'strengtheningWidth' => $this->strengtheningWidth,
@@ -58,6 +68,8 @@ class PillarDataDto
 
         return new self(
             pillarStamp: $data['pillarStamp'] ?? null,
+            pillarHeight: $data['pillarHeight'] ?? null,
+            markBottom: $data['markBottom'] ?? null,
             strengtheningExist: $strengtheningExist,
             strengtheningGeometry: $data['strengtheningGeometry'] ?? null,
             strengtheningWidth: isset($data['strengtheningWidth']) ? (float) $data['strengtheningWidth'] : null,

@@ -59,7 +59,8 @@ const formData = reactive({
 
     // Данные по столбу
     pillarStamp: 'СК26.1-1',
-    bottomMarkPillar: 0,
+    markBottom: 0,
+    pillarHeight: 23,
     strengtheningExist: false,
 
     strengtheningGeometry: 'square',
@@ -160,7 +161,8 @@ const fetchGeneralData = async () => {
         formData.iceRegion = data.data.climateData?.iceRegion || '';
 
         formData.pillarStamp = data.data.pillarData?.pillarStamp || '';
-        formData.bottomMarkPillar = data.data.pillarData?.bottomMarkPillar || 0;
+        formData.markBottom = data.data.pillarData?.markBottom || 0;
+        formData.pillarHeight = data.data.pillarData?.pillarHeight || 0;
         formData.strengtheningExist = data.data.pillarData?.strengtheningExist || false;
 
         formData.strengtheningGeometry = data.data.pillarData?.strengtheningGeometry || null;
@@ -341,6 +343,8 @@ const saveGeneralData = async () => {
                 },
                 pillarData: {
                     pillarStamp: formData.pillarStamp,
+                    pillarHeight: formData.pillarHeight,
+                    markBottom: formData.markBottom,
                     strengtheningExist: formData.strengtheningExist,
                     strengtheningGeometry: formData.strengtheningGeometry || null,
                     strengtheningWidth: formData.strengtheningWidth || null,
@@ -566,7 +570,20 @@ onMounted(async () => {
                     <div class="input-with-unit">
                         <input
                             type="number"
-                            v-model.number="formData.bottomMarkPillar"
+                            v-model.number="formData.markBottom"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="-3"
+                        />
+                        <span class="unit">м</span>
+                    </div>
+                </div>
+                <div class="form-group compact-group">
+                    <label>Высота бетонного ствола опоры:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.pillarHeight"
                             class="form-calculation-control compact-input"
                             step="0.01"
                             min="-3"

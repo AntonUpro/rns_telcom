@@ -74,7 +74,8 @@ final readonly class PillarCalculationService
             $calculationData->setIcingRegion(IcingRegionEnum::tryFrom($calculationDataDto->climateData->iceRegion));
             $calculationData->setSpecificDataObject((new ConcretePillarSpecificData(
                 pillarStamp: $calculationDataDto->pillarData->pillarStamp,
-                markBottom: $calculationDataDto->pillarData->markBottom ?? 0,
+                pillarHeight: $calculationDataDto->pillarData?->pillarHeight,
+                markBottom: $calculationDataDto->pillarData?->markBottom ?? 0,
                 strengtheningExist: $calculationDataDto->pillarData->strengtheningExist,
                 strengthening: $calculationDataDto->pillarData->strengtheningExist
                     ? new Strengthening(
@@ -129,6 +130,8 @@ final readonly class PillarCalculationService
             ),
             pillarData: new PillarDataDto(
                 pillarStamp: $calculation->getCalculationData()->getConcretePillarSpecificData()?->pillarStamp,
+                pillarHeight: $calculation->getCalculationData()->getConcretePillarSpecificData()?->pillarHeight,
+                markBottom: $calculation->getCalculationData()->getConcretePillarSpecificData()?->markBottom,
                 strengtheningExist: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengtheningExist,
                 strengtheningGeometry: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengthening?->strengtheningGeometry,
                 strengtheningWidth: $calculation->getCalculationData()->getConcretePillarSpecificData()?->strengthening?->strengtheningWidth,
