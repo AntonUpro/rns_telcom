@@ -26,7 +26,7 @@ class CustomerCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Заказчик')
             ->setEntityLabelInPlural('Заказчики')
-            ->setDefaultSort(['name' => 'ASC'])
+            ->setDefaultSort(['legalName' => 'ASC'])
             ->setSearchFields(['legalName', 'otsName', 'code']);
     }
 

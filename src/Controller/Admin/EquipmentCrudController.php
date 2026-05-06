@@ -58,7 +58,6 @@ class EquipmentCrudController extends AbstractCrudController
         yield IdField::new('id')->hideOnForm();
         yield TextField::new('brand', 'Бренд');
         yield TextField::new('model', 'Модель');
-        yield TextField::new('fullName', 'Полное название');
         yield ChoiceField::new('type', 'Тип')
             ->setChoices(array_combine(
                 array_map(fn($c) => $c->label(), EquipmentTypeEnum::cases()),
@@ -66,20 +65,15 @@ class EquipmentCrudController extends AbstractCrudController
             ));
         yield BooleanField::new('hasDiameter', 'Есть диаметр');
         yield NumberField::new('diameter', 'Диаметр, м')
-            ->setNumDecimals(3)
-            ->hideOnIndex();
+            ->setNumDecimals(1);
         yield NumberField::new('height', 'Высота, м')
-            ->setNumDecimals(3)
-            ->hideOnIndex();
+            ->setNumDecimals(1);
         yield NumberField::new('width', 'Ширина, м')
-            ->setNumDecimals(3)
-            ->hideOnIndex();
+            ->setNumDecimals(1);
         yield NumberField::new('depth', 'Глубина, м')
-            ->setNumDecimals(3)
-            ->hideOnIndex();
+            ->setNumDecimals(1);
         yield NumberField::new('weight', 'Масса, кг')
-            ->setNumDecimals(2)
-            ->hideOnIndex();
+            ->setNumDecimals(1);
         yield DateTimeField::new('createdAt', 'Создано')
             ->hideOnForm()
             ->setFormat('dd.MM.yyyy');

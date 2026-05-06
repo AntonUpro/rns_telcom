@@ -191,35 +191,12 @@ const saveCalculation = () => {
     alert('Расчет сохранен');
 };
 
-const isDownloading = ref(false);
+const downloadReport = () => {
+    window.open(`/api/v1/calculation/${props.calculationId}/report`, '_blank');
+};
 
-const downloadReport = async () => {
-    isDownloading.value = true;
-    try {
-        const response = await fetch(`/api/v1/calculation/${props.calculationId}/report`);
-
-        if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
-            throw new Error(data.error ?? 'Ошибка генерации файла');
-        }
-
-        const blob = await response.blob();
-        const url  = window.URL.createObjectURL(blob);
-
-        const a    = document.createElement('a');
-        a.href     = url;
-        a.download = `calculation_${props.calculationId}.docx`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        }, 100);
-    } catch (error) {
-        alert('Ошибка: ' + error.message);
-    } finally {
-        isDownloading.value = false;
-    }
+const downloadTables = () => {
+    window.open(`/api/v1/calculation/${props.calculationId}/tables`, '_blank');
 };
 
 
@@ -381,18 +358,12 @@ const totalElementsCount = computed(() => {
 
         <!-- Кнопки действий -->
         <div class="calc-actions">
-<!--            <button @click="calculateAll" class="btn-action btn-action-calc" :disabled="isLoading">-->
-<!--                {{ isLoading ? 'Выполняется расчет...' : 'Выполнить расчет' }}-->
-<!--            </button>-->
-<!--            <button @click="saveCalculation" class="btn-action btn-save" :disabled="isLoading">-->
-<!--                Сохранить расчет-->
-<!--            </button>-->
-            <button type="button" @click.prevent="downloadReport" class="btn-action btn-secondary" :disabled="isDownloading">
-                {{ isDownloading ? 'Формируется файл...' : 'Скачать расчет' }}
+            <button @click="downloadReport" class="btn-action btn-action-calc">
+                Скачать расчет
             </button>
-<!--            <button @click="exportToWord" class="btn-action btn-secondary" :disabled="!calculationResults">-->
-<!--                Экспорт в Word-->
-<!--            </button>-->
+            <button type="button" @click.prevent="downloadTables" class="btn-action btn-secondary">
+                Скачать таблицы
+            </button>
         </div>
     </div>
 </template>

@@ -7,7 +7,6 @@ namespace App\Controller\Api\Report;
 use App\Controller\Api\AbstractApiController;
 use App\Exception\NotFoundException;
 use App\Service\DocumentGenerator\CalculationReportGenerator;
-use App\Service\DocumentGenerator\Report\OtsReportGenerator;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,32 +17,32 @@ use Throwable;
 
 #[Route('/api/v1')]
 #[IsGranted('ROLE_USER')]
-class DownloadCalculationReportController extends AbstractApiController
+class DownloadCalculationTablesController extends AbstractApiController
 {
     public function __construct(
-        private readonly OtsReportGenerator $otsReportGenerator,
-        private readonly LoggerInterface $logger,
+        private readonly CalculationReportGenerator $reportGenerator,
+        private readonly LoggerInterface            $logger,
     ) {
     }
 
     /**
-     * GET /api/v1/calculation/{calculationId}/report
+     * GET /api/v1/calculation/{calculationId}/tables
      * Генерирует DOCX-отчёт и отдаёт его как вложение.
      */
-    #[Route('/calculation/{calculationId}/report', name: 'api_download_calculation_report', methods: ['GET'])]
+    #[Route('/calculation/{calculationId}/tables', name: 'api_download_calculation_tables', methods: ['GET'])]
     public function download(int $calculationId): BinaryFileResponse|JsonResponse
     {
         $tmpDir = sys_get_temp_dir() . '/rns_reports';
 
         try {
-            $filePath = $this->otsReportGenerator->generate($calculationId, $tmpDir);
+            $filePath = $this->reportGenerator->generate($calculationId, $tmpDir);
         } catch (NotFoundException $e) {
             return $this->errorResponse($e->getMessage());
         } catch (Throwable $e) {
             $this->logger->error('Ошибка генерации отчёта расчёта', [
                 'calculationId' => $calculationId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'         => $e->getMessage(),
+                'trace'         => $e->getTraceAsString(),
             ]);
 
             return $this->errorResponse('Ошибка генерации файла: ' . $e->getMessage());

@@ -32,6 +32,9 @@
 {#                            <small>{{ app.user.position }}</small>#}
                         </span>
                     <a href="{{ path('app_dashboard') }}" class="btn btn-link">Личный кабинет</a>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <a href="{{ path('admin') }}" class="btn btn-link">Админ панель</a>
+                    {% endif %}
                     <a href="{{ path('app_logout') }}" class="btn btn-secondary">Выход</a>
                 {% else %}
                     <a href="{{ path('app_login') }}" class="btn btn-primary">Вход</a>
