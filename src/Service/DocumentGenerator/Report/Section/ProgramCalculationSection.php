@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service\DocumentGenerator\Report\Section;
 
 use App\Entity\CalculationImage;
-use App\Entity\CalculationReportFile;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
 use App\Service\DocumentGenerator\Report\SectionBuilderInterface;

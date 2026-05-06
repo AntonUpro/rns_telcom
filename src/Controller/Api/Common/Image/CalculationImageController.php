@@ -102,12 +102,11 @@ class CalculationImageController extends AbstractApiController
                 return $this->errorResponse('Изображение не найдено');
             }
 
-            $absolutePath = $this->imageService->getAbsoluteFilePath($image);
-            if (!is_file($absolutePath)) {
+            if (!is_file($image->getFilePath())) {
                 return $this->errorResponse('Файл изображения не найден на диске');
             }
 
-            $response = new BinaryFileResponse($absolutePath);
+            $response = new BinaryFileResponse($image->getFilePath());
             $response->headers->set('Content-Type', $image->getMimeType());
             $response->setContentDisposition(
                 ResponseHeaderBag::DISPOSITION_INLINE,
