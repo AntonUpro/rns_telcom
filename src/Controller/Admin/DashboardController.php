@@ -19,6 +19,7 @@ use App\Entity\Gauge\GaugeIBeam;
 use App\Entity\Gauge\GaugePipeRound;
 use App\Entity\Gauge\GaugePipeSquare;
 use App\Entity\Gauge\GaugeRoundSolid;
+use App\Entity\AppendixStaticImage;
 use App\Entity\Operator;
 use App\Entity\User;
 use App\Repository\CalculationRepository;
@@ -86,6 +87,7 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Расчёты');
         yield MenuItem::linkToCrud('Все расчёты', 'fa fa-calculator', Calculation::class);
+        yield MenuItem::linkToCrud('Приложения 5–7 (изображения)', 'fa fa-images', AppendixStaticImage::class);
 
         yield MenuItem::section('Каталог');
         yield MenuItem::linkToCrud('Оборудование', 'fa fa-broadcast-tower', Equipment::class);

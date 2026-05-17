@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Service\DocumentGenerator\Report;
 
+use App\Entity\AppendixStaticImage;
 use App\Entity\Calculation;
+use App\Enum\AppendixTypeEnum;
 use App\Entity\CalculationData;
 use App\Entity\CalculationDocument;
 use App\Entity\CalculationImage;
-use App\Entity\CalculationReportFile;
 use App\Entity\CalculationResultTable;
 use App\Enum\Calculation\ResultTableTypeEnum;
 
@@ -18,12 +19,14 @@ final class ReportContext
      * @param CalculationDocument[] $documents
      * @param array<string, CalculationResultTable> $resultTables keyed by ResultTableTypeEnum::value
      * @param CalculationImage[] $calculationImages
+     * @param array<string, AppendixStaticImage[]> $appendixImages keyed by AppendixTypeEnum::value
      */
     public function __construct(
         public readonly Calculation $calculation,
         public readonly array $documents,
         public readonly array $resultTables,
         public readonly array $calculationImages,
+        public readonly array $appendixImages = [],
     ) {
     }
 
@@ -49,6 +52,12 @@ final class ReportContext
     public function getResultTable(ResultTableTypeEnum $type): ?CalculationResultTable
     {
         return $this->resultTables[$type->value] ?? null;
+    }
+
+    /** @return AppendixStaticImage[] */
+    public function getAppendixImages(AppendixTypeEnum $type): array
+    {
+        return $this->appendixImages[$type->value] ?? [];
     }
 
     /** @return CalculationImage */

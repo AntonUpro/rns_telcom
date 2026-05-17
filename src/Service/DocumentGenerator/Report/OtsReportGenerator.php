@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\DocumentGenerator\Report;
 
 use App\Exception\NotFoundException;
+use App\Repository\AppendixStaticImageRepository;
 use App\Repository\CalculationDocumentRepository;
 use App\Repository\CalculationImageRepository;
 use App\Repository\CalculationRepository;
@@ -69,6 +70,10 @@ final readonly class OtsReportGenerator
         private CalculationResultTableRepository $resultTableRepository,
         private CalculationReportFileRepository $reportFileRepository,
         private WindLoadsSection $windLoadsSection,
+        private CertificatesAppendix $certificatesAppendix,
+        private SroExcerptAppendix $sroExcerptAppendix,
+        private NoprizNotificationAppendix $noprizNotificationAppendix,
+        private AppendixStaticImageRepository $appendixImageRepository,
     ) {
     }
 
@@ -88,6 +93,7 @@ final readonly class OtsReportGenerator
             documents: $this->documentRepository->findByCalculation($calculationId),
             resultTables: $this->resultTableRepository->findAllByCalculationIndexed($calculation),
             calculationImages: $this->imageRepository->findByCalculation($calculationId),
+            appendixImages: $this->appendixImageRepository->findAllGroupedByType(),
         );
 
         $phpWord = $this->createDocument();
@@ -167,15 +173,15 @@ final readonly class OtsReportGenerator
         $section->addPageBreak();
 
         $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 5. СЕРТИФИКАТЫ');
-        (new CertificatesAppendix())->build($section, $context);
+        $this->certificatesAppendix->build($section, $context);
         $section->addPageBreak();
 
         $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 6. ВЫПИСКА ИЗ РЕЕСТРА ЧЛЕНОВ СРО');
-        (new SroExcerptAppendix())->build($section, $context);
+        $this->sroExcerptAppendix->build($section, $context);
         $section->addPageBreak();
 
         $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 7. УВЕДОМЛЕНИЕ НОПРИЗ');
-        (new NoprizNotificationAppendix())->build($section, $context);
+        $this->noprizNotificationAppendix->build($section, $context);
         $section->addPageBreak();
 
         $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 8. СПИСОК ОБОРУДОВАНИЯ');
