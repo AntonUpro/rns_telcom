@@ -40,11 +40,15 @@ class PillarWindLoadCalculationService
 
         $this->validateCalculationData($calculationData);
 
+        $markBottom = $calculationData->getConcretePillarSpecificData()?->markBottom
+            ? $calculationData->getConcretePillarSpecificData()->markBottom * 1000
+            : 0;
+
         $sections = new SectionCollectionDto();
         $sectionCalculations = $this->sectionBuilderService->build(
             pillarEnum: $calculationData->getConcretePillarSpecificData()?->toEnumPillar(),
             height: $calculationData->getPillarHeightMm(),
-            markBottom: $calculationData->getConcretePillarSpecificData()->markBottom ?? 0,
+            markBottom: $markBottom,
             strengtheningDto: $calculationData->getConcretePillarSpecificData()->strengtheningExist
                 ? new StrengtheningDto(
                     height: $calculationData->getConcretePillarSpecificData()->strengthening->strengtheningHeight,
