@@ -69,8 +69,10 @@ class SecurityController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
+        /** @var User $user */
+        $user = $this->getUser();
         // Если пользователь уже авторизован, перенаправляем в личный кабинет
-        if ($this->getUser()) {
+        if ($user && $user->isActive()) {
             return $this->redirectToRoute('app_dashboard');
         }
 
