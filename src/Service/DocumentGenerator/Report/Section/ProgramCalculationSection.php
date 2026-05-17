@@ -28,19 +28,20 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $body,
             $center,
         );
-        $section->addTextBreak(1);
 
         $imageSchemePC = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
         $imageMosaicSections = $context->getCalculationImageByType(CalculationImage::TYPE_SECTIONS);
 
         if (file_exists($imageSchemePC->getFilePath()) && file_exists($imageMosaicSections->getFilePath())) {
-            $section->addImage($imageSchemePC->getFilePath(), [
+            $textRun = $section->addTextRun($center);
+
+            $textRun->addImage($imageSchemePC->getFilePath(), [
                 'width'         => Converter::cmToPoint(8),
                 'height'        => Converter::cmToPoint(22),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);
-            $section->addImage($imageMosaicSections->getFilePath(), [
+            $textRun->addImage($imageMosaicSections->getFilePath(), [
                 'width'         => Converter::cmToPoint(5),
                 'height'        => Converter::cmToPoint(8),
                 'wrappingStyle' => 'inline',
