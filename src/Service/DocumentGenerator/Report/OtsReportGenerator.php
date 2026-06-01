@@ -116,87 +116,90 @@ final readonly class OtsReportGenerator
         $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [], 1, 2);
         $mainSection->addPageBreak();
 
-        // ── Разделы 1–13 ──────────────────────────────────────────────────────
-        $this->addHeading1($mainSection, '1. ОБЩИЕ ДАННЫЕ');
+        $sectionNum = 0;
+        $appendixNum = 0;
+
+        // ── Разделы ───────────────────────────────────────────────────────────
+        $this->addSection($mainSection, $sectionNum, 'ОБЩИЕ ДАННЫЕ');
         (new GeneralDataSection())->build($mainSection, $context);
 
-        $this->addHeading1($mainSection, '2. ЦЕЛЬ ПРОВЕДЕНИЯ РАСЧЁТА И ОБСЛЕДОВАНИЯ');
+        $this->addSection($mainSection, $sectionNum, 'ЦЕЛЬ ПРОВЕДЕНИЯ РАСЧЁТА И ОБСЛЕДОВАНИЯ');
         (new PurposeSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '3. ПРЕДОСТАВЛЕННАЯ ДОКУМЕНТАЦИЯ');
+        $this->addSection($mainSection, $sectionNum, 'ПРЕДОСТАВЛЕННАЯ ДОКУМЕНТАЦИЯ');
         (new DocumentationSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '4. ГЕОГРАФИЧЕСКИЕ ПАРАМЕТРЫ И КЛИМАТИЧЕСКИЕ УСЛОВИЯ РАСПОЛОЖЕНИЯ СООРУЖЕНИЯ');
+        $this->addSection($mainSection, $sectionNum, 'ГЕОГРАФИЧЕСКИЕ ПАРАМЕТРЫ И КЛИМАТИЧЕСКИЕ УСЛОВИЯ РАСПОЛОЖЕНИЯ СООРУЖЕНИЯ');
         (new ClimateSection())->build($mainSection, $context);
 
-        $this->addHeading1($mainSection, '5. ХАРАКТЕРИСТИКИ МАТЕРИАЛА КОНСТРУКЦИЙ');
+        $this->addSection($mainSection, $sectionNum, 'ХАРАКТЕРИСТИКИ МАТЕРИАЛА КОНСТРУКЦИЙ');
         (new MaterialSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '6. КОНСТРУКТИВНОЕ РЕШЕНИЕ СООРУЖЕНИЯ');
+        $this->addSection($mainSection, $sectionNum, 'КОНСТРУКТИВНОЕ РЕШЕНИЕ СООРУЖЕНИЯ');
         (new StructuralSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '7. СХЕМА ОПОРЫ');
+        $this->addSection($mainSection, $sectionNum, 'СХЕМА ОПОРЫ');
         (new PillarSchemeSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '8. ГОРИЗОНТАЛЬНЫЕ НАГРУЗКИ');
+        $this->addSection($mainSection, $sectionNum, 'ГОРИЗОНТАЛЬНЫЕ НАГРУЗКИ');
         $this->windLoadsSection->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '9. ВЕРТИКАЛЬНЫЕ НАГРУЗКИ');
+        $this->addSection($mainSection, $sectionNum, 'ВЕРТИКАЛЬНЫЕ НАГРУЗКИ');
         (new VerticalLoadsSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '10. ОСНОВНЫЕ РАСЧЁТНЫЕ ПОЛОЖЕНИЯ');
+        $this->addSection($mainSection, $sectionNum, 'ОСНОВНЫЕ РАСЧЁТНЫЕ ПОЛОЖЕНИЯ');
         (new CalculationBasisSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '11. ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
+        $this->addSection($mainSection, $sectionNum, 'ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
         (new ProgramCalculationSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '12. РЕЗУЛЬТАТЫ РАСЧЁТА И ВЫВОДЫ');
+        $this->addSection($mainSection, $sectionNum, 'РЕЗУЛЬТАТЫ РАСЧЁТА И ВЫВОДЫ');
         (new CalculationResultsSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, '13. ЗАКЛЮЧЕНИЕ');
+        $this->addSection($mainSection, $sectionNum, 'ЗАКЛЮЧЕНИЕ');
         (new ConclusionSection())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
         // ── Приложения ────────────────────────────────────────────────────────
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 1. ВЕДОМОСТЬ ССЫЛОЧНЫХ ДОКУМЕНТОВ');
+        $this->addAppendix($mainSection, $appendixNum, 'ВЕДОМОСТЬ ССЫЛОЧНЫХ ДОКУМЕНТОВ');
         (new ReferenceDocumentsAppendix())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 2. КЛАССИФИКАЦИЯ ТЕРМИНОВ');
+        $this->addAppendix($mainSection, $appendixNum, 'КЛАССИФИКАЦИЯ ТЕРМИНОВ');
         (new TermsClassificationAppendix())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 3. КЛАССИФИКАЦИЯ УСЛОВНЫХ ОБОЗНАЧЕНИЙ');
+        $this->addAppendix($mainSection, $appendixNum, 'КЛАССИФИКАЦИЯ УСЛОВНЫХ ОБОЗНАЧЕНИЙ');
         (new SymbolsClassificationAppendix())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 4. ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
+        $this->addAppendix($mainSection, $appendixNum, 'ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
         (new InspectionProgramAppendix())->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 5. СЕРТИФИКАТЫ');
+        $this->addAppendix($mainSection, $appendixNum, 'СЕРТИФИКАТЫ');
         $this->certificatesAppendix->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 6. ВЫПИСКА ИЗ РЕЕСТРА ЧЛЕНОВ СРО');
+        $this->addAppendix($mainSection, $appendixNum, 'ВЫПИСКА ИЗ РЕЕСТРА ЧЛЕНОВ СРО');
         $this->sroExcerptAppendix->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 7. УВЕДОМЛЕНИЕ НОПРИЗ');
+        $this->addAppendix($mainSection, $appendixNum, 'УВЕДОМЛЕНИЕ НОПРИЗ');
         $this->noprizNotificationAppendix->build($mainSection, $context);
         $mainSection->addPageBreak();
 
-        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 8. СПИСОК ОБОРУДОВАНИЯ');
+        $this->addAppendix($mainSection, $appendixNum, 'СПИСОК ОБОРУДОВАНИЯ');
         (new EquipmentListAppendix())->build($mainSection, $context);
 
         // ── Сохранение ────────────────────────────────────────────────────────
@@ -313,9 +316,16 @@ final readonly class OtsReportGenerator
         $zip->close();
     }
 
-    private function addHeading1(Section $section, string $text): void
+    private function addSection(Section $section, int &$number, string $title): void
     {
-        $section->addTitle($text, 1);
+        $number++;
+        $section->addTitle(sprintf('%d. %s', $number, $title), 1);
+    }
+
+    private function addAppendix(Section $section, int &$number, string $title): void
+    {
+        $number++;
+        $section->addTitle(sprintf('ПРИЛОЖЕНИЕ %d. %s', $number, $title), 1);
     }
 
     private function addFooterStamp(Section $section, ReportContext $context): void
