@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Repository\PillarPlatformRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -133,6 +134,17 @@ class PillarPlatform
         }
 
         return $this;
+    }
+
+    public function existStrut(): bool
+    {
+        foreach ($this->getSections() as $section) {
+            if ($section->isStrut()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function removeSection(PillarPlatformSection $section): static

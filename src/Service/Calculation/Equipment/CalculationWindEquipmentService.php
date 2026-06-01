@@ -6,11 +6,11 @@ namespace App\Service\Calculation\Equipment;
 
 use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculationResult;
 use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculator;
+use App\Dto\Calculation\Equipment\Calculate\EquipmentSummaryResult;
 use App\Dto\Calculation\Equipment\Calculate\RectangleEquipmentForCalculationDto;
 use App\Dto\Calculation\Equipment\Calculate\RoundEquipmentForCalculationDto;
 use App\Dto\DefaultConstant;
 use App\Entity\CalculationEquipment;
-use App\Entity\Equipment;
 use App\Enum\Equipment\EquipmentGroupEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationEquipmentRepository;
@@ -44,37 +44,7 @@ final readonly class CalculationWindEquipmentService
 
         $calculationEquipments = $this->calculationEquipmentRepository->findByCalculationAndGroups($calculationId, EquipmentGroupEnum::forCalculation());
 
-        $equipmentsDto = [];
-        foreach ($calculationEquipments as $equipment) {
-            if ($equipment->getEquipmentType()->isRrl()) {
-                $equipmentsDto[$equipment->getId()] = new EquipmentCalculator(
-                    equipment: new RoundEquipmentForCalculationDto(
-                        diameter: $equipment->getEquipmentParams()['diameter'],
-                        weight: $equipment->getEquipmentParams()['weight'],
-                    ),
-                    windRegion: $calculationData->getWindRegion(),
-                    terrainTypeEnum: $calculationData->getTerrainType(),
-                    mountHeight: $equipment->getMountingHeight(),
-                    equipmentTypeEnum: $equipment->getEquipmentType(),
-                    quantity: $equipment->getQuantity(),
-                );
-                continue;
-            }
-
-            $equipmentsDto[$equipment->getId()] = new EquipmentCalculator(
-                equipment: new RectangleEquipmentForCalculationDto(
-                    height: $equipment->getEquipmentParams()['height'],
-                    width: $equipment->getEquipmentParams()['width'],
-                    depth: $equipment->getEquipmentParams()['depth'],
-                    weight: $equipment->getEquipmentParams()['weight'],
-                ),
-                windRegion: $calculationData->getWindRegion(),
-                terrainTypeEnum: $calculationData->getTerrainType(),
-                mountHeight: $equipment->getMountingHeight(),
-                equipmentTypeEnum: $equipment->getEquipmentType(),
-                quantity: $equipment->getQuantity(),
-            );
-        }
+        $equipmentsDto = $this->buildCalculators($calculationEquipments, $calculationData);
 
         $result = [];
 
@@ -102,6 +72,102 @@ final readonly class CalculationWindEquipmentService
         }
 
         return $result;
+    }
+
+    /**
+     * @return EquipmentSummaryResult[]
+     */
+    public function calculateSummary(int $calcId): array
+    {
+        $calculation = $this->calculationRepository->findById($calcId);
+        $calculationData = $calculation->getCalculationData();
+        if (! $calculation || ! $calculationData) {
+            throw new NotFoundException(sprintf('Расчет с id %s не найден', $calcId));
+        }
+
+        $windRegion = $calculationData->getWindRegion();
+        if (! $windRegion) {
+            throw new NotFoundException('Не указана ветровой район');
+        }
+
+        $terrainType = $calculationData->getTerrainType();
+        if (! $terrainType) {
+            throw new NotFoundException('Не указан тип местности');
+        }
+
+        $allGroups = array_map(fn(EquipmentGroupEnum $g) => $g->value, EquipmentGroupEnum::cases());
+        $calculationEquipments = $this->calculationEquipmentRepository->findByCalculationAndGroups($calcId, $allGroups);
+
+        $calculators = $this->buildCalculators($calculationEquipments, $calculationData);
+
+        $before = ['area' => 0.0, 'pressure' => 0.0, 'weight' => 0.0];
+        $after  = ['area' => 0.0, 'pressure' => 0.0, 'weight' => 0.0];
+
+        foreach ($calculationEquipments as $equipment) {
+            $calc = $calculators[$equipment->getId()];
+            $group = $equipment->getEquipmentGroup();
+            $qty = $equipment->getQuantity();
+            $area = $calc->equipment->calcArea() * $qty;
+            $pressure = $calc->pressOnOneEquipment() * $qty;
+            $weight = (float)($equipment->getEquipmentParams()['weight'] ?? 0) * $qty;
+
+            if ($group === EquipmentGroupEnum::EXIST || $group === EquipmentGroupEnum::DISMANT) {
+                $before['area']     += $area;
+                $before['pressure'] += $pressure;
+                $before['weight']   += $weight;
+            }
+
+            if ($group === EquipmentGroupEnum::EXIST || $group === EquipmentGroupEnum::PLAIN) {
+                $after['area']     += $area;
+                $after['pressure'] += $pressure;
+                $after['weight']   += $weight;
+            }
+        }
+
+        return [
+            new EquipmentSummaryResult('До модернизации',    $before['area'], $before['pressure'], $before['weight']),
+            new EquipmentSummaryResult('После модернизации', $after['area'],  $after['pressure'],  $after['weight']),
+        ];
+    }
+
+    /**
+     * @param CalculationEquipment[] $equipments
+     * @return EquipmentCalculator[]
+     */
+    private function buildCalculators(array $equipments, mixed $calculationData): array
+    {
+        $calculators = [];
+        foreach ($equipments as $equipment) {
+            if ($equipment->getEquipmentType()->isRrl()) {
+                $calculators[$equipment->getId()] = new EquipmentCalculator(
+                    equipment: new RoundEquipmentForCalculationDto(
+                        diameter: $equipment->getEquipmentParams()['diameter'],
+                        weight: $equipment->getEquipmentParams()['weight'],
+                    ),
+                    windRegion: $calculationData->getWindRegion(),
+                    terrainTypeEnum: $calculationData->getTerrainType(),
+                    mountHeight: $equipment->getMountingHeight(),
+                    equipmentTypeEnum: $equipment->getEquipmentType(),
+                    quantity: $equipment->getQuantity(),
+                );
+            } else {
+                $calculators[$equipment->getId()] = new EquipmentCalculator(
+                    equipment: new RectangleEquipmentForCalculationDto(
+                        height: $equipment->getEquipmentParams()['height'],
+                        width: $equipment->getEquipmentParams()['width'],
+                        depth: $equipment->getEquipmentParams()['depth'],
+                        weight: $equipment->getEquipmentParams()['weight'],
+                    ),
+                    windRegion: $calculationData->getWindRegion(),
+                    terrainTypeEnum: $calculationData->getTerrainType(),
+                    mountHeight: $equipment->getMountingHeight(),
+                    equipmentTypeEnum: $equipment->getEquipmentType(),
+                    quantity: $equipment->getQuantity(),
+                );
+            }
+        }
+
+        return $calculators;
     }
 
     private function dimensionsBuilder(CalculationEquipment $equipment): string

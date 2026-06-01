@@ -22,8 +22,7 @@ final class DocumentationSection implements SectionBuilderInterface
         $left = DocStyleRegistry::paragraphLeft();
 
         $section->addText(
-            'Для выполнения расчёта несущей способности опоры были предоставлены и использованы '
-            . 'следующие документы:',
+            'Для выполнения расчета несущей способности опоры были предоставлены и использованы следующие документы:',
             $body,
             $para,
         );

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Repository\PillarPlatformSectionsRepository;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
@@ -84,6 +85,11 @@ class PillarPlatformSection
         $this->typeSection = $typeSection;
 
         return $this;
+    }
+
+    public function isStrut(): bool
+    {
+        return $this->typeSection === PlatformSectionTypeEnum::STRUT->value;
     }
 
     public function getNumberSection(): ?int

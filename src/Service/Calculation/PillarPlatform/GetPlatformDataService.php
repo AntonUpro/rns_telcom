@@ -39,7 +39,7 @@ class GetPlatformDataService
         $sections = [];
         $strut = null;
         foreach ($this->pillarPlatformSectionsRepository->getPlatformSectionsByPillarPlatformId($platformData) as $platformDataSection) {
-            if ($platformDataSection->getTypeSection() === PlatformSectionTypeEnum::STRUT->value) {
+            if ($platformDataSection->isStrut()) {
                 $strut = new PlatformSection(
                     id: $platformDataSection->getId(),
                     height: $platformDataSection->getHeight(),

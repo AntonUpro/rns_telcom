@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\DocumentGenerator\Table;
 
 use App\Dto\Calculation\Equipment\Calculate\EquipmentCalculationResult;
+use App\Dto\Calculation\Equipment\Calculate\EquipmentSummaryResult;
 use App\Enum\Equipment\EquipmentGroupEnum;
 use App\Enum\Equipment\EquipmentTypeEnum;
 use App\Service\DocumentGenerator\DocStyleRegistry;
@@ -174,6 +175,38 @@ final class EquipmentWindPressureTableBuilder
         $table->addCell($w[11], $cellStyle)->addText($this->fmt($r->cxPipeStand, 1), $fontStyle, $paraStyle);
         $table->addCell($w[12], $cellStyle)->addText($this->fmt($r->securityCoefficient, 1), $fontStyle, $paraStyle);
         $table->addCell($w[13], $cellStyle)->addText($this->fmt($r->pressOnOneEquipment, 1), $fontStyle, $paraStyle);
+    }
+
+    /**
+     * @param EquipmentSummaryResult[] $summaryData
+     */
+    public function buildSummaryTable(Section $section, array $summaryData): void
+    {
+        $section->addTextBreak(1);
+        $section->addText('Таблица 4', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
+
+        $table = $section->addTable(DocStyleRegistry::tableStyle());
+
+        $bold   = DocStyleRegistry::italicCenter();
+        $normal = DocStyleRegistry::center();
+        $center = DocStyleRegistry::paragraphCenter();
+        $hCell  = DocStyleRegistry::headerCell();
+        $dCell  = DocStyleRegistry::dataCell();
+
+        $widths = [3500, 2000, 2500, 2000];
+
+        $table->addRow(600);
+        foreach (['Принадлежность оборудования', '∑Aоборуд, м²', '∑Аоборуд*k(z)*z', '∑Вес, кг'] as $i => $header) {
+            $table->addCell($widths[$i], $hCell)->addText($header, $bold, $center);
+        }
+
+        foreach ($summaryData as $row) {
+            $table->addRow(400);
+            $table->addCell($widths[0], $dCell)->addText($row->label,                           $normal, $center);
+            $table->addCell($widths[1], $dCell)->addText($this->fmt($row->totalArea),            $normal, $center);
+            $table->addCell($widths[2], $dCell)->addText($this->fmt($row->totalPressure),        $normal, $center);
+            $table->addCell($widths[3], $dCell)->addText($this->fmt($row->totalWeight, 1),       $normal, $center);
+        }
     }
 
     private function fmt(float $value, int $decimals = 2): string

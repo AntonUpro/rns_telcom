@@ -19,23 +19,19 @@ final class StructuralSection implements SectionBuilderInterface
     {
         $data = $context->getData();
         $height = $context->getHeightM();
-        $amsType = $data?->getAmsType() ?? '—';
+        $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? 0;
+        $amsType = $data?->getConcretePillarSpecificData()?->pillarStamp ?? '—';
+
+        $existStrut = $context->calculation?->getPillarPlatform()->existStrut() ?? '—';
 
         $body = DocStyleRegistry::bodyText();
         $para = DocStyleRegistry::paragraphIndent();
 
         $section->addText(
             sprintf(
-                'Ствол опоры Н=%s м представляет собой железобетонную коническую центрифугированную стойку типа %s, с поперечным сечением в виде кольца переменного диаметра, защемленную в грунт.',
-                $height,
+                'Столб %s по ГОСТ 22687 представляет собой железобетонную предварительно напряженную коническую стойку кольцевого сечения, изготовляемую методом центрифугирования из тяжелого бетона марки В40.',
                 $amsType,
             ),
-            $body,
-            $para,
-        );
-
-        $section->addText(
-            'Опора выполнена из железобетона с преднапрягаемой и ненапрягаемой арматурой. Опора предназначена для размещения антенного об орудования сотовой связи.',
             $body,
             $para,
         );
@@ -46,13 +42,32 @@ final class StructuralSection implements SectionBuilderInterface
             $para,
         );
 
-        $section->addText(
-            sprintf('Для подъема на опору предусмотрена вертикальная лестница с корзиной ограждения, закрепленная к стволу опоры. Кабели проложены по кабельросту расположенному параллельно лестнице. ' .
-                'На отметке +%.3f м установлена площадка для размещения и обслуживания антенного оборудования, закрепленная к опоре с помощью металлического оголовка.',
-                $height,
-            ),
-            $body,
-            $para,
+        $pillarInfo = sprintf(
+            'На отм. +%.3f м (высота столба без надстройки) установлена площадка с надстройкой для размещения и обслуживания оборудования. Площадка закреплена к стволу опоры при помощи металлического оголовка',
+            $heightPillar,
         );
+        if ($existStrut) {
+            $pillarInfo .= ' и системы подкосов';
+        }
+        $pillarInfo .= '.';
+
+        $section->addText($pillarInfo, $height, $para);
+
+        $section->addText('Для подъема на опору предусмотрена вертикальная лестница с корзиной ограждения.', $body, $para);
+        $section->addText('Кабельная трасса прокладывается параллельно лестнице.', $body, $para);
+
+        if ($data?->getConcretePillarSpecificData()?->strengtheningExist) {
+            $section->addText(
+                sprintf(
+                    'Произведено усиление железобетонной обоймы путем увеличения расчетного сечения стойки, размеры в плане %.1fx%.1f до высоты Н= %.1f м',
+                    $data?->getConcretePillarSpecificData()?->strengthening->strengtheningWidth ?? 0,
+                    $data?->getConcretePillarSpecificData()?->strengthening->strengtheningWidth ?? 0,
+                    $data?->getConcretePillarSpecificData()?->strengthening->strengtheningHeight ?? 0,
+                ),
+                $body,
+                $para,
+            );
+        }
+
     }
 }

@@ -80,6 +80,9 @@ final class WindLoadsSection implements SectionBuilderInterface
         try {
             $equipmentData = $this->equipmentWindService->calculate($calcId);
             $this->equipmentBuilder->build($section, $equipmentData);
+
+            $summaryData = $this->equipmentWindService->calculateSummary($calcId);
+            $this->equipmentBuilder->buildSummaryTable($section, $summaryData);
         } catch (\Throwable) {
             $section->addText('[Данные об оборудовании недоступны]', DocStyleRegistry::bodyText(), DocStyleRegistry::paragraphLeft());
         }

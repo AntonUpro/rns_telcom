@@ -381,7 +381,7 @@ final readonly class OtsReportGenerator
         $stamp->addCell(Converter::cmToTwip(1.5))->addText('', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'continue']);
-        $stamp->addCell(Converter::cmToTwip(1.0),  ['vMerge' => 'continue'])->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0),  ['vMerge' => 'continue']);
 
         $stamp->addRow(Converter::cmToTwip(0.5));
         $stamp->addCell(Converter::cmToTwip(0.7))->addText('Изм', $fStyle, $pStyle);
@@ -390,7 +390,7 @@ final readonly class OtsReportGenerator
         $stamp->addCell(Converter::cmToTwip(1.5))->addText('Подпись', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(1.0))->addText('Дата', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'continue']);
-        $stamp->addCell(Converter::cmToTwip(1.0))
-            ->addPreserveText('{PAGE}', $fStyle, array_merge($pStyle, ['valign' => 'center']));
+        $c = $stamp->addCell(Converter::cmToTwip(1.0));
+        $c->addPreserveText('{PAGE}', ['size' => 10, 'name' => 'Times New Roman', 'italic' => true], $pStyle);
     }
 }
