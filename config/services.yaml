@@ -33,3 +33,7 @@ services:
     App\Command\GenerateOtsReportCommand:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    App\Service\DocumentGenerator\Report\OtsReportGenerator:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

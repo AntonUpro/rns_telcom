@@ -31,13 +31,17 @@ use App\Service\DocumentGenerator\Report\Section\PillarSchemeSection;
 use App\Service\DocumentGenerator\Report\Section\ProgramCalculationSection;
 use App\Service\DocumentGenerator\Report\Section\PurposeSection;
 use App\Service\DocumentGenerator\Report\Section\StructuralSection;
+use App\Service\DocumentGenerator\Report\Section\TitlePageGenerator;
 use App\Service\DocumentGenerator\Report\Section\VerticalLoadsSection;
 use App\Service\DocumentGenerator\Report\Section\WindLoadsSection;
+use PhpOffice\PhpWord\SimpleType\TblWidth;
+use PhpOffice\PhpWord\ComplexType\TblWidth as TblWidthType;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Element\Section;
+use PhpOffice\PhpWord\Style\Language;
 use RuntimeException;
 use ZipArchive;
 
@@ -45,6 +49,8 @@ use ZipArchive;
  * Генерирует полный отчёт ОТС (обследование технического состояния) в формате DOCX.
  *
  * Структура документа:
+ *   Титульный лист 1 (обложка с реквизитами ООО «ТелКом»)
+ *   Титульный лист 2 (шифр, заказчик, адрес объекта)
  *   Содержание
  *   1. Общие данные
  *   2. Цель проведения расчёта и обследования
@@ -74,6 +80,7 @@ final readonly class OtsReportGenerator
         private SroExcerptAppendix $sroExcerptAppendix,
         private NoprizNotificationAppendix $noprizNotificationAppendix,
         private AppendixStaticImageRepository $appendixImageRepository,
+        private string $projectDir,
     ) {
     }
 
@@ -97,95 +104,100 @@ final readonly class OtsReportGenerator
         );
 
         $phpWord = $this->createDocument();
-        $section = $phpWord->getSection(0);
+        $sectionTitle = $phpWord->getSection(0);
 
+        // ── Титульные листы ───────────────────────────────────────────────────
+        (new TitlePageGenerator($this->projectDir))->build($sectionTitle, $context);
+
+        $mainSection = $phpWord->getSection(1);
+        $this->addFooterStamp($mainSection, $context);
         // ── Содержание ────────────────────────────────────────────────────────
-        $section->addTitle('СОДЕРЖАНИЕ', 1);
-        $section->addTOC(DocStyleRegistry::sectionTitle(), [], 1, 2);
-        $section->addPageBreak();
+        $mainSection->addTitle('СОДЕРЖАНИЕ', 1);
+        $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [], 1, 2);
+        $mainSection->addPageBreak();
 
         // ── Разделы 1–13 ──────────────────────────────────────────────────────
-        $this->addHeading1($section, '1. ОБЩИЕ ДАННЫЕ');
-        (new GeneralDataSection())->build($section, $context);
+        $this->addHeading1($mainSection, '1. ОБЩИЕ ДАННЫЕ');
+        (new GeneralDataSection())->build($mainSection, $context);
 
-        $this->addHeading1($section, '2. ЦЕЛЬ ПРОВЕДЕНИЯ РАСЧЁТА И ОБСЛЕДОВАНИЯ');
-        (new PurposeSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '2. ЦЕЛЬ ПРОВЕДЕНИЯ РАСЧЁТА И ОБСЛЕДОВАНИЯ');
+        (new PurposeSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '3. ПРЕДОСТАВЛЕННАЯ ДОКУМЕНТАЦИЯ');
-        (new DocumentationSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '3. ПРЕДОСТАВЛЕННАЯ ДОКУМЕНТАЦИЯ');
+        (new DocumentationSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '4. ГЕОГРАФИЧЕСКИЕ ПАРАМЕТРЫ И КЛИМАТИЧЕСКИЕ УСЛОВИЯ РАСПОЛОЖЕНИЯ СООРУЖЕНИЯ');
-        (new ClimateSection())->build($section, $context);
+        $this->addHeading1($mainSection, '4. ГЕОГРАФИЧЕСКИЕ ПАРАМЕТРЫ И КЛИМАТИЧЕСКИЕ УСЛОВИЯ РАСПОЛОЖЕНИЯ СООРУЖЕНИЯ');
+        (new ClimateSection())->build($mainSection, $context);
 
-        $this->addHeading1($section, '5. ХАРАКТЕРИСТИКИ МАТЕРИАЛА КОНСТРУКЦИЙ');
-        (new MaterialSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '5. ХАРАКТЕРИСТИКИ МАТЕРИАЛА КОНСТРУКЦИЙ');
+        (new MaterialSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '6. КОНСТРУКТИВНОЕ РЕШЕНИЕ СООРУЖЕНИЯ');
-        (new StructuralSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '6. КОНСТРУКТИВНОЕ РЕШЕНИЕ СООРУЖЕНИЯ');
+        (new StructuralSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '7. СХЕМА ОПОРЫ');
-        (new PillarSchemeSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '7. СХЕМА ОПОРЫ');
+        (new PillarSchemeSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '8. ГОРИЗОНТАЛЬНЫЕ НАГРУЗКИ');
-        $this->windLoadsSection->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '8. ГОРИЗОНТАЛЬНЫЕ НАГРУЗКИ');
+        $this->windLoadsSection->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '9. ВЕРТИКАЛЬНЫЕ НАГРУЗКИ');
-        (new VerticalLoadsSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '9. ВЕРТИКАЛЬНЫЕ НАГРУЗКИ');
+        (new VerticalLoadsSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '10. ОСНОВНЫЕ РАСЧЁТНЫЕ ПОЛОЖЕНИЯ');
-        (new CalculationBasisSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '10. ОСНОВНЫЕ РАСЧЁТНЫЕ ПОЛОЖЕНИЯ');
+        (new CalculationBasisSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '11. ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
-        (new ProgramCalculationSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '11. ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
+        (new ProgramCalculationSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '12. РЕЗУЛЬТАТЫ РАСЧЁТА И ВЫВОДЫ');
-        (new CalculationResultsSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '12. РЕЗУЛЬТАТЫ РАСЧЁТА И ВЫВОДЫ');
+        (new CalculationResultsSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, '13. ЗАКЛЮЧЕНИЕ');
-        (new ConclusionSection())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, '13. ЗАКЛЮЧЕНИЕ');
+        (new ConclusionSection())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
         // ── Приложения ────────────────────────────────────────────────────────
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 1. ВЕДОМОСТЬ ССЫЛОЧНЫХ ДОКУМЕНТОВ');
-        (new ReferenceDocumentsAppendix())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 1. ВЕДОМОСТЬ ССЫЛОЧНЫХ ДОКУМЕНТОВ');
+        (new ReferenceDocumentsAppendix())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 2. КЛАССИФИКАЦИЯ ТЕРМИНОВ');
-        (new TermsClassificationAppendix())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 2. КЛАССИФИКАЦИЯ ТЕРМИНОВ');
+        (new TermsClassificationAppendix())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 3. КЛАССИФИКАЦИЯ УСЛОВНЫХ ОБОЗНАЧЕНИЙ');
-        (new SymbolsClassificationAppendix())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 3. КЛАССИФИКАЦИЯ УСЛОВНЫХ ОБОЗНАЧЕНИЙ');
+        (new SymbolsClassificationAppendix())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 4. ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
-        (new InspectionProgramAppendix())->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 4. ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
+        (new InspectionProgramAppendix())->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 5. СЕРТИФИКАТЫ');
-        $this->certificatesAppendix->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 5. СЕРТИФИКАТЫ');
+        $this->certificatesAppendix->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 6. ВЫПИСКА ИЗ РЕЕСТРА ЧЛЕНОВ СРО');
-        $this->sroExcerptAppendix->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 6. ВЫПИСКА ИЗ РЕЕСТРА ЧЛЕНОВ СРО');
+        $this->sroExcerptAppendix->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 7. УВЕДОМЛЕНИЕ НОПРИЗ');
-        $this->noprizNotificationAppendix->build($section, $context);
-        $section->addPageBreak();
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 7. УВЕДОМЛЕНИЕ НОПРИЗ');
+        $this->noprizNotificationAppendix->build($mainSection, $context);
+        $mainSection->addPageBreak();
 
-        $this->addHeading1($section, 'ПРИЛОЖЕНИЕ 8. СПИСОК ОБОРУДОВАНИЯ');
-        (new EquipmentListAppendix())->build($section, $context);
+        $this->addHeading1($mainSection, 'ПРИЛОЖЕНИЕ 8. СПИСОК ОБОРУДОВАНИЯ');
+        (new EquipmentListAppendix())->build($mainSection, $context);
 
         // ── Сохранение ────────────────────────────────────────────────────────
         if (! is_dir($outputDir) && ! mkdir($outputDir, 0755, true)) {
@@ -204,6 +216,8 @@ final readonly class OtsReportGenerator
         $phpWord = new PhpWord();
         $phpWord->setDefaultFontName('Times New Roman');
         $phpWord->setDefaultFontSize(12);
+        $phpWord->getSettings()->setThemeFontLang(new Language(Language::RU_RU));
+        $phpWord->getSettings()->setUpdateFields(true);
 
         // Стили уровней заголовков для автоматического содержания
         $phpWord->addTitleStyle(1, [
@@ -224,18 +238,30 @@ final readonly class OtsReportGenerator
             'italic' => true,
         ], [
             'alignment' => Jc::BOTH,
-            'indentFirstLine' =>  Converter::cmToTwip(1.25),
+            'indentFirstLine' => Converter::cmToTwip(1.25),
             'spaceAfter' => Converter::cmToTwip(0.2),
         ]);
 
-        // Единственная секция A4 с полями по ГОСТ
+        // Секция с титулами
         $phpWord->addSection([
             'paperSize' => 'A4',
             'marginLeft' => Converter::cmToTwip(3.0),
             'marginRight' => Converter::cmToTwip(1.5),
             'marginTop' => Converter::cmToTwip(2.0),
             'marginBottom' => Converter::cmToTwip(2.0),
+            'footerHeight' => Converter::cmToTwip(0.5),
         ]);
+        // Главная секция
+        $section = $phpWord->addSection([
+            'paperSize' => 'A4',
+            'marginLeft' => Converter::cmToTwip(3.0),
+            'marginRight' => Converter::cmToTwip(1.5),
+            'marginTop' => Converter::cmToTwip(1.5),
+            'marginBottom' => Converter::cmToTwip(2.0),
+            'headerHeight' => 0,
+            'footerHeight' => Converter::cmToTwip(0.5),
+        ]);
+        $section->addHeader();
         $phpWord->setDefaultParagraphStyle(['line-spacing' => 150]);
 
         return $phpWord;
@@ -264,12 +290,97 @@ final readonly class OtsReportGenerator
 
         $xml = str_replace('</w:sectPr>', $borders . '</w:sectPr>', $xml);
 
+        // Пометить TOC-поле как dirty, чтобы Word обновил номера страниц при открытии
+        $xml = str_replace(
+            '<w:fldChar w:fldCharType="begin"/>',
+            '<w:fldChar w:fldCharType="begin" w:dirty="true"/>',
+            $xml,
+        );
+
         $zip->addFromString('word/document.xml', $xml);
+
+        // Гарантируем наличие updateFields в settings.xml
+        $settingsXml = $zip->getFromName('word/settings.xml');
+        if ($settingsXml !== false && !str_contains($settingsXml, 'w:updateFields')) {
+            $settingsXml = str_replace(
+                '</w:settings>',
+                '<w:updateFields w:val="true"/></w:settings>',
+                $settingsXml,
+            );
+            $zip->addFromString('word/settings.xml', $settingsXml);
+        }
+
         $zip->close();
     }
 
     private function addHeading1(Section $section, string $text): void
     {
         $section->addTitle($text, 1);
+    }
+
+    private function addFooterStamp(Section $section, ReportContext $context): void
+    {
+        $footer = $section->addFooter();
+        // Структура штампа для формата А4 (185×30 мм)
+        $stamp = $footer->addTable([
+            'width' => Converter::cmToTwip(185),
+            'unit' => TblWidth::TWIP,
+            'borderSize' => 10, // Внутренние линии тоньше
+            'borderColor' => '000000',
+            'cellMargin' => 0, // Отступ внутри ячеек
+            'borderBottomSize' => 0,
+            'indent' => new TblWidthType(Converter::cmToTwip(-1), TblWidth::TWIP),
+            'alignment' => 'left'
+        ]);
+
+        $fStyle = [
+            'size' => 8,
+            'name' => 'Times New Roman',
+            'italic' => true,
+            'line' => 240,
+            'lineRule' => 'auto',
+            'lineHeight' => 1,
+        ];
+        $pStyle = [
+            'alignment' => Jc::CENTER,
+            'valign' => 'center',
+            'gridSpan' => 3,
+            'line' => 240,
+            'lineRule' => 'auto',
+            'lineHeight' => 1,
+        ];
+
+        // Строки штампа по ГОСТ 2.104-2006 (упрощённая структура)
+        $stamp->addRow(Converter::cmToTwip(0.5));
+        $stamp->addCell(Converter::cmToTwip(0.7))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(2.3))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.5))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'restart', 'valign' => 'center'])->addText(
+            $context->calculation?->getCalculationData()->getObjectCode(),
+            array_merge($fStyle, ['size' => 12]),
+            array_merge($pStyle, ['valign' => 'center']),
+        );
+        $stamp->addCell(Converter::cmToTwip(1.0), ['vMerge' => 'restart'])->addText('Лист', $fStyle, $pStyle);
+
+        $stamp->addRow(Converter::cmToTwip(0.5));
+        $stamp->addCell(Converter::cmToTwip(0.7))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(2.3))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.5))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'continue']);
+        $stamp->addCell(Converter::cmToTwip(1.0),  ['vMerge' => 'continue'])->addText('', $fStyle, $pStyle);
+
+        $stamp->addRow(Converter::cmToTwip(0.5));
+        $stamp->addCell(Converter::cmToTwip(0.7))->addText('Изм', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0))->addText('Кол.уч', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(2.3))->addText('№ док.', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.5))->addText('Подпись', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(1.0))->addText('Дата', $fStyle, $pStyle);
+        $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'continue']);
+        $stamp->addCell(Converter::cmToTwip(1.0))
+            ->addPreserveText('{PAGE}', $fStyle, array_merge($pStyle, ['valign' => 'center']));
     }
 }

@@ -69,21 +69,21 @@ final class Version20260429100000 extends AbstractMigration
                 (E'ООО "Техмонтаж"',                         E'ООО "Техмонтаж"',                            'TM',    TRUE)
         SQL);
 
-        $this->addSql('ALTER TABLE calculation_data ADD COLUMN customer_id BIGINT DEFAULT NULL');
+        $this->addSql('ALTER TABLE calculation_data ADD COLUMN IF NOT EXISTS customer_id BIGINT DEFAULT NULL');
         $this->addSql(<<<'SQL'
             ALTER TABLE calculation_data
                 ADD CONSTRAINT fk_calculation_data_customer_id
                 FOREIGN KEY (customer_id) REFERENCES customers (id) ON DELETE SET NULL
         SQL);
 
-        $this->addSql('ALTER TABLE calculation_data DROP COLUMN customer');
+        $this->addSql('ALTER TABLE calculation_data DROP COLUMN IF EXISTS customer');
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE calculation_data DROP CONSTRAINT fk_calculation_data_customer_id');
-        $this->addSql('ALTER TABLE calculation_data DROP COLUMN customer_id');
-        $this->addSql('ALTER TABLE calculation_data ADD COLUMN customer VARCHAR(150) DEFAULT NULL');
+        $this->addSql('ALTER TABLE calculation_data DROP CONSTRAINT IF EXISTS fk_calculation_data_customer_id');
+        $this->addSql('ALTER TABLE calculation_data DROP COLUMN IF EXISTS customer_id');
+        $this->addSql('ALTER TABLE calculation_data ADD COLUMN IF NOT EXISTS customer VARCHAR(150) DEFAULT NULL');
         $this->addSql('DROP TABLE customers');
     }
 }
