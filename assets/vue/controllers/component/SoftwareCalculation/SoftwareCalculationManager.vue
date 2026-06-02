@@ -19,10 +19,25 @@ const IMAGE_FIELDS = [
     {type: 'mosaic_displacement', label: 'Мозаика перемещений'},
 ];
 
+const MULTI_SECTIONS = [
+    {type: 'equipment_list', label: 'ПЕРЕЧЕНЬ ОБОРУДОВАНИЯ НА ОПОРЕ'},
+    {type: 'foundation_calc', label: 'Расчёт фундамента опоры'},
+];
+
 // ─── Состояние ────────────────────────────────────────────────────────────────
 /** Для каждого imageType хранит { previewUrl, file, saved: { id, version, ... } } */
 const images = ref(
     Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, {previewUrl: null, file: null, saved: null}]))
+);
+
+/** Для мульти-разделов: массив { id, previewUrl, originalFileName, ... } */
+const multiImages = ref(
+    Object.fromEntries(MULTI_SECTIONS.map(s => [s.type, []]))
+);
+
+/** Флаг загрузки для каждого мульти-раздела */
+const isUploadingMulti = ref(
+    Object.fromEntries(MULTI_SECTIONS.map(s => [s.type, false]))
 );
 
 const isSaving = ref(false);
@@ -41,9 +56,14 @@ async function fetchImages() {
         }
 
         for (const item of data.data) {
-            if (images.value[item.imageType]) {
+            if (images.value[item.imageType] !== undefined) {
                 images.value[item.imageType].saved = item;
                 images.value[item.imageType].previewUrl = `/api/v1/calculation/image/${item.id}/file`;
+            } else if (multiImages.value[item.imageType] !== undefined) {
+                multiImages.value[item.imageType].push({
+                    ...item,
+                    previewUrl: `/api/v1/calculation/image/${item.id}/file`,
+                });
             }
         }
     } catch (err) {
@@ -157,6 +177,88 @@ function focusZone(el) {
     el?.focus();
 }
 
+// ─── Мульти-загрузка ──────────────────────────────────────────────────────────
+async function uploadMultiFile(imageType, file) {
+    const formData = new FormData();
+    formData.append('imageType', imageType);
+    formData.append('file', file);
+
+    const response = await fetch(`/api/v1/calculation/${props.calculationId}/images/multi`, {
+        method: 'POST',
+        body: formData,
+    });
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Ошибка сервера');
+    }
+
+    multiImages.value[imageType].push({
+        ...data.data,
+        previewUrl: `/api/v1/calculation/image/${data.data.id}/file`,
+    });
+}
+
+async function uploadMultiImages(imageType, event) {
+    const files = Array.from(event.target.files);
+    event.target.value = '';
+    if (!files.length) return;
+
+    isUploadingMulti.value[imageType] = true;
+    message.value = null;
+
+    for (const file of files) {
+        try {
+            await uploadMultiFile(imageType, file);
+        } catch (err) {
+            message.value = {type: 'error', text: `Ошибка загрузки: ${err.message}`};
+        }
+    }
+
+    isUploadingMulti.value[imageType] = false;
+}
+
+async function onPasteMulti(imageType, event) {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+        if (item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (!file) break;
+
+            isUploadingMulti.value[imageType] = true;
+            message.value = null;
+
+            try {
+                await uploadMultiFile(imageType, file);
+            } catch (err) {
+                message.value = {type: 'error', text: `Ошибка загрузки: ${err.message}`};
+            } finally {
+                isUploadingMulti.value[imageType] = false;
+            }
+            break;
+        }
+    }
+}
+
+async function deleteMultiImage(imageType, imageId) {
+    if (!confirm('Удалить изображение?')) return;
+
+    try {
+        const response = await fetch(`/api/v1/calculation/image/${imageId}`, {method: 'DELETE'});
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Ошибка сервера');
+        }
+
+        multiImages.value[imageType] = multiImages.value[imageType].filter(img => img.id !== imageId);
+    } catch (err) {
+        message.value = {type: 'error', text: `Ошибка удаления: ${err.message}`};
+    }
+}
+
 onMounted(fetchImages);
 </script>
 
@@ -249,6 +351,59 @@ onMounted(fetchImages);
                     <p v-if="images[field.type].previewUrl" class="sc-paste-hint">
                         Нажмите на изображение и вставьте из буфера (Ctrl+V)
                     </p>
+                </div>
+            </div>
+
+            <!-- Мульти-разделы -->
+            <div
+                v-for="ms in MULTI_SECTIONS"
+                :key="ms.type"
+                class="sc-multi-section"
+            >
+                <div class="sc-multi-header">{{ ms.label }}</div>
+
+                <div v-if="multiImages[ms.type].length > 0" class="sc-multi-grid">
+                    <div
+                        v-for="img in multiImages[ms.type]"
+                        :key="img.id"
+                        class="sc-multi-card"
+                    >
+                        <img :src="img.previewUrl" class="sc-multi-img" alt="Изображение"/>
+                        <div class="sc-multi-card-footer">
+                            <span class="sc-multi-filename" :title="img.originalFileName">{{ img.originalFileName }}</span>
+                            <button class="sc-btn-delete" @click="deleteMultiImage(ms.type, img.id)">Удалить</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sc-multi-controls">
+                    <div
+                        class="sc-multi-paste-zone"
+                        :class="{'sc-multi-paste-zone--uploading': isUploadingMulti[ms.type]}"
+                        tabindex="0"
+                        @paste="onPasteMulti(ms.type, $event)"
+                        @click="focusZone($event.currentTarget)"
+                    >
+                        <svg class="sc-drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+                            <rect x="8" y="2" width="8" height="4" rx="1"/>
+                        </svg>
+                        <span class="sc-multi-paste-hint">
+                            {{ isUploadingMulti[ms.type] ? 'Загрузка...' : 'Нажмите и вставьте (Ctrl+V)' }}
+                        </span>
+                    </div>
+
+                    <label :class="['sc-btn-upload', isUploadingMulti[ms.type] ? 'sc-btn-disabled' : '']">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            class="sc-file-input"
+                            :disabled="isUploadingMulti[ms.type]"
+                            @change="uploadMultiImages(ms.type, $event)"
+                        />
+                        Добавить файлы
+                    </label>
                 </div>
             </div>
 
@@ -560,6 +715,130 @@ onMounted(fetchImages);
     cursor: not-allowed;
 }
 
+/* ── Мульти-раздел ── */
+.sc-multi-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 2px solid #dee2e6;
+}
+
+.sc-multi-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #343a40;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.sc-multi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.sc-multi-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fafbfc;
+}
+
+.sc-multi-img {
+    display: block;
+    width: 100%;
+    height: 140px;
+    object-fit: contain;
+    background: #f8f9fa;
+    padding: 6px;
+}
+
+.sc-multi-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 6px 8px;
+    background: #f4f6f8;
+    border-top: 1px solid #dee2e6;
+}
+
+.sc-multi-filename {
+    font-size: 11px;
+    color: #6c757d;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+}
+
+.sc-btn-delete {
+    flex-shrink: 0;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    background: #dc3545;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.sc-btn-delete:hover {
+    background: #b02a37;
+}
+
+.sc-btn-disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ── Строка управления мульти-разделом ── */
+.sc-multi-controls {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+/* ── Зона вставки из буфера ── */
+.sc-multi-paste-zone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding: 10px 14px;
+    border: 2px dashed #ced4da;
+    border-radius: 6px;
+    background: #f8f9fa;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.sc-multi-paste-zone:focus,
+.sc-multi-paste-zone:hover {
+    border-color: #1976d2;
+    background: #f0f7ff;
+}
+
+.sc-multi-paste-zone--uploading {
+    border-color: #90caf9;
+    background: #e3f2fd;
+    cursor: default;
+    pointer-events: none;
+}
+
+.sc-multi-paste-hint {
+    font-size: 12px;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
 /* ── Адаптив ── */
 @media (max-width: 768px) {
     .sw-calc-manager {
@@ -568,6 +847,10 @@ onMounted(fetchImages);
 
     .sc-grid {
         grid-template-columns: 1fr;
+    }
+
+    .sc-multi-grid {
+        grid-template-columns: 1fr 1fr;
     }
 }
 </style>

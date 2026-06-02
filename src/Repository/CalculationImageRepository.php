@@ -27,6 +27,22 @@ class CalculationImageRepository extends ServiceEntityRepository
             ->where('ci.calculation = :calculationId')
             ->setParameter('calculationId', $calculationId)
             ->orderBy('ci.imageType', 'ASC')
+            ->addOrderBy('ci.id', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return CalculationImage[]
+     */
+    public function findMultiByCalculationAndType(int $calculationId, string $imageType): array
+    {
+        return $this->createQueryBuilder('ci')
+            ->where('ci.calculation = :calculationId')
+            ->andWhere('ci.imageType = :imageType')
+            ->setParameter('calculationId', $calculationId)
+            ->setParameter('imageType', $imageType)
+            ->orderBy('ci.id', 'ASC')
             ->getQuery()
             ->getResult();
     }

@@ -90,6 +90,66 @@ class CalculationImageController extends AbstractApiController
     }
 
     /**
+     * POST /api/v1/calculation/{calculationId}/images/multi
+     * Добавляет изображение к мульти-группе (не заменяет существующие).
+     *
+     * Form fields:
+     *   - imageType  (string) — тип из MULTI_TYPES
+     *   - file       (file)   — загружаемый файл
+     */
+    #[Route('/calculation/{calculationId}/images/multi', name: 'api_upload_calculation_image_multi', methods: ['POST'])]
+    public function uploadMulti(int $calculationId, Request $request): JsonResponse
+    {
+        try {
+            $imageType = (string)$request->request->get('imageType', '');
+            if ($imageType === '') {
+                return $this->errorResponse('Не указан тип изображения (imageType)');
+            }
+
+            if (!in_array($imageType, CalculationImage::MULTI_TYPES, true)) {
+                return $this->errorResponse(sprintf('Тип "%s" не поддерживает множественную загрузку', $imageType));
+            }
+
+            $file = $request->files->get('file');
+            if ($file === null) {
+                return $this->errorResponse('Файл не передан');
+            }
+
+            $image = $this->imageService->appendImage($calculationId, $imageType, $file);
+
+            return $this->successResponse($image->toArray());
+        } catch (Throwable $e) {
+            $this->logger->error('Ошибка загрузки мульти-изображения', [
+                'calculationId' => $calculationId,
+                'error'         => $e->getMessage(),
+            ]);
+
+            return $this->errorResponse('Ошибка загрузки: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * DELETE /api/v1/calculation/image/{imageId}
+     * Удаляет изображение из мульти-группы.
+     */
+    #[Route('/calculation/image/{imageId}', name: 'api_delete_calculation_image', methods: ['DELETE'])]
+    public function deleteImage(int $imageId): JsonResponse
+    {
+        try {
+            $this->imageService->deleteImage($imageId);
+
+            return $this->successResponse([]);
+        } catch (Throwable $e) {
+            $this->logger->error('Ошибка удаления изображения', [
+                'imageId' => $imageId,
+                'error'   => $e->getMessage(),
+            ]);
+
+            return $this->errorResponse('Ошибка удаления: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * GET /api/v1/calculation/image/{imageId}/file
      * Отдаёт бинарный файл изображения.
      */

@@ -12,8 +12,11 @@ use App\Repository\CalculationRepository;
 use App\Repository\CalculationReportFileRepository;
 use App\Repository\CalculationResultTableRepository;
 use App\Service\DocumentGenerator\DocStyleRegistry;
+use App\Entity\CalculationImage;
 use App\Service\DocumentGenerator\Report\Section\Appendix\CertificatesAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\EquipmentListAppendix;
+use App\Service\DocumentGenerator\Report\Section\Appendix\EquipmentOnPillarAppendix;
+use App\Service\DocumentGenerator\Report\Section\Appendix\FoundationCalcAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\InspectionProgramAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\NoprizNotificationAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\ReferenceDocumentsAppendix;
@@ -201,6 +204,18 @@ final readonly class OtsReportGenerator
 
         $this->addAppendix($mainSection, $appendixNum, 'СПИСОК ОБОРУДОВАНИЯ');
         (new EquipmentListAppendix())->build($mainSection, $context);
+
+        if ($context->getCalculationImagesByType(CalculationImage::TYPE_EQUIPMENT_LIST) !== []) {
+            $mainSection->addPageBreak();
+            $this->addAppendix($mainSection, $appendixNum, 'ПЕРЕЧЕНЬ ОБОРУДОВАНИЯ НА ОПОРЕ');
+            (new EquipmentOnPillarAppendix())->build($mainSection, $context);
+        }
+
+        if ($context->getCalculationImagesByType(CalculationImage::TYPE_FOUNDATION_CALC) !== []) {
+            $mainSection->addPageBreak();
+            $this->addAppendix($mainSection, $appendixNum, 'РАСЧЁТ ФУНДАМЕНТА ОПОРЫ');
+            (new FoundationCalcAppendix())->build($mainSection, $context);
+        }
 
         // ── Сохранение ────────────────────────────────────────────────────────
         if (! is_dir($outputDir) && ! mkdir($outputDir, 0755, true)) {

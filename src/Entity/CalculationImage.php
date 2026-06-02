@@ -22,6 +22,8 @@ class CalculationImage
     public const TYPE_MOSAIC_N = 'mosaic_n';
     public const TYPE_MOSAIC_M = 'mosaic_m';
     public const TYPE_MOSAIC_DISPLACEMENT = 'mosaic_displacement';
+    public const TYPE_EQUIPMENT_LIST = 'equipment_list';
+    public const TYPE_FOUNDATION_CALC = 'foundation_calc';
 
     public const ALLOWED_TYPES = [
         self::TYPE_SCHEME,
@@ -30,6 +32,14 @@ class CalculationImage
         self::TYPE_MOSAIC_N,
         self::TYPE_MOSAIC_M,
         self::TYPE_MOSAIC_DISPLACEMENT,
+        self::TYPE_EQUIPMENT_LIST,
+        self::TYPE_FOUNDATION_CALC,
+    ];
+
+    /** Типы, поддерживающие хранение нескольких изображений одновременно */
+    public const MULTI_TYPES = [
+        self::TYPE_EQUIPMENT_LIST,
+        self::TYPE_FOUNDATION_CALC,
     ];
 
     #[ORM\Id]

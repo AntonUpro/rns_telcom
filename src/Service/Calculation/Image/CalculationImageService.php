@@ -87,6 +87,62 @@ class CalculationImageService
         return $image;
     }
 
+    public function appendImage(int $calculationId, string $imageType, UploadedFile $file): CalculationImage
+    {
+        if (!in_array($imageType, CalculationImage::MULTI_TYPES, true)) {
+            throw new InvalidArgumentException(sprintf('Тип "%s" не поддерживает множественную загрузку', $imageType));
+        }
+
+        $calculation = $this->calculationRepository->find($calculationId);
+        if ($calculation === null) {
+            throw new InvalidArgumentException(sprintf('Расчет с id=%d не найден', $calculationId));
+        }
+
+        $calcDir = $this->uploadsBaseDir . '/' . $calculationId;
+        if (!is_dir($calcDir) && !mkdir($calcDir, 0755, true) && !is_dir($calcDir)) {
+            throw new RuntimeException(sprintf('Не удалось создать директорию: %s', $calcDir));
+        }
+
+        $extension    = strtolower($file->getClientOriginalExtension() ?: 'png');
+        $storedName   = $imageType . '_' . uniqid('', true) . '.' . $extension;
+        $absolutePath = $calcDir . '/' . $storedName;
+
+        $originalName = $file->getClientOriginalName() ?: $storedName;
+        $mimeType     = $file->getMimeType() ?? 'image/png';
+        $fileSize     = $file->getSize();
+
+        $file->move($calcDir, $storedName);
+
+        $image = new CalculationImage();
+        $image->setCalculation($calculation);
+        $image->setImageType($imageType);
+        $image->setOriginalFileName($originalName);
+        $image->setStoredFileName($storedName);
+        $image->setFilePath($absolutePath);
+        $image->setMimeType($mimeType);
+        $image->setFileSize($fileSize);
+
+        $this->entityManager->persist($image);
+        $this->entityManager->flush();
+
+        return $image;
+    }
+
+    public function deleteImage(int $imageId): void
+    {
+        $image = $this->imageRepository->find($imageId);
+        if ($image === null) {
+            throw new InvalidArgumentException(sprintf('Изображение с id=%d не найдено', $imageId));
+        }
+
+        if (is_file($image->getFilePath())) {
+            unlink($image->getFilePath());
+        }
+
+        $this->entityManager->remove($image);
+        $this->entityManager->flush();
+    }
+
     /**
      * @return CalculationImage[]
      */

@@ -60,7 +60,6 @@ final class ReportContext
         return $this->appendixImages[$type->value] ?? [];
     }
 
-    /** @return CalculationImage */
     public function getCalculationImageByType(string $type): ?CalculationImage
     {
         foreach ($this->calculationImages as $calculationImage) {
@@ -70,6 +69,15 @@ final class ReportContext
         }
 
         return null;
+    }
+
+    /** @return CalculationImage[] */
+    public function getCalculationImagesByType(string $type): array
+    {
+        return array_values(array_filter(
+            $this->calculationImages,
+            fn(CalculationImage $img) => $img->getImageType() === $type,
+        ));
     }
 
     public function hasAnyExceededKuse(): bool
