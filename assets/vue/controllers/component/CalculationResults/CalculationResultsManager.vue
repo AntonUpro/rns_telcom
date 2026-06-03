@@ -316,7 +316,7 @@ onMounted(fetchInitData);
             <ResultsTableStress
                 v-if="optionalTables.platform_forces"
                 :table-number="tableNumbers.platform_forces"
-                table-name="Максимальные усилия в площадке и стойке"
+                table-name="Максимальные напряжения в элементах площадки"
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
                 :rows="platformForcesRows"
                 :profile-types="enums.profileTypes"

@@ -25,9 +25,19 @@ const MULTI_SECTIONS = [
 ];
 
 // ─── Состояние ────────────────────────────────────────────────────────────────
-/** Для каждого imageType хранит { previewUrl, file, saved: { id, version, ... } } */
+/** Для каждого imageType хранит { previewUrl, saved: { id, version, ... } } */
 const images = ref(
-    Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, {previewUrl: null, file: null, saved: null}]))
+    Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, {previewUrl: null, saved: null}]))
+);
+
+/** Флаг загрузки для каждого поля IMAGE_FIELDS */
+const isUploadingImage = ref(
+    Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, false]))
+);
+
+/** Сообщение статуса для каждого поля IMAGE_FIELDS: null | { type: 'success'|'error', text: string } */
+const imageMessage = ref(
+    Object.fromEntries(IMAGE_FIELDS.map(f => [f.type, null]))
 );
 
 /** Для мульти-разделов: массив { id, previewUrl, originalFileName, ... } */
@@ -40,9 +50,8 @@ const isUploadingMulti = ref(
     Object.fromEntries(MULTI_SECTIONS.map(s => [s.type, false]))
 );
 
-const isSaving = ref(false);
+const message = ref(null);  // { type: 'success'|'error', text: string } — для мульти-разделов
 const isLoading = ref(false);
-const message = ref(null);  // { type: 'success'|'error', text: string }
 
 // ─── Загрузка существующих изображений ────────────────────────────────────────
 async function fetchImages() {
@@ -73,13 +82,55 @@ async function fetchImages() {
     }
 }
 
+// ─── Автосохранение одиночного изображения ────────────────────────────────────
+async function uploadSingleImage(imageType, file) {
+    isUploadingImage.value[imageType] = true;
+    imageMessage.value[imageType] = null;
+
+    // Показать локальный preview немедленно
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        images.value[imageType].previewUrl = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    try {
+        const formData = new FormData();
+        formData.append('imageType', imageType);
+        formData.append('file', file);
+
+        const response = await fetch(`/api/v1/calculation/${props.calculationId}/images`, {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || 'Ошибка сервера');
+        }
+
+        images.value[imageType].saved = data.data;
+        images.value[imageType].previewUrl = `/api/v1/calculation/image/${data.data.id}/file?t=${Date.now()}`;
+        imageMessage.value[imageType] = {type: 'success', text: 'Сохранено'};
+    } catch (err) {
+        // Откатить preview
+        if (images.value[imageType].saved) {
+            images.value[imageType].previewUrl = `/api/v1/calculation/image/${images.value[imageType].saved.id}/file`;
+        } else {
+            images.value[imageType].previewUrl = null;
+        }
+        imageMessage.value[imageType] = {type: 'error', text: err.message};
+    } finally {
+        isUploadingImage.value[imageType] = false;
+    }
+}
+
 // ─── Выбор файла через input ───────────────────────────────────────────────────
 function onFileSelected(imageType, event) {
     const file = event.target.files[0];
     if (!file) return;
-    setLocalFile(imageType, file);
-    // сбросить input, чтобы повторный выбор того же файла тоже срабатывал
     event.target.value = '';
+    uploadSingleImage(imageType, file);
 }
 
 // ─── Вставка из буфера ────────────────────────────────────────────────────────
@@ -89,86 +140,9 @@ function onPaste(imageType, event) {
     for (const item of items) {
         if (item.type.startsWith('image/')) {
             const file = item.getAsFile();
-            if (file) setLocalFile(imageType, file);
+            if (file) uploadSingleImage(imageType, file);
             break;
         }
-    }
-}
-
-function setLocalFile(imageType, file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        images.value[imageType].previewUrl = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    images.value[imageType].file = file;
-    message.value = null;
-}
-
-// ─── Сохранение ───────────────────────────────────────────────────────────────
-async function saveImages() {
-    const pendingTypes = IMAGE_FIELDS
-        .map(f => f.type)
-        .filter(t => images.value[t].file !== null);
-
-    if (pendingTypes.length === 0) {
-        message.value = {type: 'error', text: 'Нет новых изображений для сохранения'};
-        return;
-    }
-
-    isSaving.value = true;
-    message.value = null;
-
-    let successCount = 0;
-    const errors = [];
-
-    for (const imageType of pendingTypes) {
-        try {
-            const formData = new FormData();
-            formData.append('imageType', imageType);
-            formData.append('file', images.value[imageType].file);
-
-            const response = await fetch(`/api/v1/calculation/${props.calculationId}/images`, {
-                method: 'POST',
-                body: formData,
-            });
-            const data = await response.json();
-
-            if (!response.ok || !data.success) {
-                throw new Error(data.error || 'Ошибка сервера');
-            }
-
-            images.value[imageType].saved = data.data;
-            images.value[imageType].file = null;
-            successCount++;
-        } catch (err) {
-            const label = IMAGE_FIELDS.find(f => f.type === imageType)?.label ?? imageType;
-            errors.push(`«${label}»: ${err.message}`);
-        }
-    }
-
-    isSaving.value = false;
-
-    if (errors.length === 0) {
-        message.value = {type: 'success', text: `Сохранено изображений: ${successCount}`};
-    } else {
-        message.value = {
-            type: 'error',
-            text: errors.length < pendingTypes.length
-                ? `Сохранено: ${successCount}. Ошибки: ${errors.join('; ')}`
-                : 'Ошибка сохранения: ' + errors.join('; '),
-        };
-    }
-}
-
-// ─── Сброс выбранного (несохранённого) файла ──────────────────────────────────
-function resetFile(imageType) {
-    images.value[imageType].file = null;
-    // Восстанавливаем URL сохранённого изображения, если оно есть
-    if (images.value[imageType].saved) {
-        images.value[imageType].previewUrl = `/api/v1/calculation/image/${images.value[imageType].saved.id}/file`;
-    } else {
-        images.value[imageType].previewUrl = null;
     }
 }
 
@@ -276,15 +250,29 @@ onMounted(fetchImages);
                 >
                     <div class="sc-card-header">
                         <span class="sc-field-label">{{ field.label }}</span>
+                        <span v-if="isUploadingImage[field.type]" class="sc-badge-uploading">
+                            Загрузка...
+                        </span>
                         <span
-                            v-if="images[field.type].saved && !images[field.type].file"
+                            v-else-if="imageMessage[field.type]?.type === 'success'"
+                            class="sc-badge-saved"
+                            :title="`v${images[field.type].saved?.version} · ${images[field.type].saved?.updatedAt ?? images[field.type].saved?.createdAt}`"
+                        >
+                            ✓ сохранено
+                        </span>
+                        <span
+                            v-else-if="imageMessage[field.type]?.type === 'error'"
+                            class="sc-badge-error"
+                            :title="imageMessage[field.type].text"
+                        >
+                            Ошибка
+                        </span>
+                        <span
+                            v-else-if="images[field.type].saved"
                             class="sc-badge-saved"
                             :title="`v${images[field.type].saved.version} · ${images[field.type].saved.updatedAt ?? images[field.type].saved.createdAt}`"
                         >
                             сохранено
-                        </span>
-                        <span v-if="images[field.type].file" class="sc-badge-pending">
-                            не сохранено
                         </span>
                     </div>
 
@@ -302,23 +290,20 @@ onMounted(fetchImages);
                             alt="Изображение"
                         />
                         <div class="sc-preview-overlay">
-                            <label class="sc-btn-icon" :title="'Заменить изображение'">
+                            <label
+                                class="sc-btn-icon"
+                                :class="{'sc-btn-disabled': isUploadingImage[field.type]}"
+                                :title="'Заменить изображение'"
+                            >
                                 <input
                                     type="file"
                                     accept="image/*"
                                     class="sc-file-input"
+                                    :disabled="isUploadingImage[field.type]"
                                     @change="onFileSelected(field.type, $event)"
                                 />
                                 Заменить
                             </label>
-                            <button
-                                v-if="images[field.type].file"
-                                class="sc-btn-icon sc-btn-cancel"
-                                @click="resetFile(field.type)"
-                                title="Отменить изменение"
-                            >
-                                Отменить
-                            </button>
                         </div>
                     </div>
 
@@ -336,14 +321,18 @@ onMounted(fetchImages);
                             <rect x="3" y="3" width="18" height="18" rx="2"/>
                         </svg>
                         <p class="sc-drop-hint">Нажмите для выбора или вставьте из буфера</p>
-                        <label class="sc-btn-upload">
+                        <label
+                            class="sc-btn-upload"
+                            :class="{'sc-btn-disabled': isUploadingImage[field.type]}"
+                        >
                             <input
                                 type="file"
                                 accept="image/*"
                                 class="sc-file-input"
+                                :disabled="isUploadingImage[field.type]"
                                 @change="onFileSelected(field.type, $event)"
                             />
-                            Выбрать файл
+                            {{ isUploadingImage[field.type] ? 'Загрузка...' : 'Выбрать файл' }}
                         </label>
                     </div>
 
@@ -407,7 +396,7 @@ onMounted(fetchImages);
                 </div>
             </div>
 
-            <!-- Сообщение -->
+            <!-- Сообщение для мульти-разделов -->
             <div
                 v-if="message"
                 :class="['sc-message', message.type === 'success' ? 'sc-message--success' : 'sc-message--error']"
@@ -415,16 +404,6 @@ onMounted(fetchImages);
                 {{ message.text }}
             </div>
 
-            <!-- Тулбар -->
-            <div class="sc-toolbar">
-                <button
-                    class="sc-btn-save"
-                    :disabled="isSaving"
-                    @click="saveImages"
-                >
-                    {{ isSaving ? 'Сохранение...' : 'Сохранить' }}
-                </button>
-            </div>
         </template>
 
     </div>
@@ -522,14 +501,26 @@ onMounted(fetchImages);
     cursor: default;
 }
 
-.sc-badge-pending {
+.sc-badge-uploading {
     flex-shrink: 0;
     padding: 2px 7px;
     font-size: 11px;
     font-weight: 600;
-    color: #856404;
-    background: #fff3cd;
+    color: #1976d2;
+    background: #e3f2fd;
     border-radius: 10px;
+    cursor: default;
+}
+
+.sc-badge-error {
+    flex-shrink: 0;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #721c24;
+    background: #f8d7da;
+    border-radius: 10px;
+    cursor: default;
 }
 
 /* ── Зона загрузки (без изображения) ── */
@@ -624,14 +615,6 @@ onMounted(fetchImages);
     background: #1565c0;
 }
 
-.sc-btn-cancel {
-    background: #6c757d;
-}
-
-.sc-btn-cancel:hover {
-    background: #495057;
-}
-
 /* ── Кнопка «Выбрать файл» ── */
 .sc-btn-upload {
     display: inline-flex;
@@ -684,35 +667,6 @@ onMounted(fetchImages);
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
-}
-
-/* ── Тулбар ── */
-.sc-toolbar {
-    display: flex;
-    justify-content: flex-start;
-    padding-top: 4px;
-    border-top: 1px solid #dee2e6;
-}
-
-.sc-btn-save {
-    padding: 8px 24px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #ffffff;
-    background: #27ae60;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.15s;
-}
-
-.sc-btn-save:hover:not(:disabled) {
-    background: #378541;
-}
-
-.sc-btn-save:disabled {
-    background: #90bde8;
-    cursor: not-allowed;
 }
 
 /* ── Мульти-раздел ── */

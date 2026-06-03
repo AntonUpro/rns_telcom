@@ -30,7 +30,7 @@ enum ResultTableTypeEnum: string
             self::CRACK_OPENING         => 'Максимальное раскрытие трещин в стволе опоры',
             self::BRACE_STRESS          => 'Максимальные напряжения в элементах подкосов',
             self::SUPERSTRUCTURE_STRESS => 'Максимальные напряжения в элементах поясов надстройки',
-            self::PLATFORM_FORCES       => 'Максимальные усилия в площадке и стойке',
+            self::PLATFORM_FORCES       => 'Максимальные напряжения в элементах площадки',
             self::BASE_FORCES           => 'Максимальные усилия в основании опоры',
             self::DEFORMATION           => 'Деформации опоры',
             self::FOUNDATION            => 'Результаты расчёта основания опоры',

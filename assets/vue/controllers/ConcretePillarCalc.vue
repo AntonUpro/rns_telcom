@@ -22,12 +22,14 @@ const props = defineProps({
 });
 
 // Состояние
-const activeTab = ref('initial');
+const TAB_STORAGE_KEY = `rns_active_tab_${props.calculationId}`;
+const activeTab = ref(sessionStorage.getItem(TAB_STORAGE_KEY) || 'initial');
 
 const isLoading = ref(false);
 
 const setActiveTab = (tab) => {
     activeTab.value = tab;
+    sessionStorage.setItem(TAB_STORAGE_KEY, tab);
 };
 
 // Остальные методы из исходного кода остаются без изменений
