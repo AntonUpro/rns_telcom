@@ -78,8 +78,22 @@ const fmt = (v, d = 3) => (v !== null && v !== undefined) ? Number(v).toFixed(d)
                                 placeholder="0.000"
                             />
                         </td>
-                        <td class="td-computed">{{ fmt(row.displacement, 2) }}</td>
-                        <td class="td-computed">{{ fmt(row.angleMax, 4) }}</td>
+                        <td>
+                            <input
+                                type="number" step="0.1" class="rt-input rt-input--sm"
+                                :value="row.displacement"
+                                @input="updateCell(idx, 'displacement', $event.target.valueAsNumber)"
+                                placeholder="100"
+                            />
+                        </td>
+                        <td>
+                            <input
+                                type="number" step="0.1" class="rt-input rt-input--sm"
+                                :value="row.angleMax"
+                                @input="updateCell(idx, 'angleMax', $event.target.valueAsNumber)"
+                                placeholder="1.5"
+                            />
+                        </td>
                         <td>
                             <input
                                 type="number" step="0.1" class="rt-input rt-input--sm"
@@ -92,7 +106,7 @@ const fmt = (v, d = 3) => (v !== null && v !== undefined) ? Number(v).toFixed(d)
                             class="td-computed td-kmax"
                             :class="{ 'td-warn': row.kUse !== null && row.kUse > 1 }"
                         >
-                            {{ fmt(row.kUse, 3) }}
+                            {{ fmt(row.kUse, 2) }}
                         </td>
                         <td class="td-center">
                             <button
