@@ -71,7 +71,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
                                 :value="row.mark"
-                                @input="updateCell(idx, 'mark', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'mark', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -80,7 +80,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
                                 :value="row.mCalc"
-                                @input="updateCell(idx, 'mCalc', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'mCalc', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -88,7 +88,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
                                 :value="row.mAllowable"
-                                @input="updateCell(idx, 'mAllowable', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'mAllowable', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>

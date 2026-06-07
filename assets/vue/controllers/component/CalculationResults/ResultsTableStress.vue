@@ -254,7 +254,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--xs"
                                 :value="row.mark"
-                                @input="updateCell(idx, 'mark', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'mark', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -311,7 +311,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                                 v-else
                                 type="number" step="0.001" class="rt-input rt-input--xs"
                                 :value="row.area"
-                                @input="updateCell(idx, 'area', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'area', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -341,7 +341,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                                 v-else
                                 type="number" step="0.001" class="rt-input rt-input--xs"
                                 :value="row.momentResistance"
-                                @input="updateCell(idx, 'momentResistance', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'momentResistance', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -351,7 +351,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--xs"
                                 :value="row.nCalc"
-                                @input="updateCell(idx, 'nCalc', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'nCalc', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -361,7 +361,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--xs"
                                 :value="row.mCalc"
-                                @input="updateCell(idx, 'mCalc', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'mCalc', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
@@ -371,7 +371,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                             <input
                                 type="number" step="1" class="rt-input rt-input--xs"
                                 :value="row.ry"
-                                @input="updateCell(idx, 'ry', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'ry', $event.target.valueAsNumber)"
                                 placeholder="240"
                             />
                         </td>
