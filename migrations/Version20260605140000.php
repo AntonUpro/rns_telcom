@@ -135,20 +135,20 @@ final class Version20260605140000 extends AbstractMigration
                     d_mm,
                     t10 / 10.0                              AS t_mm,
                     d_mm::text || 'x' || (t10/10.0)::text  AS desig,
-                    d_mm / 10.0                             AS D_cm,
-                    (d_mm - 2.0 * t10 / 10.0) / 10.0       AS d_cm
+                    d_mm / 10.0                             AS do_cm,
+                    (d_mm - 2.0 * t10 / 10.0) / 10.0       AS di_cm
                 FROM sizes
                 WHERE d_mm > 2.0 * t10 / 10.0  -- исключить нефизичные пары
             ),
             props AS (
                 SELECT
-                    d_mm, t_mm, desig, D_cm, d_cm,
-                    ROUND((PI() * (D_cm^2 - d_cm^2) / 4.0)::numeric, 3)                      AS area,
-                    ROUND((PI() * (D_cm^2 - d_cm^2) / 4.0 * 0.785)::numeric, 3)              AS mass,
-                    ROUND((PI() * (D_cm^4 - d_cm^4) / 64.0)::numeric, 2)                     AS inertia,
-                    ROUND((SQRT((D_cm^2 + d_cm^2) / 16.0))::numeric, 2)                      AS r_inertia,
-                    ROUND((PI() * (D_cm^4 - d_cm^4) / (32.0 * D_cm))::numeric, 2)            AS resistance,
-                    ROUND(((D_cm^3 - d_cm^3) / 6.0)::numeric, 2)                             AS plastic_w
+                    d_mm, t_mm, desig, do_cm, di_cm,
+                    ROUND((PI() * (do_cm^2 - di_cm^2) / 4.0)::numeric, 3)                      AS area,
+                    ROUND((PI() * (do_cm^2 - di_cm^2) / 4.0 * 0.785)::numeric, 3)              AS mass,
+                    ROUND((PI() * (do_cm^4 - di_cm^4) / 64.0)::numeric, 2)                     AS inertia,
+                    ROUND((SQRT((do_cm^2 + di_cm^2) / 16.0))::numeric, 2)                      AS r_inertia,
+                    ROUND((PI() * (do_cm^4 - di_cm^4) / (32.0 * do_cm))::numeric, 2)           AS resistance,
+                    ROUND(((do_cm^3 - di_cm^3) / 6.0)::numeric, 2)                             AS plastic_w
                 FROM params
             ),
             ins AS (
@@ -188,19 +188,19 @@ final class Version20260605140000 extends AbstractMigration
                 SELECT
                     d_mm, t_mm,
                     d_mm::text || 'x' || t_mm::text   AS desig,
-                    d_mm / 10.0                         AS D_cm,
-                    (d_mm - 2.0 * t_mm) / 10.0         AS d_cm
+                    d_mm / 10.0                         AS do_cm,
+                    (d_mm - 2.0 * t_mm) / 10.0         AS di_cm
                 FROM sizes
             ),
             ext AS (
                 SELECT
-                    d_mm, t_mm, desig, D_cm, d_cm,
-                    ROUND((PI() * (D_cm^2 - d_cm^2) / 4.0)::numeric, 3)                      AS area,
-                    ROUND((PI() * (D_cm^2 - d_cm^2) / 4.0 * 0.785)::numeric, 3)              AS mass,
-                    ROUND((PI() * (D_cm^4 - d_cm^4) / 64.0)::numeric, 2)                     AS inertia,
-                    ROUND((SQRT((D_cm^2 + d_cm^2) / 16.0))::numeric, 2)                      AS r_inertia,
-                    ROUND((PI() * (D_cm^4 - d_cm^4) / (32.0 * D_cm))::numeric, 2)            AS resistance,
-                    ROUND(((D_cm^3 - d_cm^3) / 6.0)::numeric, 2)                             AS plastic_w
+                    d_mm, t_mm, desig, do_cm, di_cm,
+                    ROUND((PI() * (do_cm^2 - di_cm^2) / 4.0)::numeric, 3)                      AS area,
+                    ROUND((PI() * (do_cm^2 - di_cm^2) / 4.0 * 0.785)::numeric, 3)              AS mass,
+                    ROUND((PI() * (do_cm^4 - di_cm^4) / 64.0)::numeric, 2)                     AS inertia,
+                    ROUND((SQRT((do_cm^2 + di_cm^2) / 16.0))::numeric, 2)                      AS r_inertia,
+                    ROUND((PI() * (do_cm^4 - di_cm^4) / (32.0 * do_cm))::numeric, 2)           AS resistance,
+                    ROUND(((do_cm^3 - di_cm^3) / 6.0)::numeric, 2)                             AS plastic_w
                 FROM props
             ),
             ins AS (

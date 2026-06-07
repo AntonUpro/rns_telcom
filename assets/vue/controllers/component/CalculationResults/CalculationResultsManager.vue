@@ -39,8 +39,8 @@ const optionalTables = ref({
 
 const OPTIONAL_TABLE_META = [
     {key: 'brace_stress', label: 'Напряжения в подкосах'},
-    {key: 'superstructure_stress', label: 'Напряжения в поясах надстройки'},
     {key: 'platform_forces', label: 'Усилия в площадке и стойке'},
+    {key: 'superstructure_stress', label: 'Напряжения в поясах надстройки (прочность)'},
     {key: 'base_forces', label: 'Усилия в основании опоры'},
     {key: 'deformation', label: 'Деформации опоры'},
     {key: 'foundation', label: 'Расчёт основания'},
@@ -280,17 +280,17 @@ onMounted(fetchInitData);
                 @update:rows="pillarForcesRows = $event"
             />
 
-            <ResultsTableCrack
-                :table-number="tableNumbers.crack_opening"
-                :rows="crackOpeningRows"
-                @update:rows="crackOpeningRows = $event"
-            />
+<!--            <ResultsTableCrack-->
+<!--                :table-number="tableNumbers.crack_opening"-->
+<!--                :rows="crackOpeningRows"-->
+<!--                @update:rows="crackOpeningRows = $event"-->
+<!--            />-->
 
             <!-- Напряжения в подкосах -->
             <ResultsTableStress
                 v-if="optionalTables.brace_stress"
                 :table-number="tableNumbers.brace_stress"
-                table-name="Максимальные напряжения в элементах подкосов"
+                table-name="Максимальные напряжения в элементах подкосов площадки"
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
                 :rows="braceStressRows"
                 :profile-types="enums.profileTypes"
@@ -299,7 +299,21 @@ onMounted(fetchInitData);
                 @update:rows="braceStressRows = $event"
             />
 
-            <!-- Напряжения в поясах надстройки -->
+            <!-- Усилия в площадке -->
+            <ResultsTableStress
+                v-if="optionalTables.platform_forces"
+                :table-number="tableNumbers.platform_forces"
+                table-name="Максимальные напряжения в элементах площадки"
+                subtitle="Проверка несущей способности по СП 16.13330.2017"
+                :rows="platformForcesRows"
+                :profile-types="enums.profileTypes"
+                :has-element="false"
+                :element-options="[]"
+                @update:rows="platformForcesRows = $event"
+            />
+
+
+            <!-- Напряжения в поясах надстройки (прочность) -->
             <ResultsTableStress
                 v-if="optionalTables.superstructure_stress"
                 :table-number="tableNumbers.superstructure_stress"
@@ -312,18 +326,8 @@ onMounted(fetchInitData);
                 @update:rows="superstructureStressRows = $event"
             />
 
-            <!-- Усилия в площадке и стойке -->
-            <ResultsTableStress
-                v-if="optionalTables.platform_forces"
-                :table-number="tableNumbers.platform_forces"
-                table-name="Максимальные напряжения в элементах площадки"
-                subtitle="Проверка несущей способности по СП 16.13330.2017"
-                :rows="platformForcesRows"
-                :profile-types="enums.profileTypes"
-                :has-element="false"
-                :element-options="[]"
-                @update:rows="platformForcesRows = $event"
-            />
+            <!-- Напряжения в поясах надстройки (устойчивость) -->
+
 
             <!-- Усилия в основании опоры -->
             <ResultsTableMaximumForcesBase
