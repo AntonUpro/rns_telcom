@@ -184,7 +184,9 @@ final class Version20260605110000 extends AbstractMigration
                 centrifugal_moment_inertia,
                 radius_inertia_x, radius_inertia_y,
                 radius_inertia_min,
-                moment_resistance_x, moment_resistance_y
+                moment_resistance_x, moment_resistance_y,
+                moment_resistance_min,
+                radius_inertia_max
             )
             SELECT
                 ins.id,
@@ -198,7 +200,9 @@ final class Version20260605110000 extends AbstractMigration
                 r.i_min - r.ix_val,
                 r.rix, r.rix,
                 r.ri_min,
-                r.wx, r.wx
+                r.wx, r.wx,
+                r.i_min / (r.x0 * SQRT(2.0)),
+                SQRT((2.0 * r.ix_val - r.i_min) / r.area)
             FROM ins
             JOIN raw r ON ins.designation = (r.b::int::text || 'x' || r.t::int::text)
         ");

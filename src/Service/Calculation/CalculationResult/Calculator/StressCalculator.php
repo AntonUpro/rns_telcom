@@ -22,8 +22,8 @@ final class StressCalculator implements TableCalculatorInterface
 
             // σ (кН/см²) = Nрасч·10 / A + Mрасч·100 / Wy
             // где Nрасч в тс, Mрасч в тс·м, A в см², Wy в см³
-            $sigma = ($row->nCalc ?? 0.0) * 10 / $row->area
-                + ($row->mCalc ?? 0.0) * 100 / $row->momentResistance;
+            $sigma = ($row->nCalc ?? 0.0) * 100 / $row->area
+                + ($row->mCalc ?? 0.0) * 10000 / $row->momentResistance;
 
             $kUse = round($sigma / $row->ry, 4);
 

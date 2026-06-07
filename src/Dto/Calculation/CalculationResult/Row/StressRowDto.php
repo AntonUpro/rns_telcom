@@ -13,8 +13,8 @@ final readonly class StressRowDto
         public string  $sectionDesignation,
         public ?float  $area,
         public ?float  $momentResistance,
-        public ?float  $nCalc,
-        public ?float  $mCalc,
+        public ?float  $nCalc, // в тоннах
+        public ?float  $mCalc, // в тоннах на метр
         public ?float  $ry,
         public ?float  $sigma = null,
         public ?float  $kUse = null,

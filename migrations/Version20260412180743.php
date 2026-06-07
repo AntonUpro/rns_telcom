@@ -104,7 +104,11 @@ final class Version20260412180743 extends AbstractMigration
 
                 -- Моменты сопротивления
                 moment_resistance_x        NUMERIC(8,2) NOT NULL,  -- момент сопротивления Wx, см³
-                moment_resistance_y        NUMERIC(8,2) NOT NULL   -- момент сопротивления Wy, см³
+                moment_resistance_y        NUMERIC(8,2) NOT NULL,  -- момент сопротивления Wy, см³
+                moment_resistance_min      NUMERIC(8,2) NOT NULL,  -- минимальный момент сопротивления Wmin (ось v), см³
+
+                -- Максимальный радиус инерции
+                radius_inertia_max         NUMERIC(6,2) NOT NULL   -- максимальный радиус инерции imax (ось u), см
             );");
 
             $this->addSql("COMMENT ON TABLE  gauge_angle_equal                           IS 'Сортамент уголков равнополочных (ГОСТ 8509-93)';");
@@ -112,6 +116,8 @@ final class Version20260412180743 extends AbstractMigration
             $this->addSql("COMMENT ON COLUMN gauge_angle_equal.moment_inertia_min        IS 'Главный минимальный момент инерции J₂ относительно оси v (под 45° к x/y), см⁴; определяет устойчивость';");
             $this->addSql("COMMENT ON COLUMN gauge_angle_equal.centrifugal_moment_inertia IS 'Центробежный момент инерции Jxy; для равнополочного уголка отрицателен';");
             $this->addSql("COMMENT ON COLUMN gauge_angle_equal.radius_inertia_min        IS 'Минимальный радиус инерции i_min = √(J_min / A); критичен при расчёте на устойчивость';");
+            $this->addSql("COMMENT ON COLUMN gauge_angle_equal.moment_resistance_min      IS 'Минимальный момент сопротивления Wmin = J_min / (z₀·√2); крайнее волокно — внутренний угол у корня';");
+            $this->addSql("COMMENT ON COLUMN gauge_angle_equal.radius_inertia_max         IS 'Максимальный радиус инерции imax = √(J_max / A) относительно главной оси u (под 45°)';");
 
         // =====================================================================
         // Швеллер (ГОСТ 8240-97)

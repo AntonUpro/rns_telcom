@@ -149,6 +149,18 @@ class GaugeAngleEqual
     #[ORM\Column(name: 'moment_resistance_y', type: Types::DECIMAL, precision: 8, scale: 2)]
     private float $momentResistanceY;
 
+    /** Минимальный момент сопротивления Wmin = Jmin / (z₀·√2), см³. Крайнее волокно — внутренний угол у корня. */
+    #[ORM\Column(name: 'moment_resistance_min', type: Types::DECIMAL, precision: 8, scale: 2)]
+    private float $momentResistanceMin;
+
+    // -------------------------------------------------------------------------
+    // Максимальный радиус инерции
+    // -------------------------------------------------------------------------
+
+    /** Максимальный радиус инерции imax = √(Jmax/A), см. Относительно главной оси u (под 45° к x/y). */
+    #[ORM\Column(name: 'radius_inertia_max', type: Types::DECIMAL, precision: 6, scale: 2)]
+    private float $radiusInertiaMax;
+
     // -------------------------------------------------------------------------
     // Геттеры и сеттеры
     // -------------------------------------------------------------------------
@@ -359,6 +371,28 @@ class GaugeAngleEqual
     public function setMomentResistanceY(float $momentResistanceY): static
     {
         $this->momentResistanceY = $momentResistanceY;
+        return $this;
+    }
+
+    public function getMomentResistanceMin(): float
+    {
+        return $this->momentResistanceMin;
+    }
+
+    public function setMomentResistanceMin(float $momentResistanceMin): static
+    {
+        $this->momentResistanceMin = $momentResistanceMin;
+        return $this;
+    }
+
+    public function getRadiusInertiaMax(): float
+    {
+        return $this->radiusInertiaMax;
+    }
+
+    public function setRadiusInertiaMax(float $radiusInertiaMax): static
+    {
+        $this->radiusInertiaMax = $radiusInertiaMax;
         return $this;
     }
 }

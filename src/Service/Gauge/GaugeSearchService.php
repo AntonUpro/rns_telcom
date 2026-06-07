@@ -95,6 +95,7 @@ class GaugeSearchService
             'area' => (float)$g->getArea(),
             'momentResistances' => [
                 ['key' => 'x', 'label' => 'Wx/Wy', 'value' => (float)$g->getMomentResistanceX()],
+                ['key' => 'min', 'label' => 'Wmin', 'value' => (float)$g->getMomentResistanceMin()],
             ],
             'defaultMomentResistanceKey' => 'x',
         ];
