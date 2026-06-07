@@ -294,8 +294,8 @@ onMounted(fetchInitData);
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
                 :rows="braceStressRows"
                 :profile-types="enums.profileTypes"
-                :has-element="true"
                 :element-options="enums.elementTypes"
+                default-element="Подкос"
                 @update:rows="braceStressRows = $event"
             />
 
@@ -307,8 +307,8 @@ onMounted(fetchInitData);
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
                 :rows="platformForcesRows"
                 :profile-types="enums.profileTypes"
-                :has-element="false"
-                :element-options="[]"
+                :element-options="enums.elementTypes"
+                default-element="Площадка"
                 @update:rows="platformForcesRows = $event"
             />
 
@@ -321,7 +321,6 @@ onMounted(fetchInitData);
                 subtitle="Проверка несущей способности по СП 16.13330.2017"
                 :rows="superstructureStressRows"
                 :profile-types="enums.profileTypes"
-                :has-element="true"
                 :element-options="enums.elementTypes"
                 @update:rows="superstructureStressRows = $event"
             />

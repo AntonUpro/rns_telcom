@@ -16,8 +16,8 @@ const props = defineProps({
     subtitle:       { type: String,  default: '' },
     rows:           { type: Array,   required: true },
     profileTypes:   { type: Array,   default: () => [] },
-    hasElement:     { type: Boolean, default: true },
     elementOptions: { type: Array,   default: () => [] },
+    defaultElement: { type: String,  default: '' },
 });
 
 const emit = defineEmits(['update:rows']);
@@ -25,7 +25,7 @@ const emit = defineEmits(['update:rows']);
 // ─── Row factory ──────────────────────────────────────────────────────────────
 
 const makeRow = () => ({
-    element: '',
+    element: props.defaultElement,
     mark: null,
     profileType: '',
     sectionDesignation: '',
@@ -230,9 +230,9 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
             <table class="rt-table">
                 <thead>
                     <tr>
-                        <th class="col-n">#</th>
-                        <th v-if="hasElement" class="col-elem">Элемент</th>
-                        <th v-else class="col-mark">Отметка,<br>м</th>
+                        <th class="col-n">№</th>
+                        <th class="col-mark">Отметка,<br>м</th>
+                        <th class="col-elem">Элемент</th>
                         <th class="col-ptype">Тип<br>сечения</th>
                         <th class="col-sec">Сечение</th>
                         <th class="col-num">A,<br>см²</th>
@@ -249,8 +249,18 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                     <tr v-for="(row, idx) in rows" :key="idx">
                         <td class="td-center">{{ idx + 1 }}</td>
 
-                        <!-- Первая колонка: Элемент или Отметка -->
-                        <td v-if="hasElement">
+                        <!-- Отметка -->
+                        <td>
+                            <input
+                                type="number" step="0.001" class="rt-input rt-input--xs"
+                                :value="row.mark"
+                                @input="updateCell(idx, 'mark', $event.target.valueAsNumber)"
+                                placeholder="0.000"
+                            />
+                        </td>
+
+                        <!-- Тип элемента -->
+                        <td>
                             <select
                                 class="rt-select rt-select--elem"
                                 :value="row.element"
@@ -261,14 +271,6 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                                     {{ opt.label }}
                                 </option>
                             </select>
-                        </td>
-                        <td v-else>
-                            <input
-                                type="number" step="0.001" class="rt-input rt-input--xs"
-                                :value="row.mark"
-                                @input="updateCell(idx, 'mark', $event.target.valueAsNumber)"
-                                placeholder="0.000"
-                            />
                         </td>
 
                         <!-- Тип сечения -->
@@ -392,7 +394,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                         </td>
                     </tr>
                     <tr v-if="rows.length === 0">
-                        <td :colspan="hasElement ? 13 : 13" class="td-empty">
+                        <td colspan="13" class="td-empty">
                             Нет строк — нажмите «+ строка»
                         </td>
                     </tr>

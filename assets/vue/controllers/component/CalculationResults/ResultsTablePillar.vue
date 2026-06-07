@@ -84,7 +84,14 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
                                 placeholder="0.000"
                             />
                         </td>
-                        <td class="td-computed">{{ fmt(row.mAllowable) }}</td>
+                        <td class="td-computed">
+                            <input
+                                type="number" step="0.001" class="rt-input rt-input--sm"
+                                :value="row.mAllowable"
+                                @input="updateCell(idx, 'mAllowable', $event.target.valueAsNumber)"
+                                placeholder="0.000"
+                            />
+                        </td>
                         <td class="td-computed td-kmax" :class="{ 'td-warn': row.kMax !== null && row.kMax > 1 }">
                             {{ fmt(row.kMax) }}
                         </td>
