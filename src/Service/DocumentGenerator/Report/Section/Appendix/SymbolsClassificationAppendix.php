@@ -49,7 +49,7 @@ final class SymbolsClassificationAppendix implements SectionBuilderInterface
         'Ry'      => 'расчётное сопротивление стали.',
     ];
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $bodyBold = DocStyleRegistry::bodyTextBold();
         $body     = DocStyleRegistry::bodyText();

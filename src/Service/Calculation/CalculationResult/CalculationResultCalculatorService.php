@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Service\Calculation\CalculationResult;
 
 use App\Enum\Calculation\ResultTableTypeEnum;
+use App\Service\Calculation\CalculationResult\Calculator\FoundationForcesCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\CrackOpeningCalculator;
+use App\Service\Calculation\CalculationResult\Calculator\DeformationCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\PillarForcesCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\StressCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TableCalculatorInterface;
@@ -19,6 +21,8 @@ final class CalculationResultCalculatorService
         PillarForcesCalculator $pillarForcesCalculator,
         CrackOpeningCalculator $crackOpeningCalculator,
         StressCalculator $stressCalculator,
+        DeformationCalculator $deformationCalculator,
+        FoundationForcesCalculator $basePillarForcesCalculator,
     ) {
         $this->calculators = [
             ResultTableTypeEnum::PILLAR_FORCES->value => $pillarForcesCalculator,
@@ -26,6 +30,8 @@ final class CalculationResultCalculatorService
             ResultTableTypeEnum::BRACE_STRESS->value => $stressCalculator,
             ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $stressCalculator,
             ResultTableTypeEnum::PLATFORM_FORCES->value => $stressCalculator,
+            ResultTableTypeEnum::DEFORMATION->value => $deformationCalculator,
+            ResultTableTypeEnum::FOUNDATION->value => $basePillarForcesCalculator,
         ];
     }
 

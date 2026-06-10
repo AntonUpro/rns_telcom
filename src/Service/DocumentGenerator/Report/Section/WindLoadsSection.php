@@ -34,15 +34,15 @@ final class WindLoadsSection implements SectionBuilderInterface
     ) {
     }
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $calcId = $context->calculation->getId();
 
-        $this->buildPillarSubsection($section, $calcId);
-        $this->buildEquipmentSubsection($section, $calcId);
+        $this->buildPillarSubsection($section, $calcId, $tableNum);
+        $this->buildEquipmentSubsection($section, $calcId, $tableNum);
     }
 
-    private function buildPillarSubsection(Section $section, int $calculationId): void
+    private function buildPillarSubsection(Section $section, int $calculationId, int &$tableNum): void
     {
         $section->addTitle('8.1 ВЕТРОВОЕ ДАВЛЕНИЕ НА СТВОЛ ОПОРЫ', 2);
 
@@ -55,7 +55,7 @@ final class WindLoadsSection implements SectionBuilderInterface
 
         try {
             $pillarSections = $this->pillarWindService->calculate($calculationId);
-            $this->pillarBuilder->build($section, $pillarSections);
+            $this->pillarBuilder->build($section, $pillarSections, $tableNum);
         } catch (\Throwable) {
             $section->addText('[Данные о стволе опоры недоступны]', DocStyleRegistry::bodyText(), DocStyleRegistry::paragraphLeft());
         }
@@ -65,7 +65,7 @@ final class WindLoadsSection implements SectionBuilderInterface
         try {
             $platformData = $this->platformService->calculatePillarPlatform($calculationId);
             if (! empty($platformData->platformSections)) {
-                $this->platformBuilder->build($section, $platformData);
+                $this->platformBuilder->build($section, $platformData, $tableNum);
                 $section->addTextBreak(1);
             }
         } catch (NotFoundException) {
@@ -73,16 +73,16 @@ final class WindLoadsSection implements SectionBuilderInterface
         }
     }
 
-    private function buildEquipmentSubsection(Section $section, int $calcId): void
+    private function buildEquipmentSubsection(Section $section, int $calcId, int &$tableNum): void
     {
         $section->addTitle('8.2 ВЕТРОВОЕ ДАВЛЕНИЕ НА ОБОРУДОВАНИЕ', 2);
 
         try {
             $equipmentData = $this->equipmentWindService->calculate($calcId);
-            $this->equipmentBuilder->build($section, $equipmentData);
+            $this->equipmentBuilder->build($section, $equipmentData, $tableNum);
 
             $summaryData = $this->equipmentWindService->calculateSummary($calcId);
-            $this->equipmentBuilder->buildSummaryTable($section, $summaryData);
+            $this->equipmentBuilder->buildSummaryTable($section, $summaryData, $tableNum);
         } catch (\Throwable) {
             $section->addText('[Данные об оборудовании недоступны]', DocStyleRegistry::bodyText(), DocStyleRegistry::paragraphLeft());
         }

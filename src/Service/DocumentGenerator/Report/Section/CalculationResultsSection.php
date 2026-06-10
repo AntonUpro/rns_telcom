@@ -21,12 +21,11 @@ final class CalculationResultsSection implements SectionBuilderInterface
 {
     private int $tableCounter = 0;
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
-        $this->tableCounter = 0;
+        $this->tableCounter = $tableNum;
 
         $this->buildPillarForces($section, $context);
-        $this->buildCrackOpening($section, $context);
         $this->buildStressTable($section, $context, ResultTableTypeEnum::BRACE_STRESS, 'напряжения в элементах подкосов', 'СП 16.13330.2017 «Стальные конструкции»');
         $this->buildStressTable($section, $context, ResultTableTypeEnum::PLATFORM_FORCES, 'напряжения в элементах площадки', 'СП 16.13330.2017 «Стальные конструкции»');
         $this->buildStressTable($section, $context, ResultTableTypeEnum::SUPERSTRUCTURE_STRESS, 'напряжения в элементах поясов надстройки', 'СП 16.13330.2017 «Стальные конструкции»');
@@ -34,6 +33,8 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $this->buildBaseForces($section, $context);
         $this->buildFoundation($section, $context);
         $this->buildSummaryTable($section, $context);
+
+        $tableNum = $this->tableCounter;
     }
 
     // ─── Усилия в стволе опоры ────────────────────────────────────────────────
@@ -166,21 +167,21 @@ final class CalculationResultsSection implements SectionBuilderInterface
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
-        $w   = [1200, 800, 900, 1100, 800, 800, 900, 900, 900, 900, 800];
+        $w   = [1200, 1200, 1200, 1000, 900, 900, 900, 900, 900, 900];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
         $this->addRow($tbl, $w, [
-            'Элемент', 'Отм., м', 'Профиль', 'Сечение',
+            'Отм., м', 'Элемент', 'Сечение',
             'A, см²', 'Wy, см³', 'N, тс', 'M, тс·м',
             'Ry, Н/мм²', 'σ, Н/мм²', 'Кисп',
         ], true);
 
         foreach ($table->getRows() as $row) {
             $this->addRow($tbl, $w, [
+                $this->fmt($row['mark'] ?? null, 3),
                 (string) ($row['element'] ?? '—'),
-                $this->fmt($row['mark'] ?? null),
-                $row['profileType'] ? GaugeProfileTypeEnum::from($row['profileType'])->label() : '—',
-                (string) ($row['sectionDesignation'] ?? '—'),
+//                $row['profileType'] ? GaugeProfileTypeEnum::from($row['profileType'])->label() : '—',
+                GaugeProfileTypeEnum::from($row['profileType'])->icon() . ($row['sectionDesignation'] ?? '—'),
                 $this->fmt($row['area'] ?? null, 2),
                 $this->fmt($row['momentResistance'] ?? null, 2),
                 $this->fmt($row['nCalc'] ?? null, 2),
@@ -229,12 +230,12 @@ final class CalculationResultsSection implements SectionBuilderInterface
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
-        $w   = [400, 1200, 1600, 2000, 2200, 1600];
+        $w   = [400, 1600, 2000, 2000, 2000, 2000];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
         $this->addRow($tbl, $w, [
             '№', 'Отметка, м', 'Перемещение, мм',
-            'Верт. угол (max), град.', 'Доп. верт. угол, град.', 'Кисп',
+            'Верт. угол (max), град.', 'Допустимый вертикальный угол, град.', 'Кисп',
         ], true);
 
         foreach ($table->getRows() as $i => $row) {
@@ -273,16 +274,16 @@ final class CalculationResultsSection implements SectionBuilderInterface
 
     private function buildBaseForces(Section $section, ReportContext $context): void
     {
-        $table = $context->getResultTable(ResultTableTypeEnum::BASE_FORCES);
+        $table = $context->getResultTable(ResultTableTypeEnum::BASE_PILLAR_FORCES);
         if ($table === null || !$table->isEnabled()) {
             return;
         }
 
         $num = $this->nextTableNum();
-        $section->addText('Опорные реакции:', DocStyleRegistry::titleTableTextUnderline(), DocStyleRegistry::paragraphIndent());
+        $section->addText('Расчетные нагрузки, возникающие в уровне заделки стойки:', DocStyleRegistry::titleTableTextUnderline(), DocStyleRegistry::paragraphIndent());
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
-        $w   = [400, 2800, 1600, 1600, 1600];
+        $w   = [400, 3600, 2000, 2000, 2000];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
         $this->addRow($tbl, $w, ['№', 'Тип нагрузки', 'N, тс', 'Q, тс', 'М, тс·м'], true);

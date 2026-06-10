@@ -8,5 +8,5 @@ use PhpOffice\PhpWord\Element\Section;
 
 interface SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void;
+    public function build(Section $section, ReportContext $context, int &$tableNum): void;
 }

@@ -11,5 +11,5 @@ use PhpOffice\PhpWord\Element\Section;
 /** Приложение «Список оборудования» — только заголовок. */
 final class EquipmentListAppendix implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void {}
+    public function build(Section $section, ReportContext $context, int &$tableNum): void {}
 }

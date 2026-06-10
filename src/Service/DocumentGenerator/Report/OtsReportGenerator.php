@@ -121,100 +121,101 @@ final readonly class OtsReportGenerator
 
         $sectionNum = 0;
         $appendixNum = 0;
+        $tableNum = 0;
 
         // ── Разделы ───────────────────────────────────────────────────────────
         $this->addSection($mainSection, $sectionNum, 'ОБЩИЕ ДАННЫЕ');
-        (new GeneralDataSection())->build($mainSection, $context);
+        (new GeneralDataSection())->build($mainSection, $context, $tableNum);
 
         $this->addSection($mainSection, $sectionNum, 'ЦЕЛЬ ПРОВЕДЕНИЯ РАСЧЁТА И ОБСЛЕДОВАНИЯ');
-        (new PurposeSection())->build($mainSection, $context);
+        (new PurposeSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ПРЕДОСТАВЛЕННАЯ ДОКУМЕНТАЦИЯ');
-        (new DocumentationSection())->build($mainSection, $context);
+        (new DocumentationSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ГЕОГРАФИЧЕСКИЕ ПАРАМЕТРЫ И КЛИМАТИЧЕСКИЕ УСЛОВИЯ РАСПОЛОЖЕНИЯ СООРУЖЕНИЯ');
-        (new ClimateSection())->build($mainSection, $context);
+        (new ClimateSection())->build($mainSection, $context, $tableNum);
 
         $this->addSection($mainSection, $sectionNum, 'ХАРАКТЕРИСТИКИ МАТЕРИАЛА КОНСТРУКЦИЙ');
-        (new MaterialSection())->build($mainSection, $context);
+        (new MaterialSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'КОНСТРУКТИВНОЕ РЕШЕНИЕ СООРУЖЕНИЯ');
-        (new StructuralSection())->build($mainSection, $context);
+        (new StructuralSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'СХЕМА ОПОРЫ');
-        (new PillarSchemeSection())->build($mainSection, $context);
+        (new PillarSchemeSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ГОРИЗОНТАЛЬНЫЕ НАГРУЗКИ');
-        $this->windLoadsSection->build($mainSection, $context);
+        $this->windLoadsSection->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ВЕРТИКАЛЬНЫЕ НАГРУЗКИ');
-        (new VerticalLoadsSection())->build($mainSection, $context);
+        (new VerticalLoadsSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ОСНОВНЫЕ РАСЧЁТНЫЕ ПОЛОЖЕНИЯ');
-        (new CalculationBasisSection())->build($mainSection, $context);
+        (new CalculationBasisSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
-        (new ProgramCalculationSection())->build($mainSection, $context);
+        (new ProgramCalculationSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'РЕЗУЛЬТАТЫ РАСЧЁТА И ВЫВОДЫ');
-        (new CalculationResultsSection())->build($mainSection, $context);
+        (new CalculationResultsSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ЗАКЛЮЧЕНИЕ');
-        (new ConclusionSection())->build($mainSection, $context);
+        (new ConclusionSection())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         // ── Приложения ────────────────────────────────────────────────────────
         $this->addAppendix($mainSection, $appendixNum, 'ВЕДОМОСТЬ ССЫЛОЧНЫХ ДОКУМЕНТОВ');
-        (new ReferenceDocumentsAppendix())->build($mainSection, $context);
+        (new ReferenceDocumentsAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'КЛАССИФИКАЦИЯ ТЕРМИНОВ');
-        (new TermsClassificationAppendix())->build($mainSection, $context);
+        (new TermsClassificationAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'КЛАССИФИКАЦИЯ УСЛОВНЫХ ОБОЗНАЧЕНИЙ');
-        (new SymbolsClassificationAppendix())->build($mainSection, $context);
+        (new SymbolsClassificationAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
-        (new InspectionProgramAppendix())->build($mainSection, $context);
+        (new InspectionProgramAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'СЕРТИФИКАТЫ');
-        $this->certificatesAppendix->build($mainSection, $context);
+        $this->certificatesAppendix->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'ВЫПИСКА ИЗ РЕЕСТРА ЧЛЕНОВ СРО');
-        $this->sroExcerptAppendix->build($mainSection, $context);
+        $this->sroExcerptAppendix->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'УВЕДОМЛЕНИЕ НОПРИЗ');
-        $this->noprizNotificationAppendix->build($mainSection, $context);
+        $this->noprizNotificationAppendix->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addAppendix($mainSection, $appendixNum, 'СПИСОК ОБОРУДОВАНИЯ');
-        (new EquipmentListAppendix())->build($mainSection, $context);
+        (new EquipmentListAppendix())->build($mainSection, $context, $tableNum);
 
         if ($context->getCalculationImagesByType(CalculationImage::TYPE_EQUIPMENT_LIST) !== []) {
             $mainSection->addPageBreak();
             $this->addAppendix($mainSection, $appendixNum, 'ПЕРЕЧЕНЬ ОБОРУДОВАНИЯ НА ОПОРЕ');
-            (new EquipmentOnPillarAppendix())->build($mainSection, $context);
+            (new EquipmentOnPillarAppendix())->build($mainSection, $context, $tableNum);
         }
 
         if ($context->getCalculationImagesByType(CalculationImage::TYPE_FOUNDATION_CALC) !== []) {
             $mainSection->addPageBreak();
             $this->addAppendix($mainSection, $appendixNum, 'РАСЧЁТ ФУНДАМЕНТА ОПОРЫ');
-            (new FoundationCalcAppendix())->build($mainSection, $context);
+            (new FoundationCalcAppendix())->build($mainSection, $context, $tableNum);
         }
 
         // ── Сохранение ────────────────────────────────────────────────────────

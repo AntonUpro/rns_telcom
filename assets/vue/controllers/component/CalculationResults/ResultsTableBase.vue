@@ -85,11 +85,11 @@ const isExceeded = (v) => v !== null && v !== undefined && Number(v) > 1;
                     </tr>
                     <tr>
                         <!-- Устойчивость -->
-                        <th class="col-val">Q,<br>тс</th>
+                        <th class="col-val col-comp">Q,<br>тс</th>
                         <th class="col-val col-comp">Q<sub>u</sub>,<br>тс</th>
                         <!-- Деформации -->
                         <th class="col-val col-comp">β,<br>рад.</th>
-                        <th class="col-val">β<sub>u</sub>,<br>рад.</th>
+                        <th class="col-val col-comp">β<sub>u</sub>,<br>рад.</th>
                         <!-- Кисп -->
                         <th class="col-val col-comp">На устойчивость<br>стойки в грунте</th>
                         <th class="col-val col-comp">По<br>деформациям</th>
@@ -100,27 +100,41 @@ const isExceeded = (v) => v !== null && v !== undefined && Number(v) > 1;
                         <td class="td-center">{{ idx + 1 }}</td>
 
                         <!-- Q — ввод -->
-                        <td>
+                        <td class="td-computed">
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
                                 :value="row.q"
-                                @input="updateCell(idx, 'q', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'q', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>
 
                         <!-- Qu — вычисл. -->
-                        <td class="td-computed">{{ fmt(row.qU) }}</td>
+                        <td class="td-computed">
+                            <input
+                                type="number" step="0.001" class="rt-input rt-input--sm"
+                                :value="row.qU"
+                                @change="updateCell(idx, 'qU', $event.target.valueAsNumber)"
+                                placeholder="0.000"
+                            />
+                        </td>
 
                         <!-- β — вычисл. -->
-                        <td class="td-computed">{{ fmt(row.beta, 4) }}</td>
+                        <td class="td-computed">
+                            <input
+                                type="number" step="0.001" class="rt-input rt-input--sm"
+                                :value="row.beta"
+                                @change="updateCell(idx, 'beta', $event.target.valueAsNumber)"
+                                placeholder="0.000"
+                            />
+                        </td>
 
                         <!-- βu — ввод -->
-                        <td>
+                        <td class="td-computed">
                             <input
                                 type="number" step="0.001" class="rt-input rt-input--sm"
                                 :value="row.betaU"
-                                @input="updateCell(idx, 'betaU', $event.target.valueAsNumber)"
+                                @change="updateCell(idx, 'betaU', $event.target.valueAsNumber)"
                                 placeholder="0.000"
                             />
                         </td>

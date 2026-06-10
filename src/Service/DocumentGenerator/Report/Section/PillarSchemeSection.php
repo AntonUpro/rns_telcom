@@ -20,7 +20,7 @@ final class PillarSchemeSection implements SectionBuilderInterface
 {
     const FILEPATh = 'Схема опоры';
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $file = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
 

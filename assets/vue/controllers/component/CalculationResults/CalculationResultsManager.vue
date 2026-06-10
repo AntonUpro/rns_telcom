@@ -86,7 +86,7 @@ const makeFoundationRow = () => ({
     q: null,                 // расч. попер. сила — ввод
     qU: null,                // предельная сила — computed
     beta: null,              // расч. угловое смещение — computed
-    betaU: null,             // доп. смещение — ввод
+    betaU: 0.02,             // доп. смещение — ввод
     kUseStability: null,     // computed
     kUseDeformation: null,   // computed
 });

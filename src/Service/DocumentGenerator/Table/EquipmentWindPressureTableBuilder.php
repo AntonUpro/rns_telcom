@@ -48,7 +48,7 @@ final class EquipmentWindPressureTableBuilder
     /**
      * @param array<string, array<string, EquipmentCalculationResult[]>> $data
      */
-    public function build(Section $section, array $data): void
+    public function build(Section $section, array $data, int &$tableNum): void
     {
         $section->addText(
             'Состав оборудования принят в соответствии с предоставленной документацией и результатами натурного обследования:',
@@ -57,8 +57,9 @@ final class EquipmentWindPressureTableBuilder
         );
         $section->addTextBreak(1);
 
+        $tableNum++;
         $section->addText(
-            'Таблица 3',
+            'Таблица ' . $tableNum,
             DocStyleRegistry::normalText(),
             DocStyleRegistry::paragraphRight(),
         );
@@ -180,10 +181,11 @@ final class EquipmentWindPressureTableBuilder
     /**
      * @param EquipmentSummaryResult[] $summaryData
      */
-    public function buildSummaryTable(Section $section, array $summaryData): void
+    public function buildSummaryTable(Section $section, array $summaryData, int &$tableNum): void
     {
         $section->addTextBreak(1);
-        $section->addText('Таблица 4', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
+        $tableNum++;
+        $section->addText('Таблица ' . $tableNum, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $table = $section->addTable(DocStyleRegistry::tableStyle());
 

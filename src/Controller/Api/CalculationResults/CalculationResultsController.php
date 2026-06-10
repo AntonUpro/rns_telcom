@@ -7,7 +7,6 @@ namespace App\Controller\Api\CalculationResults;
 use App\Controller\Api\AbstractApiController;
 use App\Enum\Gauge\GaugeProfileTypeEnum;
 use App\Enum\Pillar\ElementTypeEnum;
-use App\Enum\Pillar\PillarEnum;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\CalculationResult\CalculationResultCalculatorService;
 use App\Service\Calculation\CalculationResult\CalculationResultService;

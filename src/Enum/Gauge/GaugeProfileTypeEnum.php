@@ -33,6 +33,20 @@ enum GaugeProfileTypeEnum: string
         };
     }
 
+    public function icon(): string
+    {
+        return match($this) {
+            self::ANGLE_EQUAL   => '└',
+            self::ANGLE_UNEQUAL => '└',
+            self::CHANNEL       => '[',
+            self::I_BEAM        => 'ɪ',
+            self::PIPE_ROUND    => '○',
+            self::PIPE_SQUARE   => '□',
+            self::CIRCLE        => '●',
+            self::SHEET         => '|',
+        };
+    }
+
     /** Возвращает массив ['Наименование' => 'КОД'] для Symfony Form ChoiceType. */
     public static function choices(): array
     {

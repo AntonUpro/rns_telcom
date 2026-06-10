@@ -32,7 +32,7 @@ final class TermsClassificationAppendix implements SectionBuilderInterface
         'Усиление' => 'комплекс мероприятий, обеспечивающих повышение несущей способности и эксплуатационных свойств строительной конструкции или здания и сооружения в целом по сравнению с фактическим состоянием или проектными показателями.',
     ];
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $bodyBold = DocStyleRegistry::bodyTextBold();
         $body     = DocStyleRegistry::bodyText();

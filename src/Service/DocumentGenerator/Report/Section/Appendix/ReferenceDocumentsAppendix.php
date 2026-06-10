@@ -37,7 +37,7 @@ final class ReferenceDocumentsAppendix implements SectionBuilderInterface
         ['',                    'Техническая документация на оборудование сотовой связи'],
     ];
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $italic = DocStyleRegistry::normalText();
         $body   = DocStyleRegistry::bodyText();

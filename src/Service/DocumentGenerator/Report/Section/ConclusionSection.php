@@ -15,7 +15,7 @@ use PhpOffice\PhpWord\Element\Section;
  */
 final class ConclusionSection implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $height  = $context->getHeightM();
         $address = $context->getAddress();

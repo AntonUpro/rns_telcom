@@ -75,12 +75,13 @@ final class PlatformSectionsTableBuilder
         'P, кг',
     ];
 
-    public function build(Section $section, TotalPillarPlatformCalculationDto $data): void
+    public function build(Section $section, TotalPillarPlatformCalculationDto $data, int &$tableNum): void
     {
         $section->addText('Площадка и подкосы:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndent());
 
+        $tableNum++;
         $section->addText(
-            'Таблица 2',
+            'Таблица ' . $tableNum,
             DocStyleRegistry::normalText(),
             DocStyleRegistry::paragraphRight(),
         );

@@ -14,7 +14,7 @@ use PhpOffice\PhpWord\SimpleType\Jc;
 /** Приложение «Расчёт фундамента опоры» — изображения из calculation_images. */
 final class FoundationCalcAppendix implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $images = $context->getCalculationImagesByType(CalculationImage::TYPE_FOUNDATION_CALC);
 

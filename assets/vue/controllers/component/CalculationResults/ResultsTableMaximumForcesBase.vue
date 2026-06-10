@@ -165,7 +165,7 @@ const fmt = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(3) : '—
 .rt-table tbody tr:hover { background: #f8f9fa; }
 .col-n    { width: 30px; }
 .col-type { min-width: 260px; }
-.col-val  { width: 100px; text-align: center; }
+.col-val  { width: 150px; text-align: center; }
 .col-del  { width: 32px; }
 .td-center { text-align: center; }
 .td-empty {

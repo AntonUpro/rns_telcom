@@ -17,7 +17,7 @@ use PhpOffice\PhpWord\SimpleType\Jc;
  */
 final class ProgramCalculationSection implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $body  = DocStyleRegistry::bodyText();
         $left  = DocStyleRegistry::paragraphLeft();

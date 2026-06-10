@@ -15,7 +15,7 @@ use PhpOffice\PhpWord\Element\Section;
  */
 final class StructuralSection implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $data = $context->getData();
         $height = $context->getHeightM();

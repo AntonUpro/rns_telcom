@@ -14,7 +14,7 @@ use PhpOffice\PhpWord\Element\Section;
  */
 final class MaterialSection implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $body = DocStyleRegistry::bodyText();
         $para = DocStyleRegistry::paragraphLeft();

@@ -55,12 +55,13 @@ final class PillarSectionsTableBuilder
         'Лестница',
     ];
 
-    public function build(Section $section, SectionCollectionDto $data): void
+    public function build(Section $section, SectionCollectionDto $data, int &$tableNum): void
     {
         $section->addText('Ветровое давление на ствол опоры и коммуникации:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndent());
 
+        $tableNum++;
         $section->addText(
-            'Таблица 1',
+            'Таблица ' . $tableNum,
             DocStyleRegistry::normalText(),
             DocStyleRegistry::paragraphRight(),
         );

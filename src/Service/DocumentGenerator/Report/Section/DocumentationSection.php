@@ -15,7 +15,7 @@ use PhpOffice\PhpWord\Style\ListItem;
  */
 final class DocumentationSection implements SectionBuilderInterface
 {
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $body = DocStyleRegistry::bodyText();
         $para = DocStyleRegistry::paragraphIndent();

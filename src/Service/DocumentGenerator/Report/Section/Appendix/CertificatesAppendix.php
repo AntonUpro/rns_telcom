@@ -21,7 +21,7 @@ final class CertificatesAppendix implements SectionBuilderInterface
     ) {
     }
 
-    public function build(Section $section, ReportContext $context): void
+    public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $images = $context->getAppendixImages(AppendixTypeEnum::CERTIFICATES);
 
