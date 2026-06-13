@@ -10,24 +10,31 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 class UserCrudController extends AbstractCrudController
 {
+    private const UPLOAD_DIR = 'var/uploads/signatures';
+    private const BASE_PATH  = '/uploads/signatures';
+
     public function __construct(
         private readonly UserPasswordHasherInterface $passwordHasher,
+        #[Autowire('%kernel.project_dir%')]
+        private readonly string $projectDir,
     ) {
     }
 
@@ -79,8 +86,14 @@ class UserCrudController extends AbstractCrudController
 
         yield IdField::new('id')->hideOnForm();
         yield EmailField::new('email', 'Email');
-        yield TextField::new('firstName', 'Имя');
         yield TextField::new('lastName', 'Фамилия');
+        yield TextField::new('firstName', 'Имя');
+        yield TextField::new('patronymic', 'Отчество')->setRequired(false);
+        yield ImageField::new('signatureFileName', 'Подпись')
+            ->setBasePath(self::BASE_PATH)
+            ->setUploadDir(self::UPLOAD_DIR)
+            ->setUploadedFileNamePattern('[ulid].[ext]')
+            ->setRequired(false);
         yield ChoiceField::new('roles', 'Роли')
             ->setChoices([
                 'Администратор' => 'ROLE_ADMIN',
@@ -89,7 +102,7 @@ class UserCrudController extends AbstractCrudController
             ->allowMultipleChoices()
             ->renderExpanded(false);
         yield BooleanField::new('isActive', 'Активен');
-        yield $password;
+//        yield $password;
         yield IntegerField::new('calculations', 'Расчётов')
             ->hideOnForm()
             ->formatValue(fn($v, $entity) => $entity instanceof User ? $entity->getCalculations()->count() : 0);
@@ -98,16 +111,27 @@ class UserCrudController extends AbstractCrudController
             ->setFormat('dd.MM.yyyy HH:mm');
     }
 
-    public function persistEntity(\Doctrine\ORM\EntityManagerInterface $entityManager, $entityInstance): void
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->setEncodedPassword($entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
     }
 
-    public function updateEntity(\Doctrine\ORM\EntityManagerInterface $entityManager, $entityInstance): void
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         $this->setEncodedPassword($entityInstance);
+
+        $originalData = $entityManager->getUnitOfWork()->getOriginalEntityData($entityInstance);
+        $oldSignature = $originalData['signatureFileName'] ?? null;
+
         parent::updateEntity($entityManager, $entityInstance);
+
+        if ($oldSignature !== null && $oldSignature !== $entityInstance->getSignatureFileName()) {
+            $path = $this->projectDir . '/' . self::UPLOAD_DIR . '/' . $oldSignature;
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
     }
 
     private function setEncodedPassword(User $user): void

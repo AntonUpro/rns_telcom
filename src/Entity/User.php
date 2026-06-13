@@ -58,6 +58,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isActive = true;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $patronymic = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $signatureFileName = null;
+
     #[ORM\OneToMany(targetEntity: Calculation::class, mappedBy: 'user')]
     private Collection $calculations;
 
@@ -177,9 +183,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->getFullName() . ' (' . $this->email . ')';
     }
 
+    public function getPatronymic(): ?string
+    {
+        return $this->patronymic;
+    }
+
+    public function setPatronymic(?string $patronymic): static
+    {
+        $this->patronymic = $patronymic;
+
+        return $this;
+    }
+
+    public function getSignatureFileName(): ?string
+    {
+        return $this->signatureFileName;
+    }
+
+    public function setSignatureFileName(?string $signatureFileName): static
+    {
+        $this->signatureFileName = $signatureFileName;
+
+        return $this;
+    }
+
+    /** Возвращает имя в формате «Фамилия И.О.» */
+    public function getShortName(): string
+    {
+        $parts = [$this->lastName ?? ''];
+        if ($this->firstName) {
+            $parts[] = mb_substr($this->firstName, 0, 1) . '.';
+        }
+        if ($this->patronymic) {
+            $parts[] = mb_substr($this->patronymic, 0, 1) . '.';
+        }
+        return implode(' ', array_filter($parts));
+    }
+
     public function getPosition(): ?string
     {
-        return $this->position;
+        return $this->position ?? null;
     }
 
     public function setPosition(string $position): static
@@ -191,7 +234,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getDepartment(): ?string
     {
-        return $this->department;
+        return $this->department ?? null;
     }
 
     public function setDepartment(string $department): static

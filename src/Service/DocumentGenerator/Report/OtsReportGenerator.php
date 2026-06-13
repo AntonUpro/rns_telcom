@@ -98,12 +98,25 @@ final readonly class OtsReportGenerator
             throw new NotFoundException(sprintf('Расчёт #%d не найден', $calculationId));
         }
 
+        $chiefSignaturePath = $this->projectDir . '/static_image/sign_seal_DA.png';
+
+        $engineer = $calculation->getUser();
+        $engineerSignaturePath = null;
+        if ($engineer?->getSignatureFileName() !== null) {
+            $engineerSignaturePath = $this->projectDir . '/var/uploads/signatures/' . $engineer->getSignatureFileName();
+            if (!file_exists($engineerSignaturePath)) {
+                $engineerSignaturePath = null;
+            }
+        }
+
         $context = new ReportContext(
             calculation: $calculation,
             documents: $this->documentRepository->findByCalculation($calculationId),
             resultTables: $this->resultTableRepository->findAllByCalculationIndexed($calculation),
             calculationImages: $this->imageRepository->findByCalculation($calculationId),
             appendixImages: $this->appendixImageRepository->findAllGroupedByType(),
+            chiefEngineerSignaturePath: file_exists($chiefSignaturePath) ? $chiefSignaturePath : null,
+            engineerSignaturePath: $engineerSignaturePath,
         );
 
         $phpWord = $this->createDocument();

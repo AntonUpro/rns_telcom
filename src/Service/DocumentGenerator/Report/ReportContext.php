@@ -20,6 +20,9 @@ final class ReportContext
      * @param array<string, CalculationResultTable> $resultTables keyed by ResultTableTypeEnum::value
      * @param CalculationImage[] $calculationImages
      * @param array<string, AppendixStaticImage[]> $appendixImages keyed by AppendixTypeEnum::value
+     * @param string|null $chiefEngineerSignaturePath абсолютный путь к файлу подписи ГИП
+     * @param string|null $engineerSignaturePath абсолютный путь к файлу подписи инженера-проектировщика
+     * @param string|null $engineerShortName имя инженера в формате «Фамилия И.О.»
      */
     public function __construct(
         public readonly Calculation $calculation,
@@ -27,6 +30,8 @@ final class ReportContext
         public readonly array $resultTables,
         public readonly array $calculationImages,
         public readonly array $appendixImages = [],
+        public readonly ?string $chiefEngineerSignaturePath = null,
+        public readonly ?string $engineerSignaturePath = null,
     ) {
     }
 
