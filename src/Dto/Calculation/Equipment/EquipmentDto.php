@@ -23,7 +23,7 @@ final readonly class EquipmentDto
         public int $heightGroup,
 
         #[Assert\NotBlank(message: 'Необходимо указать количество оборудования')]
-        #[Assert\Range(min: 1, max: 300, minMessage: 'Минимальное колчество оборудования 1')]
+        #[Assert\Range(min: 1, max: 300, notInRangeMessage: 'Количество оборудования должно быть от {{ min }} до {{ max }}')]
         public int $quantity,
 
         public ?string $operator = null,
