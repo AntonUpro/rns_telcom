@@ -46,14 +46,8 @@ class RegistrationFormType extends AbstractType
                     'class' => 'form-control'
                 ],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Введите пароль',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Пароль должен быть минимум {{ limit }} символов',
-                        'max' => 4096,
-                    ]),
+                    new NotBlank(message: 'Введите пароль'),
+                    new Length(min: 6, minMessage: 'Пароль должен быть минимум {{ limit }} символов', max: 4096),
                 ],
             ]);
     }

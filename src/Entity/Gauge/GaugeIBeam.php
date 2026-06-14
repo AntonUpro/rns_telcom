@@ -25,7 +25,7 @@ class GaugeIBeam
 {
     #[ORM\Id]
     #[ORM\OneToOne(targetEntity: GaugeProfile::class, cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(name: 'profile_id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'profile_id', referencedColumnName: 'id')]
     private GaugeProfile $profile;
 
     // -------------------------------------------------------------------------
