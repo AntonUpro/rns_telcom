@@ -19,62 +19,64 @@ final class ConclusionSection implements SectionBuilderInterface
 {
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
-        $height  = $context->getHeightM();
+        $height = $context->getHeightM();
         $address = $context->getAddress();
-        $body    = DocStyleRegistry::bodyText();
-        $para    = DocStyleRegistry::paragraphIndent();
-        $left    = DocStyleRegistry::paragraphLeft();
+        $body = DocStyleRegistry::bodyText();
+        $para = DocStyleRegistry::paragraphIndent();
 
-        $pillarKuse      = $context->getPillarForcesMaxKuse();
-        $structureFails  = $pillarKuse !== null && $pillarKuse > 1.0;
+        $constructKuse = $context->getMaxK();
+        $structureFails = $constructKuse !== null && $constructKuse > 1.0;
         $deformationFails = ($k = $context->getDeformationMaxKuse()) !== null && $k > 1.0;
 
-        $structureVerdict  = $structureFails ? 'не соответствует' : 'соответствует';
+        $structureVerdict = $structureFails ? 'не соответствует' : 'соответствует';
         $deformationVerdict = $deformationFails ? 'не соответствует' : 'соответствует';
 
-        $section->addText(
+        $textRun = $section->addTextRun($para);
+        $textRun->addText(
             sprintf(
-                'Поверочный расчёт конструкций опоры Н=%s м, расположенной по адресу: %s, '
-                . 'показал, что несущая способность конструкций опоры при воздействии расчётных '
-                . 'нагрузок %s требованиям нормативной документации.',
+                'В результате проведения поверки расчёта конструкций опоры Н=%s м, '
+                . 'расположенной по адресу: %s, показал, что несущая способность конструкций опоры при воздействии расчётных нагрузок ',
                 $height,
                 $address,
-                $structureVerdict,
             ),
             $body,
-            $para,
         );
+        $textRun->addText(
+            $structureVerdict, $structureFails
+            ? DocStyleRegistry::titleTableTextUnderlineBold()
+            : DocStyleRegistry::titleTableTextUnderline()
+        );
+        $textRun->addText(' требованиям нормативной документации. Деформации конструкций ствола опоры при воздействии нормативных нагрузок ', $body);
+        $textRun->addText(
+            $deformationVerdict, $deformationFails
+            ? DocStyleRegistry::titleTableTextUnderlineBold()
+            : DocStyleRegistry::titleTableTextUnderline()
+        );
+        $textRun->addText(' требованиям нормативной документации.', $body);
+
         $section->addTextBreak(1);
 
-        $section->addText(
-            sprintf(
-                'Деформации конструкций ствола опоры при воздействии нормативных нагрузок '
-                . '%s требованиям нормативной документации.',
-                $deformationVerdict,
-            ),
-            $body,
-            $para,
-        );
-        $section->addTextBreak(1);
 
         if ($structureFails || $deformationFails) {
-            $section->addText(
-                'Для обеспечения нормативных требований необходимо выполнить усиление конструкций опоры. '
-                . 'Метод и объём усиления определить проектом, разработанным специализированной организацией, '
-                . 'имеющей соответствующее свидетельство СРО.',
-                $body,
-                $para,
-            );
+            $resultTableTypes = $context->getNegativeCalculations();
+
+            $textRunModern = $section->addTextRun($para);
+            $textRunModern->addText('Модернизация антенно-фидерного оборудования ', $body);
+            $textRunModern->addText('не допускается', DocStyleRegistry::titleTableTextUnderlineBold());
+            $textRunModern->addText(' без проведения компенсирующих мероприятий.', $body);
+            $textRunModern->addText(' Метод и объем усиления определить проектом на усиление, разработанным специализированной организацией, имеющей соответствующую Лицензию:', $body);
+            foreach ($resultTableTypes as $type) {
+                $section->addText('– ' . $type->constructFormulation() . ';', $body, $para);
+            }
         } else {
             $section->addText(
-                'Конструкции опоры соответствуют требованиям нормативной документации. '
-                . 'Установка оборудования допускается без усиления конструкций опоры.',
+                'Модернизация антенно-фидерного оборудования допускается без проведения компенсирующих мероприятий.',
                 $body,
                 $para,
             );
         }
 
-        $section->addTextBreak(1);
+        $section->addTextBreak(2);
 
         $this->buildSignatureBlock($section, $context);
     }
@@ -82,8 +84,8 @@ final class ConclusionSection implements SectionBuilderInterface
     private function buildSignatureBlock(Section $section, ReportContext $context): void
     {
         $fStyle = [
-            'size'  => 12,
-            'name'  => 'Times New Roman',
+            'size' => 12,
+            'name' => 'Times New Roman',
             'italic' => true,
         ];
         $cellStyle = ['valign' => 'center'];
@@ -97,10 +99,10 @@ final class ConclusionSection implements SectionBuilderInterface
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);
         if ($context->chiefEngineerSignaturePath !== null) {
             $c2->addImage($context->chiefEngineerSignaturePath, [
-                'width'         => Converter::cmToPoint(3),
-                'height'        => Converter::cmToPoint(1.5),
+                'width' => Converter::cmToPoint(3),
+                'height' => Converter::cmToPoint(1.5),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
         $c3 = $table->addCell(Converter::cmToTwip(5.5), $cellStyle);
@@ -113,10 +115,10 @@ final class ConclusionSection implements SectionBuilderInterface
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);
         if ($context->engineerSignaturePath !== null) {
             $c2->addImage($context->engineerSignaturePath, [
-                'width'         => Converter::cmToPoint(3),
-                'height'        => Converter::cmToPoint(1.5),
+                'width' => Converter::cmToPoint(3),
+                'height' => Converter::cmToPoint(1.5),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
         $c3 = $table->addCell(Converter::cmToTwip(5.5), $cellStyle);

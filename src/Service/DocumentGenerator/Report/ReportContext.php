@@ -133,4 +133,85 @@ final class ReportContext
         }
         return $max;
     }
+
+    public function getPlatformForcesMaxKuse(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::PLATFORM_FORCES);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+
+        return $this->getMaxKUse($table->getRows());
+    }
+
+    public function getSuperstructureStressMaxKuse(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::SUPERSTRUCTURE_STRESS);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+
+        return $this->getMaxKUse($table->getRows());
+    }
+
+    public function getBraceStressMaxKuse(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::BRACE_STRESS);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+
+        return $this->getMaxKUse($table->getRows());
+    }
+
+    public function getMaxK(): ?float
+    {
+        $ks = [
+            ResultTableTypeEnum::PILLAR_FORCES->value => $this->getPillarForcesMaxKuse(),
+            ResultTableTypeEnum::PLATFORM_FORCES->value => $this->getPlatformForcesMaxKuse(),
+            ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $this->getSuperstructureStressMaxKuse(),
+            ResultTableTypeEnum::BRACE_STRESS->value => $this->getBraceStressMaxKuse(),
+        ];
+        $max = null;
+        foreach ($ks as $k) {
+            if ($k !== null && ($max === null || $k > $max)) {
+                $max = $k;
+            }
+        }
+
+        return $max;
+    }
+
+    /**
+     * @return ResultTableTypeEnum[]
+     */
+    public function getNegativeCalculations(): array
+    {
+        $ks = [
+            ResultTableTypeEnum::PILLAR_FORCES->value => $this->getPillarForcesMaxKuse(),
+            ResultTableTypeEnum::PLATFORM_FORCES->value => $this->getPlatformForcesMaxKuse(),
+            ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $this->getSuperstructureStressMaxKuse(),
+            ResultTableTypeEnum::BRACE_STRESS->value => $this->getBraceStressMaxKuse(),
+        ];
+
+        $response = [];
+        foreach ($ks as $typeCalculation => $calculation) {
+            if ($calculation !== null && $calculation >= 1.0) {
+                $response[] = ResultTableTypeEnum::from($typeCalculation);
+            }
+        }
+        return $response;
+    }
+
+    private function getMaxKUse(array $rows): ?float
+    {
+        $max = null;
+        foreach ($rows as $row) {
+            $k = isset($row['kUse']) ? (float)$row['kUse'] : null;
+            if ($k !== null && ($max === null || $k > $max)) {
+                $max = $k;
+            }
+        }
+        return $max;
+    }
 }

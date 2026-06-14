@@ -216,9 +216,6 @@ final readonly class OtsReportGenerator
         $this->noprizNotificationAppendix->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
-        $this->addAppendix($mainSection, $appendixNum, 'СПИСОК ОБОРУДОВАНИЯ');
-        (new EquipmentListAppendix())->build($mainSection, $context, $tableNum);
-
         if ($context->getCalculationImagesByType(CalculationImage::TYPE_EQUIPMENT_LIST) !== []) {
             $mainSection->addPageBreak();
             $this->addAppendix($mainSection, $appendixNum, 'ПЕРЕЧЕНЬ ОБОРУДОВАНИЯ НА ОПОРЕ');
