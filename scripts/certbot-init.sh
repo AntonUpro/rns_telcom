@@ -9,8 +9,8 @@ if [ ! -f .env.prod ]; then
     exit 1
 fi
 
-APP_DOMAIN=$(grep -E '^APP_DOMAIN=' .env.prod | cut -d= -f2 | tr -d '"'"'"')
-CERTBOT_EMAIL=$(grep -E '^CERTBOT_EMAIL=' .env.prod | cut -d= -f2 | tr -d '"'"'"')
+APP_DOMAIN=$(grep -E '^APP_DOMAIN=' .env.prod | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs)
+CERTBOT_EMAIL=$(grep -E '^CERTBOT_EMAIL=' .env.prod | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs)
 
 if [ -z "${APP_DOMAIN}" ] || [ -z "${CERTBOT_EMAIL}" ]; then
     echo "Ошибка: APP_DOMAIN и CERTBOT_EMAIL должны быть заполнены в .env.prod"
