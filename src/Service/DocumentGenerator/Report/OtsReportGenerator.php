@@ -14,7 +14,6 @@ use App\Repository\CalculationResultTableRepository;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Entity\CalculationImage;
 use App\Service\DocumentGenerator\Report\Section\Appendix\CertificatesAppendix;
-use App\Service\DocumentGenerator\Report\Section\Appendix\EquipmentListAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\EquipmentOnPillarAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\FoundationCalcAppendix;
 use App\Service\DocumentGenerator\Report\Section\Appendix\InspectionProgramAppendix;
