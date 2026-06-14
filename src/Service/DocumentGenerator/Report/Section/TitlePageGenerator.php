@@ -213,13 +213,20 @@ final class TitlePageGenerator
         $c2 = $table->addCell($colWidth, $cellStyle);
         $c2->addText($context->calculation?->getCalculationData()?->getObjectCode(), $fStyle);
 
-        $height = $context->calculation?->getCalculationData()?->getAmsHeight() ?? '—';
+        $heightAMS = $context->calculation?->getCalculationData()?->getAmsHeight() ?? '—';
+        $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? '—';
+        $textPillar = 'Столб ж/б';
+        if ((int)$heightAMS > (int)$heightPillar) {
+            $textPillar .= 'с металлической надстройкой';
+        }
+        $textPillar .= sprintf(', Н=%s м', $heightAMS);
+
         // --- Строка 4 (две высоты в одной ячейке) ---
         $table->addRow(Converter::cmToTwip(1));
         $c1 = $table->addCell($colWidth, $cellStyle);
         $c1->addText('Тип АМС и высота', $fStyle);
         $c2 = $table->addCell($colWidth, $cellStyle);
-        $c2->addText(sprintf('Столб ж/б с металлической надстройкой, Н=%s м', $height), $fStyle);
+        $c2->addText($textPillar, $fStyle);
 
         $section->addTextBreak(1);
 
@@ -233,7 +240,7 @@ final class TitlePageGenerator
         $c1 = $tableSign->addCell(Converter::cmToTwip(8), $cellStyle);
         $c1->addText('Главный инженер проекта', $fStyle);
         $c2 = $tableSign->addCell(Converter::cmToTwip(5.5), $cellStyle);
-        $c2->addImage($this->projectDir . '/static_image/sign_DA.png', [
+        $c2->addImage($this->projectDir . '/static_image/sign_seal_DA.png', [
             'width' => Converter::cmToPoint(4.5),
             'height' => Converter::cmToPoint(4),
             'wrappingStyle' => 'inline',

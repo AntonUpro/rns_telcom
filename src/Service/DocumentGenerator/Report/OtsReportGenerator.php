@@ -98,7 +98,7 @@ final readonly class OtsReportGenerator
             throw new NotFoundException(sprintf('Расчёт #%d не найден', $calculationId));
         }
 
-        $chiefSignaturePath = $this->projectDir . '/static_image/sign_seal_DA.png';
+        $chiefSignaturePath = $this->projectDir . '/static_image/sign_DA.png';
 
         $engineer = $calculation->getUser();
         $engineerSignaturePath = null;

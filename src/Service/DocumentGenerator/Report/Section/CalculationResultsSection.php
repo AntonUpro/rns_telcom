@@ -75,7 +75,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         if ($maxRow !== null) {
             $comply = ((float)($maxRow['kMax'] ?? 0)) <= 1.0;
 
-            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : [...DocStyleRegistry::titleTableTextUnderline(), ...['bold' => true]];
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
 
             $textRun = $section->addTextRun(DocStyleRegistry::paragraphIndent());
             $textRun->addText('Максимальное усилие в стволе опоры ', DocStyleRegistry::bodyText());
@@ -129,7 +129,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         if ($maxRow !== null) {
             $comply = ((float)($maxRow['kMax'] ?? 0)) <= 1.0;
 
-            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : [...DocStyleRegistry::titleTableTextUnderline(), ...['bold' => true]];
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
 
             $textRun = $section->addTextRun(DocStyleRegistry::paragraphIndent());
             $textRun->addText('Максимальное раскрытие трещин в стволе опоры ', DocStyleRegistry::bodyText());
@@ -196,19 +196,19 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $maxRow = $this->findMaxKRow($table, 'kUse');
         if ($maxRow !== null) {
             $comply = ((float)($maxRow['kUse'] ?? 0)) <= 1.0;
-            $section->addText(
-                sprintf(
-                    'Максимальное напряжение — %.0f Н/мм² при допустимом %.0f Н/мм², '
-                    . 'Кисп=%d%%, что %s требованиям %s;',
-                    (float)($maxRow['sigma'] ?? 0),
-                    (float)($maxRow['ry'] ?? 0),
-                    (int)round((float)($maxRow['kUse'] ?? 0) * 100),
-                    $comply ? 'удовлетворяет' : 'не удовлетворяет',
-                    $normRef,
-                ),
-                DocStyleRegistry::bodyText(),
-                DocStyleRegistry::paragraphIndent(),
-            );
+
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+            $text = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+
+            $text->addText('Максимальное ' . $description . ' составляет ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('%.0f Н/мм²', (float)($maxRow['sigma'] ?? 0)), $style);
+            $text->addText(' при допустимом ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('%.0f Н/мм²', (float)($maxRow['ry'] ?? 0)), DocStyleRegistry::titleTableTextUnderline());
+            $text->addText(', ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('Kисп=%.0f', (float)($maxRow['kUse'] ?? 0) * 100) . '%', $style);
+            $text->addText(', что ', DocStyleRegistry::bodyText());
+            $text->addText($comply ? 'удовлетворяет' : 'не удовлетворяет', $style);
+            $text->addText(' требованиям СП 16.13330.2017 «Стальные конструкции»;', DocStyleRegistry::bodyText());
         }
 
         $section->addTextBreak(1);
@@ -244,28 +244,28 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 (string)($i + 1),
                 $this->fmt($row['mark'] ?? null),
                 $this->fmt($row['displacement'] ?? null, 1),
-                $this->fmt($row['angleMax'] ?? null, 4),
-                $this->fmt($row['angleAllowable'] ?? null, 4),
-                $this->fmt($row['kUse'] ?? null, 3),
+                $this->fmt($row['angleMax'] ?? null, 2),
+                $this->fmt($row['angleAllowable'] ?? null, 2),
+                $this->fmt($row['kUse'] ?? null, 2),
             ]);
         }
 
         $maxRow = $this->findMaxKRow($table, 'kUse');
         if ($maxRow !== null) {
             $comply = ((float)($maxRow['kUse'] ?? 0)) <= 1.0;
-            $section->addText(
-                sprintf(
-                    'Максимальное перемещение верхней отметки опоры от нормативных ветровых нагрузок '
-                    . 'составляет %.0f мм, максимальный вертикальный угол отклонения %.3f°. '
-                    . 'Кисп=%d%%, что %s нормативным требованиям;',
-                    (float)($maxRow['displacement'] ?? 0),
-                    (float)($maxRow['angleMax'] ?? 0),
-                    (int)round((float)($maxRow['kUse'] ?? 0) * 100),
-                    $comply ? 'соответствует' : 'не соответствует',
-                ),
-                DocStyleRegistry::bodyText(),
-                DocStyleRegistry::paragraphIndent(),
-            );
+
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+
+            $text = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+            $text->addText('Максимальное перемещение верхней отметки опоры от нормативных ветровых нагрузок составляет ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('%.0f мм', (float)($maxRow['displacement'] ?? 0)), DocStyleRegistry::titleTableTextUnderline());
+            $text->addText(', максимальный вертикальный угол отклонения ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('%.2fº', (float)($maxRow['angleMax'] ?? 0)), $style);
+            $text->addText('. ', DocStyleRegistry::bodyText());
+
+            $text->addText('Деформации ствола опоры ', DocStyleRegistry::bodyText());
+            $text->addText($comply ? 'соответствуют' : 'не соответствуют', $style);
+            $text->addText(' требованиям нормативной документации.', DocStyleRegistry::bodyText());
         }
 
         $section->addTextBreak(1);
@@ -293,9 +293,9 @@ final class CalculationResultsSection implements SectionBuilderInterface
             $this->addRow($tbl, $w, [
                 (string)($i + 1),
                 (string)($row['loadType'] ?? '—'),
-                $this->fmt($row['n'] ?? null, 3),
-                $this->fmt($row['q'] ?? null, 3),
-                $this->fmt($row['m'] ?? null, 3),
+                $this->fmt($row['n'] ?? null, 1),
+                $this->fmt($row['q'] ?? null, 1),
+                $this->fmt($row['m'] ?? null, 1),
             ]);
         }
 
@@ -358,35 +358,38 @@ final class CalculationResultsSection implements SectionBuilderInterface
             $tbl->addCell($wKuse[1], $dc)->addText($this->fmt($row['kUseDeformation'] ?? null, 3), $c, $center);
         }
 
-        $section->addTextBreak(1);
-
         // Summary per row type
         foreach ($table->getRows() as $row) {
             $ks = $row['kUseStability'] ?? null;
             $kd = $row['kUseDeformation'] ?? null;
             if ($ks !== null) {
+                $textKs = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+
                 $comply = (float)$ks <= 1.0;
-                $section->addText(
-                    sprintf(
-                        'Расчёт на устойчивость стойки в грунте: Кисп=%.3f — %s требованиям;',
-                        (float)$ks,
-                        $comply ? 'соответствует' : 'не соответствует',
-                    ),
-                    DocStyleRegistry::bodyText(),
-                    DocStyleRegistry::paragraphLeft(),
-                );
+
+                $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+
+                $textKs->addText('Поперечная сила от действия расчетных нагрузок ', DocStyleRegistry::bodyText());
+                $textKs->addText(sprintf('Qmax=%.2f т', $row['q'],), DocStyleRegistry::titleTableTextUnderline());
+                $textKs->addText(', полученная в результате расчета опоры, ', DocStyleRegistry::bodyText());
+                $textKs->addText($comply ? 'превышает' : 'не превышает', $style);
+                $textKs->addText(' предельную горизонтальную силу ', DocStyleRegistry::bodyText());
+                $textKs->addText(sprintf('Q=%.2f т', $row['qU'],), DocStyleRegistry::titleTableTextUnderline());
+                $textKs->addText(', ', DocStyleRegistry::bodyText());
+                $textKs->addText(sprintf('Кисп=%.0f', $ks * 100) . '%.', $style);
             }
             if ($kd !== null) {
+                $textKd = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+
                 $comply = (float)$kd <= 1.0;
-                $section->addText(
-                    sprintf(
-                        'Расчёт по деформациям: Кисп=%.3f — %s требованиям.',
-                        (float)$kd,
-                        $comply ? 'соответствует' : 'не соответствует',
-                    ),
-                    DocStyleRegistry::bodyText(),
-                    DocStyleRegistry::paragraphLeft(),
-                );
+                $textKd->addText('Деформации опоры от действия нормативных нагрузок: ', DocStyleRegistry::bodyText());
+                $textKd->addText(sprintf('β= %.4f рад', $row['beta']), DocStyleRegistry::titleTableTextUnderline());
+                $textKd->addText(', ', DocStyleRegistry::bodyText());
+                $textKd->addText($comply ? 'превышают' : 'не превышают', $style);
+                $textKd->addText(' предельно допустимое значение ', DocStyleRegistry::bodyText());
+                $textKd->addText(sprintf('β= %.2f рад', $row['betaU']), DocStyleRegistry::titleTableTextUnderline());
+                $textKd->addText(', ', DocStyleRegistry::bodyText());
+                $textKd->addText(sprintf('Кисп=%.0f', $kd * 100) . '%.', $style);
             }
         }
 
@@ -444,8 +447,6 @@ final class CalculationResultsSection implements SectionBuilderInterface
             $tbl->addCell($w[0], $dc)->addText($label, $italic, $left);
             $tbl->addCell($w[1], $dc)->addText($value, $italic, $center);
         }
-
-        $section->addTextBreak(1);
     }
 
     // ─── Вспомогательные методы ───────────────────────────────────────────────

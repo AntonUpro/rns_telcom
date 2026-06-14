@@ -137,6 +137,11 @@ final class DocStyleRegistry
         return ['size' => 12, 'italic' => true, 'name' => 'Times New Roman', 'underline' => 'single', ];
     }
 
+    public static function titleTableTextUnderlineBold(): array
+    {
+        return ['size' => 12, 'italic' => true, 'name' => 'Times New Roman', 'underline' => 'single', 'bold' => true];
+    }
+
     public static function paragraphJustified(): array
     {
         return ['alignment' => Jc::BOTH, 'spaceAfter' => 0];

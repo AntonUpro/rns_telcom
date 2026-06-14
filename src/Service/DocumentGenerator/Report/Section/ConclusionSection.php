@@ -97,8 +97,8 @@ final class ConclusionSection implements SectionBuilderInterface
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);
         if ($context->chiefEngineerSignaturePath !== null) {
             $c2->addImage($context->chiefEngineerSignaturePath, [
-                'width'         => Converter::cmToPoint(4),
-                'height'        => Converter::cmToPoint(2),
+                'width'         => Converter::cmToPoint(3),
+                'height'        => Converter::cmToPoint(1.5),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);
@@ -113,8 +113,8 @@ final class ConclusionSection implements SectionBuilderInterface
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);
         if ($context->engineerSignaturePath !== null) {
             $c2->addImage($context->engineerSignaturePath, [
-                'width'         => Converter::cmToPoint(4),
-                'height'        => Converter::cmToPoint(2),
+                'width'         => Converter::cmToPoint(3),
+                'height'        => Converter::cmToPoint(1.5),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);
