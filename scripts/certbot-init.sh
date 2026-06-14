@@ -9,8 +9,8 @@ if [ ! -f .env.prod ]; then
     exit 1
 fi
 
-APP_DOMAIN=$(grep -E '^APP_DOMAIN=' .env.prod | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs)
-CERTBOT_EMAIL=$(grep -E '^CERTBOT_EMAIL=' .env.prod | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs)
+APP_DOMAIN=$(grep -E '^APP_DOMAIN=' .env.prod | cut -d= -f2- | sed 's/[[:space:]]*#.*//' | tr -d '"' | tr -d "'" | xargs)
+CERTBOT_EMAIL=$(grep -E '^CERTBOT_EMAIL=' .env.prod | cut -d= -f2- | sed 's/[[:space:]]*#.*//' | tr -d '"' | tr -d "'" | xargs)
 
 if [ -z "${APP_DOMAIN}" ] || [ -z "${CERTBOT_EMAIL}" ]; then
     echo "Ошибка: APP_DOMAIN и CERTBOT_EMAIL должны быть заполнены в .env.prod"
@@ -18,7 +18,7 @@ if [ -z "${APP_DOMAIN}" ] || [ -z "${CERTBOT_EMAIL}" ]; then
 fi
 
 echo "==> Запрос сертификата для ${APP_DOMAIN}"
-docker compose --env-file .env.prod -f docker-compose-prod.yaml run --rm certbot certonly \
+docker compose --env-file .env.prod -f docker-compose-prod.yaml run --rm --entrypoint certbot certbot certonly \
     --webroot \
     --webroot-path=/var/www/certbot \
     --email "${CERTBOT_EMAIL}" \
