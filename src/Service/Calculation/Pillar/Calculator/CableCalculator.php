@@ -37,15 +37,15 @@ final class CableCalculator
             }
 
             if ($equipment->getEquipmentType()->isRrl()) {
-                $rrlCount++;
+                $rrlCount += $equipment->getQuantity();
             }
 
             if ($equipment->getEquipmentType()->isRadio()) {
-                $radioCount++;
+                $radioCount += $equipment->getQuantity();
             }
 
             if ($equipment->getEquipmentType()->isOther()) {
-                $otherCount++;
+                $otherCount += $equipment->getQuantity();
             }
         }
 
