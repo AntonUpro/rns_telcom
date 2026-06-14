@@ -19,7 +19,7 @@ class AddEquipmentDto
         public string $model,
 
         #[Assert\NotBlank]
-        #[Assert\Choice(callback: [EquipmentTypeEnum::class, 'choices'])]
+        #[Assert\Choice(callback: EquipmentTypeEnum::class . '::choices')]
         public EquipmentTypeEnum $equipmentType,
 
         public bool $hasDiameter,

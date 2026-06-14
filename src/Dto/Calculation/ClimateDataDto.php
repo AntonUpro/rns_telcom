@@ -13,16 +13,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ClimateDataDto
 {
     public function __construct(
-        #[Assert\Choice(callback: [WindRegionEnum::class, 'values'])]
+        #[Assert\Choice(callback: WindRegionEnum::class . '::values')]
         public ?string $windRegion = null,
 
-        #[Assert\Choice(callback: [TerrainTypeEnum::class, 'values'])]
+        #[Assert\Choice(callback: TerrainTypeEnum::class . '::values')]
         public ?string $terrainType = null,
 
-        #[Assert\Choice(callback: [SnowRegionEnum::class, 'values'])]
+        #[Assert\Choice(callback: SnowRegionEnum::class . '::values')]
         public ?string $snowRegion = null,
 
-        #[Assert\Choice(callback: [IcingRegionEnum::class, 'values'])]
+        #[Assert\Choice(callback: IcingRegionEnum::class . '::values')]
         public ?string $iceRegion = null,
     ) {}
 
