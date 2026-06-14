@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Запускать один раз после того как DNS настроен и порт 80 открыт.
+# Использует standalone-режим certbot: сам поднимает HTTP-сервер на порту 80,
+# поэтому nginx останавливается на время выдачи сертификата.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -17,16 +19,21 @@ if [ -z "${APP_DOMAIN}" ] || [ -z "${CERTBOT_EMAIL}" ]; then
     exit 1
 fi
 
-echo "==> Запрос сертификата для ${APP_DOMAIN}"
-docker compose --env-file .env.prod -f docker-compose-prod.yaml run --rm --entrypoint certbot certbot certonly \
-    --webroot \
-    --webroot-path=/var/www/certbot \
+echo "==> [1/3] Остановка nginx (освобождаем порт 80)"
+docker compose --env-file .env.prod -f docker-compose-prod.yaml stop rns-telcom-nginx
+
+echo "==> [2/3] Запрос сертификата для ${APP_DOMAIN} (standalone)"
+docker compose --env-file .env.prod -f docker-compose-prod.yaml run --rm \
+    --publish "80:80" \
+    --entrypoint certbot \
+    certbot certonly \
+    --standalone \
     --email "${CERTBOT_EMAIL}" \
     --agree-tos \
     --no-eff-email \
     -d "${APP_DOMAIN}"
 
-echo "==> Перезагрузка nginx"
-docker compose --env-file .env.prod -f docker-compose-prod.yaml exec rns-telcom-nginx nginx -s reload
+echo "==> [3/3] Запуск nginx с SSL"
+docker compose --env-file .env.prod -f docker-compose-prod.yaml start rns-telcom-nginx
 
-echo "==> Сертификат получен. HTTPS работает."
+echo "==> Готово! Сертификат получен. HTTPS работает на https://${APP_DOMAIN}"
