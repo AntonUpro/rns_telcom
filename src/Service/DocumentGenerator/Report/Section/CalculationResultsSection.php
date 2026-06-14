@@ -372,7 +372,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $textKs->addText('Поперечная сила от действия расчетных нагрузок ', DocStyleRegistry::bodyText());
                 $textKs->addText(sprintf('Qmax=%.2f т', $row['q'],), DocStyleRegistry::titleTableTextUnderline());
                 $textKs->addText(', полученная в результате расчета опоры, ', DocStyleRegistry::bodyText());
-                $textKs->addText($comply ? 'превышает' : 'не превышает', $style);
+                $textKs->addText($comply ? 'не превышает' : 'превышает', $style);
                 $textKs->addText(' предельную горизонтальную силу ', DocStyleRegistry::bodyText());
                 $textKs->addText(sprintf('Q=%.2f т', $row['qU'],), DocStyleRegistry::titleTableTextUnderline());
                 $textKs->addText(', ', DocStyleRegistry::bodyText());
@@ -382,10 +382,13 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $textKd = $section->addTextRun(DocStyleRegistry::paragraphIndent());
 
                 $comply = (float)$kd <= 1.0;
+                $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+
+                $comply = (float)$kd <= 1.0;
                 $textKd->addText('Деформации опоры от действия нормативных нагрузок: ', DocStyleRegistry::bodyText());
                 $textKd->addText(sprintf('β= %.4f рад', $row['beta']), DocStyleRegistry::titleTableTextUnderline());
                 $textKd->addText(', ', DocStyleRegistry::bodyText());
-                $textKd->addText($comply ? 'превышают' : 'не превышают', $style);
+                $textKd->addText($comply ? 'не превышают' : 'превышают', $style);
                 $textKd->addText(' предельно допустимое значение ', DocStyleRegistry::bodyText());
                 $textKd->addText(sprintf('β= %.2f рад', $row['betaU']), DocStyleRegistry::titleTableTextUnderline());
                 $textKd->addText(', ', DocStyleRegistry::bodyText());
