@@ -69,7 +69,7 @@ class SavePlatformDataService
                 $requestSectionNumbers[] = 0;
                 $sectionEntity = $existPlatformSectionByNumber[0] ?? new PillarPlatformSection();
 
-                $pillarPlatformSection = $sectionEntity
+                $pillarPlatformSectionStrut = $sectionEntity
                     ->setPillarPlatform($pillarPlatform)
                     ->setTypeSection(PlatformSectionTypeEnum::STRUT->value)
                     ->setNumberSection(0)
@@ -78,10 +78,10 @@ class SavePlatformDataService
                     ->setWidthTop($platformData->strut->widthTop)
                     ->setMountHeightBottom($platformData->totalData->mountHeightStrut)
                     ->setMountHeightTop($platformData->totalData->mountHeightPlatform)
-                    ->setElements(array_map(fn(Element $element): array => $element->toArray(), $section->elements))
+                    ->setElements(array_map(fn(Element $element): array => $element->toArray(), $platformData->strut->elements))
                     ->setUpdatedAt(new DateTimeImmutable());
 
-                $this->entityManager->persist($pillarPlatformSection);
+                $this->entityManager->persist($pillarPlatformSectionStrut);
             }
 
             $mountHeightBottomSection = $platformData->totalData->mountHeightPlatform;

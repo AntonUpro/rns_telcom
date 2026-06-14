@@ -21,8 +21,8 @@
                 <div class="elements-header">
                     <span class="eh col-type">Тип элемента</span>
                     <span class="eh col-section-type">Тип сечения</span>
-                    <span class="eh col-width-el">Шир. сечения</span>
-                    <span class="eh col-length-el">Длина</span>
+                    <span class="eh col-width-el">Шир. сечения, мм</span>
+                    <span class="eh col-length-el">Длина, мм</span>
                     <span class="eh col-count-el">Кол-во</span>
                     <span class="eh eh-action"></span>
                 </div>
