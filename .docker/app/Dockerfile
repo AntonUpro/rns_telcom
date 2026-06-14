@@ -27,6 +27,5 @@ WORKDIR /var/www/rns_telcom
 COPY ./conf/prod.ini /usr/local/etc/php/conf.d/prod.ini
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN curl -sS https://get.symfony.com/cli/installer | bash
 
-USER root
+USER www-data

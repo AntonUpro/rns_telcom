@@ -26,8 +26,29 @@ ci:
 nm: ## phpUnit
 	docker exec -it rns-telcom-app npm run dev
 
-up-prod: ## initialize database and rabbitMq
-	docker compose -f docker-compose-prod.yaml up -d
+up-prod: ## Запустить prod окружение
+	docker compose --env-file .env.prod -f docker-compose-prod.yaml up -d
 
-down-prod: ## initialize database and rabbitMq
-	docker compose -f docker-compose-prod.yaml down --remove-orphans
+down-prod: ## Остановить prod окружение
+	docker compose --env-file .env.prod -f docker-compose-prod.yaml down --remove-orphans
+
+build-prod: ## Пересобрать prod образы
+	docker compose --env-file .env.prod -f docker-compose-prod.yaml build
+
+deploy: ## Полный деплой: pull + сборка + зависимости + миграции + кеш
+	bash scripts/deploy.sh
+
+exec-prod: ## Shell в prod app-контейнере
+	docker exec -it rns-telcom-app bash
+
+logs-prod: ## Логи prod (follow)
+	docker compose -f docker-compose-prod.yaml logs -f
+
+migrate-prod: ## Запустить миграции БД в проде
+	docker exec rns-telcom-app bin/console doctrine:migrations:migrate --no-interaction
+
+cache-prod: ## Прогрев Symfony кеша в проде
+	docker exec rns-telcom-app bin/console cache:warmup --env=prod
+
+certbot-init: ## Первичное получение SSL-сертификата (один раз)
+	bash scripts/certbot-init.sh
