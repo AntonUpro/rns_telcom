@@ -15,6 +15,7 @@ RUN apt-get update \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     # Устанавливаем Node.js и npm
     && apt-get install -y nodejs \
+    && npm install -g npm@11.17.0 \
     # Проверяем установку
     && node --version \
     && npm --version
