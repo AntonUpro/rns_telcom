@@ -39,7 +39,6 @@ final class TitlePageGenerator
         $this->buildCoverPage($section, $context);
         $section->addPageBreak();
         $this->buildTitlePage($section, $context);
-        $section->addPageBreak();
     }
 
     private function buildHeader(Section $section): void
@@ -241,7 +240,7 @@ final class TitlePageGenerator
         $c1->addText('Главный инженер проекта', $fStyle);
         $c2 = $tableSign->addCell(Converter::cmToTwip(5.5), $cellStyle);
         $c2->addImage($this->projectDir . '/static_image/sign_seal_DA.png', [
-            'width' => Converter::cmToPoint(4.5),
+            'width' => Converter::cmToPoint(4),
             'height' => Converter::cmToPoint(4),
             'wrappingStyle' => 'inline',
             'alignment' => Jc::CENTER,

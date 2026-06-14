@@ -22,7 +22,7 @@ final class PillarSchemeSection implements SectionBuilderInterface
 
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
-        $file = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
+        $file = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME);
 
         if (empty($file)) {
             $section->addText(

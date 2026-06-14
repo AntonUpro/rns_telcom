@@ -51,7 +51,7 @@ final class StructuralSection implements SectionBuilderInterface
         }
         $pillarInfo .= '.';
 
-        $section->addText($pillarInfo, $height, $para);
+        $section->addText($pillarInfo, $body, $para);
 
         $section->addText('Для подъема на опору предусмотрена вертикальная лестница с корзиной ограждения.', $body, $para);
         $section->addText('Кабельная трасса прокладывается параллельно лестнице.', $body, $para);

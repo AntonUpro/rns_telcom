@@ -164,6 +164,28 @@ final class ReportContext
         return $this->getMaxKUse($table->getRows());
     }
 
+    public function getFoundationMaxKuse(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::FOUNDATION);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+        $kUseStabilityMax = null;
+        $kUseDeformationMax = null;
+        foreach ($table->getRows() as $row) {
+            $kUseStability = isset($row['kUseStability']) ? (float)$row['kUseStability'] : null;
+            if ($kUseStability !== null && ($kUseStabilityMax === null || $kUseStability > $kUseStabilityMax)) {
+                $kUseStabilityMax = $kUseStability;
+            }
+            $kUseDeformation = isset($row['kUseDeformation']) ? (float)$row['kUseDeformation'] : null;
+            if ($kUseDeformation !== null && ($kUseDeformation === null || $kUseDeformation > $kUseDeformationMax)) {
+                $kUseDeformationMax = $kUseDeformation;
+            }
+        }
+
+        return max($kUseStabilityMax, $kUseDeformationMax);
+    }
+
     public function getMaxK(): ?float
     {
         $ks = [
@@ -171,6 +193,7 @@ final class ReportContext
             ResultTableTypeEnum::PLATFORM_FORCES->value => $this->getPlatformForcesMaxKuse(),
             ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $this->getSuperstructureStressMaxKuse(),
             ResultTableTypeEnum::BRACE_STRESS->value => $this->getBraceStressMaxKuse(),
+            ResultTableTypeEnum::FOUNDATION->value => $this->getFoundationMaxKuse(),
         ];
         $max = null;
         foreach ($ks as $k) {
@@ -192,6 +215,7 @@ final class ReportContext
             ResultTableTypeEnum::PLATFORM_FORCES->value => $this->getPlatformForcesMaxKuse(),
             ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $this->getSuperstructureStressMaxKuse(),
             ResultTableTypeEnum::BRACE_STRESS->value => $this->getBraceStressMaxKuse(),
+            ResultTableTypeEnum::FOUNDATION->value => $this->getFoundationMaxKuse(),
         ];
 
         $response = [];
