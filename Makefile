@@ -45,10 +45,10 @@ logs-prod: ## Логи prod (follow)
 	docker compose -f docker-compose-prod.yaml logs -f
 
 migrate-prod: ## Запустить миграции БД в проде
-	docker exec rns-telcom-app bin/console doctrine:migrations:migrate --no-interaction
+	docker exec --user root rns-telcom-app bin/console doctrine:migrations:migrate --no-interaction
 
 cache-prod: ## Прогрев Symfony кеша в проде
-	docker exec rns-telcom-app bin/console cache:warmup --env=prod
+	docker exec --user root rns-telcom-app bin/console cache:warmup --env=prod
 
 certbot-init: ## Первичное получение SSL-сертификата (один раз)
 	bash scripts/certbot-init.sh
