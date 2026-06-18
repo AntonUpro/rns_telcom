@@ -13,7 +13,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CalculationController extends AbstractController
 {
     #[Route('/calculation/edit/{id}', name: 'app_concrete_pillar_calc')]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_ENGINEER')]
     public function concretePillar(Calculation $calculation): Response
     {
         return $this->render('calculation/concrete_pillar.html.twig', [
@@ -23,7 +23,7 @@ class CalculationController extends AbstractController
     }
 
     #[Route('/api/calculate/concrete-pillar', name: 'api_concrete_pillar_calc', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_ENGINEER')]
     public function calculateConcretePillar(): Response
     {
         // Здесь будет обработка AJAX запросов для расчета

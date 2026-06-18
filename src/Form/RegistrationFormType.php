@@ -8,6 +8,7 @@ use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -38,16 +39,38 @@ class RegistrationFormType extends AbstractType
                     'class' => 'form-control'
                 ]
             ])
-            ->add('plainPassword', PasswordType::class, [
-                'label' => 'Пароль',
-                'mapped' => false,
+            ->add('patronymic', TextType::class, [
+                'label' => 'Отчество',
+                'required' => false,
                 'attr' => [
-                    'autocomplete' => 'new-password',
                     'class' => 'form-control'
+                ]
+            ])
+            ->add('phone', TextType::class, [
+                'label' => 'Номер телефона',
+                'attr' => [
+                    'class' => 'form-control',
+                    'id' => 'phone-input',
+                    'type' => 'tel',
+                    'placeholder' => '+7 (___) ___-__-__',
+                    'maxlength' => '18',
+                ]
+            ])
+            ->add('plainPassword', RepeatedType::class, [
+                'type' => PasswordType::class,
+                'mapped' => false,
+                'invalid_message' => 'Пароли не совпадают',
+                'first_options' => [
+                    'label' => 'Пароль',
+                    'attr' => ['autocomplete' => 'new-password', 'class' => 'form-control'],
+                    'constraints' => [
+                        new NotBlank(message: 'Введите пароль'),
+                        new Length(min: 6, minMessage: 'Пароль должен быть минимум {{ limit }} символов', max: 4096),
+                    ],
                 ],
-                'constraints' => [
-                    new NotBlank(message: 'Введите пароль'),
-                    new Length(min: 6, minMessage: 'Пароль должен быть минимум {{ limit }} символов', max: 4096),
+                'second_options' => [
+                    'label' => 'Повторите пароль',
+                    'attr' => ['autocomplete' => 'new-password', 'class' => 'form-control'],
                 ],
             ]);
     }

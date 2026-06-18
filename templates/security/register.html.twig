@@ -2,6 +2,71 @@
 
 {% block title %}Регистрация | {{ parent() }}{% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('phone-input');
+        if (!input) return;
+
+        function formatPhone(raw) {
+            // Оставляем только цифры
+            let digits = raw.replace(/\D/g, '');
+
+            // Нормализуем начало: 8 или 7 → +7
+            if (digits.startsWith('8')) {
+                digits = '7' + digits.slice(1);
+            }
+            if (!digits.startsWith('7')) {
+                digits = '7' + digits;
+            }
+
+            // Ограничиваем до 11 цифр (7 + 10)
+            digits = digits.slice(0, 11);
+
+            // Формат: +7 (XXX) XXX-XX-XX
+            let result = '+7';
+            if (digits.length > 1) result += ' (' + digits.slice(1, 4);
+            if (digits.length >= 4) result += ')';
+            if (digits.length >  4) result += ' ' + digits.slice(4, 7);
+            if (digits.length >  7) result += '-' + digits.slice(7, 9);
+            if (digits.length >  9) result += '-' + digits.slice(9, 11);
+
+            return result;
+        }
+
+        // Инициализация — ставим +7 при фокусе если поле пустое
+        input.addEventListener('focus', function () {
+            if (this.value === '') {
+                this.value = '+7 ';
+            }
+        });
+
+        input.addEventListener('input', function () {
+            const cursor = this.selectionStart;
+            const oldLen = this.value.length;
+            this.value = formatPhone(this.value);
+            // Корректируем позицию курсора
+            const diff = this.value.length - oldLen;
+            this.setSelectionRange(cursor + diff, cursor + diff);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            // Запрещаем удалять префикс +7
+            if ((e.key === 'Backspace' || e.key === 'Delete') && this.value.length <= 3) {
+                e.preventDefault();
+            }
+        });
+
+        // Перед отправкой нормализуем до формата +7XXXXXXXXXX
+        input.closest('form').addEventListener('submit', function () {
+            const digits = input.value.replace(/\D/g, '');
+            input.value = '+' + digits;
+        });
+    });
+    </script>
+{% endblock %}
+
 {% block body %}
     <div class="auth-container">
         <div class="auth-card">
@@ -24,21 +89,39 @@
 
             <div class="form-row">
                 <div class="form-group">
-                    {{ form_label(registrationForm.firstName) }}
-                    {{ form_widget(registrationForm.firstName) }}
-                    {{ form_errors(registrationForm.firstName) }}
-                </div>
-
-                <div class="form-group">
                     {{ form_label(registrationForm.lastName) }}
                     {{ form_widget(registrationForm.lastName) }}
                     {{ form_errors(registrationForm.lastName) }}
                 </div>
+
+                <div class="form-group">
+                    {{ form_label(registrationForm.firstName) }}
+                    {{ form_widget(registrationForm.firstName) }}
+                    {{ form_errors(registrationForm.firstName) }}
+                </div>
             </div>
 
             <div class="form-group">
-                {{ form_label(registrationForm.plainPassword) }}
-                {{ form_widget(registrationForm.plainPassword) }}
+                {{ form_label(registrationForm.patronymic) }}
+                {{ form_widget(registrationForm.patronymic) }}
+                {{ form_errors(registrationForm.patronymic) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(registrationForm.phone) }}
+                {{ form_widget(registrationForm.phone) }}
+                {{ form_errors(registrationForm.phone) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword.first) }}
+                {{ form_widget(registrationForm.plainPassword.first) }}
+                {{ form_errors(registrationForm.plainPassword.first) }}
+            </div>
+
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword.second) }}
+                {{ form_widget(registrationForm.plainPassword.second) }}
                 {{ form_errors(registrationForm.plainPassword) }}
             </div>
 

@@ -32,7 +32,7 @@ final class DashboardController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'app_dashboard')]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_ENGINEER')]
     public function index(Request $request): Response
     {
         /** @var \App\Entity\User $user */
@@ -76,7 +76,7 @@ final class DashboardController extends AbstractController
     }
 
     #[Route('/calculation/{id}/change-status', name: 'app_calculation_change_status', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_ENGINEER')]
     public function changeStatus(
         Calculation $calculation,
         Request $request,

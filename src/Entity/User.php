@@ -64,13 +64,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $signatureFileName = null;
 
+    #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\NotBlank(message: 'Введите номер телефона')]
+    #[Assert\Regex(
+        pattern: '/^\+7\d{10}$/',
+        message: 'Введите корректный номер телефона'
+    )]
+    private ?string $phone = null;
+
     #[ORM\OneToMany(targetEntity: Calculation::class, mappedBy: 'user')]
     private Collection $calculations;
 
     public function __construct()
     {
         $this->createdAt = new \DateTimeImmutable();
-        $this->roles = ['ROLE_USER'];
+        $this->roles = ['ROLE_ENGINEER'];
         $this->calculations = new ArrayCollection();
     }
 
@@ -109,8 +117,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
+        // guarantee every user at least has ROLE_ENGINEER
+        $roles[] = 'ROLE_ENGINEER';
 
         return array_unique($roles);
     }
@@ -199,6 +207,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setSignatureFileName(?string $signatureFileName): static
     {
         $this->signatureFileName = $signatureFileName;
+
+        return $this;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): static
+    {
+        $this->phone = $phone;
 
         return $this;
     }

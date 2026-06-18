@@ -15,7 +15,7 @@ use Throwable;
 
 
 #[Route('/api/v1')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_ENGINEER')]
 class WindLoadCalculationController extends AbstractApiController
 {
     public function __construct(

@@ -18,7 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Throwable;
 
 #[Route('/api/v1')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_ENGINEER')]
 class CalculationImageController extends AbstractApiController
 {
     public function __construct(

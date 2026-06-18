@@ -13,7 +13,7 @@ use Throwable;
 use Exception;
 
 #[Route('/api/v1')]
-#[IsGranted('ROLE_USER')]
+#[IsGranted('ROLE_ENGINEER')]
 final class BitrixController extends AbstractApiController
 {
     public function __construct(

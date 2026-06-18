@@ -67,7 +67,7 @@ class UserCrudController extends AbstractCrudController
             ->add(BooleanFilter::new('isActive')->setLabel('Активен'))
             ->add(ChoiceFilter::new('roles')->setChoices([
                 'Администратор' => 'ROLE_ADMIN',
-                'Пользователь'  => 'ROLE_USER',
+                'Инженер'       => 'ROLE_ENGINEER',
             ])->setLabel('Роль'));
     }
 
@@ -97,7 +97,7 @@ class UserCrudController extends AbstractCrudController
         yield ChoiceField::new('roles', 'Роли')
             ->setChoices([
                 'Администратор' => 'ROLE_ADMIN',
-                'Пользователь'  => 'ROLE_USER',
+                'Инженер'       => 'ROLE_ENGINEER',
             ])
             ->allowMultipleChoices()
             ->renderExpanded(false);
