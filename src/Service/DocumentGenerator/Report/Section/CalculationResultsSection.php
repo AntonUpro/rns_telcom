@@ -58,7 +58,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $w = [400, 1600, 2100, 2000, 2000, 1900];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
-        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'k(max)'], true);
+        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true);
 
         foreach ($table->getRows() as $i => $row) {
             $this->addRow($tbl, $w, [
@@ -187,8 +187,8 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $this->fmt($row['momentResistance'] ?? null, 2),
                 $this->fmt($row['nCalc'] ?? null, 2),
                 $this->fmt($row['mCalc'] ?? null, 2),
+                $this->fmt($row['sigma'] ?? null, 0),
                 $this->fmt($row['ry'] ?? null, 0),
-                $this->fmt($row['sigma'] ?? null, 2),
                 $this->fmt($row['kUse'] ?? null, 2),
             ]);
         }
