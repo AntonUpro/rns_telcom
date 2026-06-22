@@ -29,7 +29,7 @@ final class EquipmentOnPillarAppendix implements SectionBuilderInterface
 
             $section->addImage($image->getFilePath(), [
                 'width'         => Converter::cmToPoint(17),
-                'height'        => Converter::cmToPoint(24),
+//                'height'        => Converter::cmToPoint(24),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);

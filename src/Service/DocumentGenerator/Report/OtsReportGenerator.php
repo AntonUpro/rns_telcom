@@ -175,7 +175,7 @@ final readonly class OtsReportGenerator
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'ПРОГРАММНЫЙ РАСЧЁТ ОПОРЫ');
-        (new ProgramCalculationSection())->build($mainSection, $context, $tableNum);
+        (new ProgramCalculationSection($sectionNum))->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
         $this->addSection($mainSection, $sectionNum, 'РЕЗУЛЬТАТЫ РАСЧЁТА И ВЫВОДЫ');

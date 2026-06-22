@@ -17,10 +17,15 @@ use PhpOffice\PhpWord\SimpleType\Jc;
  */
 final class ProgramCalculationSection implements SectionBuilderInterface
 {
+    public function __construct(
+        private readonly int $sectionNum
+    ) {
+    }
+
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
-        $body  = DocStyleRegistry::bodyText();
-        $left  = DocStyleRegistry::paragraphLeft();
+        $body = DocStyleRegistry::bodyText();
+        $left = DocStyleRegistry::paragraphIndent();
         $center = ['alignment' => Jc::CENTER];
 
         $section->addText(
@@ -36,16 +41,16 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $textRun = $section->addTextRun($center);
 
             $textRun->addImage($imageSchemePC->getFilePath(), [
-                'width'         => Converter::cmToPoint(8),
-                'height'        => Converter::cmToPoint(22),
+//                'width'         => Converter::cmToPoint(8),
+                'height' => Converter::cmToPoint(22),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
             $textRun->addImage($imageMosaicSections->getFilePath(), [
-                'width'         => Converter::cmToPoint(5),
-                'height'        => Converter::cmToPoint(8),
+                'width' => Converter::cmToPoint(5),
+                'height' => Converter::cmToPoint(8),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
         $section->addPageBreak(1);
@@ -58,10 +63,10 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $imageMosaicN = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_N);
         if (file_exists($imageMosaicN->getFilePath())) {
             $section->addImage($imageMosaicN->getFilePath(), [
-                'width'         => Converter::cmToPoint(8),
-                'height'        => Converter::cmToPoint(24),
+                'width' => Converter::cmToPoint(8),
+                'height' => Converter::cmToPoint(24),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
         $section->addPageBreak(1);
@@ -74,10 +79,10 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $imageMosaicM = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_M);
         if (file_exists($imageMosaicM->getFilePath())) {
             $section->addImage($imageMosaicM->getFilePath(), [
-                'width'         => Converter::cmToPoint(8),
-                'height'        => Converter::cmToPoint(24),
+                'width' => Converter::cmToPoint(8),
+                'height' => Converter::cmToPoint(24),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
         $section->addPageBreak(1);
@@ -91,11 +96,40 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $imageMosaicDis = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_DISPLACEMENT);
         if (file_exists($imageMosaicDis->getFilePath())) {
             $section->addImage($imageMosaicDis->getFilePath(), [
-                'width'         => Converter::cmToPoint(8),
-                'height'        => Converter::cmToPoint(24),
+                'width' => Converter::cmToPoint(8),
+                'height' => Converter::cmToPoint(24),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
+
+        $section->addPageBreak(1);
+
+        $section->addTitle(sprintf(
+            '%d.1 %s %s',
+            $this->sectionNum,
+            'РАСЧЕТ ЖЕЛЕЗОБЕТОННОЙ СТОЙКИ',
+            $context->calculation->getCalculationData()?->getConcretePillarSpecificData()?->pillarStamp,
+        ), 1);
+
+        $section->addText(
+            'Расчет выполнен согласно Пособию по проектированию предварительно напряженных железобетонных конструкций из тяжелых и легких бетонов, п. 3.43.',
+            $body,
+            $left,
+        );
+
+        $section->addText(
+            'В расчете предварительно напряженных элементов учитываем потери '
+            . 'предварительного напряжения арматуры при механическом способе натяжения на '
+            . 'упоры. Потери предварительного напряжения арматуры определены по табл.4 Пособия.',
+            $body,
+            $left,
+        );
+
+        $section->addText(
+            'Исходные данные сечений стойки',
+            $body,
+            $left,
+        );
     }
 }
