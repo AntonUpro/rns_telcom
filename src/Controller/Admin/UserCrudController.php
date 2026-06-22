@@ -89,6 +89,7 @@ class UserCrudController extends AbstractCrudController
         yield TextField::new('lastName', 'Фамилия');
         yield TextField::new('firstName', 'Имя');
         yield TextField::new('patronymic', 'Отчество')->setRequired(false);
+        yield TextField::new('phone', 'Номер телефона')->setRequired(true);
         yield ImageField::new('signatureFileName', 'Подпись')
             ->setBasePath(self::BASE_PATH)
             ->setUploadDir(self::UPLOAD_DIR)

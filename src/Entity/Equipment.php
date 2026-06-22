@@ -34,8 +34,6 @@ class Equipment
     private ?string $model = null;
 
     #[ORM\Column(name: 'full_name', length: 512)]
-    #[Assert\NotBlank(message: 'Полное название обязательно')]
-    #[Assert\Length(max: 512, maxMessage: 'Полное название не должно превышать 512 символов')]
     private ?string $fullName = null;
 
     #[ORM\Column(name: 'type', length: 50)]
@@ -75,6 +73,13 @@ class Equipment
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function computeFullName(): void
+    {
+        $this->fullName = mb_strtolower(trim(($this->brand ?? '') . ' ' . ($this->model ?? '')));
     }
 
     #[ORM\PreUpdate]

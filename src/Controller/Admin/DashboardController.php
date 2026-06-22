@@ -80,26 +80,27 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Главная', 'fa fa-home');
-        yield MenuItem::linkToRoute('На сайт', 'fa fa-arrow-left', 'app_dashboard');
+        yield MenuItem::linkToRoute('На сайт', 'fa fa-globe', 'app_dashboard');
 
         yield MenuItem::section('Пользователи');
         yield MenuItem::linkToCrud('Пользователи', 'fa fa-users', User::class);
 
         yield MenuItem::section('Расчёты');
         yield MenuItem::linkToCrud('Все расчёты', 'fa fa-calculator', Calculation::class);
-        yield MenuItem::linkToCrud('Приложения 5–7 (изображения)', 'fa fa-images', AppendixStaticImage::class);
+        yield MenuItem::linkToCrud('Приложения 5–7', 'fa fa-images', AppendixStaticImage::class);
 
         yield MenuItem::section('Каталог');
         yield MenuItem::linkToCrud('Оборудование', 'fa fa-broadcast-tower', Equipment::class);
         yield MenuItem::linkToCrud('Операторы', 'fa fa-building', Operator::class);
         yield MenuItem::linkToCrud('Заказчики', 'fa fa-handshake', Customer::class);
 
-        yield MenuItem::section('Сортамент');
-        yield MenuItem::linkToCrud('Уголок равнополочный', 'fa fa-ruler-combined', GaugeAngleEqual::class);
-        yield MenuItem::linkToCrud('Швеллер', 'fa fa-ruler-combined', GaugeChannel::class);
-        yield MenuItem::linkToCrud('Двутавр', 'fa fa-ruler-combined', GaugeIBeam::class);
-        yield MenuItem::linkToCrud('Труба круглая', 'fa fa-circle', GaugePipeRound::class);
-        yield MenuItem::linkToCrud('Труба квадратная', 'fa fa-square', GaugePipeSquare::class);
-        yield MenuItem::linkToCrud('Пруток круглый', 'fa fa-minus', GaugeRoundSolid::class);
+        yield MenuItem::subMenu('Сортамент', 'fa fa-ruler-combined')->setSubItems([
+            MenuItem::linkToCrud('Уголок равнополочный', 'fa fa-angle-right', GaugeAngleEqual::class),
+            MenuItem::linkToCrud('Швеллер',              'fa fa-angle-right', GaugeChannel::class),
+            MenuItem::linkToCrud('Двутавр',              'fa fa-angle-right', GaugeIBeam::class),
+            MenuItem::linkToCrud('Труба круглая',        'fa fa-circle',      GaugePipeRound::class),
+            MenuItem::linkToCrud('Труба квадратная',     'fa fa-square',      GaugePipeSquare::class),
+            MenuItem::linkToCrud('Пруток круглый',       'fa fa-minus',       GaugeRoundSolid::class),
+        ]);
     }
 }
