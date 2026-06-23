@@ -52,7 +52,7 @@ final class TitlePageGenerator
             'italic' => true,
         ], [
             'alignment' => Jc::END,
-            'spaceAfter' => Converter::cmToTwip(1.0),
+            'spaceAfter' => 0,
         ]);
 
         $header->addImage($this->projectDir . '/static_image/telcom_title.png', [

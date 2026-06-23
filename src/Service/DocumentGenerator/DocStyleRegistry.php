@@ -67,7 +67,7 @@ final class DocStyleRegistry
         return [
             'alignment'   => Jc::CENTER,
             'spaceBefore' => Converter::cmToTwip(0.5),
-            'spaceAfter'  => Converter::cmToTwip(0.2),
+            'spaceAfter'  => 0,
         ];
     }
 

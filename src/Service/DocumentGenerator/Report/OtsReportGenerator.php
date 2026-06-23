@@ -256,7 +256,7 @@ final readonly class OtsReportGenerator
         ], [
             'alignment' => Jc::CENTER,
             'spaceBefore' => Converter::cmToTwip(0.3),
-            'spaceAfter' => Converter::cmToTwip(0.3),
+            'spaceAfter' => 0,
         ]);
 
         $phpWord->addTitleStyle(2, [
@@ -267,7 +267,7 @@ final readonly class OtsReportGenerator
         ], [
             'alignment' => Jc::BOTH,
             'indentFirstLine' => Converter::cmToTwip(1.25),
-            'spaceAfter' => Converter::cmToTwip(0.2),
+            'spaceAfter' => 0,
         ]);
 
         // Секция с титулами
@@ -290,7 +290,7 @@ final readonly class OtsReportGenerator
             'footerHeight' => Converter::cmToTwip(0.5),
         ]);
         $section->addHeader();
-        $phpWord->setDefaultParagraphStyle(['line-spacing' => 150]);
+        $phpWord->setDefaultParagraphStyle(['line-spacing' => 150, 'spaceAfter' => 0]);
 
         return $phpWord;
     }
