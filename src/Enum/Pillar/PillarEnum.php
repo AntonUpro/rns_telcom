@@ -109,6 +109,106 @@ enum PillarEnum: string
         };
     }
 
+    public function getTension(): float
+    {
+        return match($this) {
+            self::CK26_1_1_1 => 958,
+            self::CK26_1_1_2 => 1198,
+            self::CK26_1_1_5 => 1761,
+            self::CK26_1_1_4 => 1216,
+            self::CK26_1_1_3 => 1294,
+            self::CK26_1_2_1 => 958,
+            self::CK26_1_2_2 => 1198,
+            self::CK26_1_2_5 => 1761,
+            self::CK26_1_2_4 => 1216,
+            self::CK26_1_2_3 => 1294,
+            self::CK26_1_3_1 => 958,
+            self::CK26_1_3_4 => 1216,
+            self::CK26_1_3_3 => 1294,
+            self::CK26_1_4_1 => 1358,
+            self::CK26_1_5_1 => 958,
+            self::CK26_1_6_1 => 1597,
+            self::CK26_1_6_2 => 1797,
+            self::CK26_1_1_0 => 719,
+            self::CK26_1_2_0 => 719,
+            self::CK26_1_3_0 => 719,
+            self::CK26_1_4_0 => 1198,
+            self::CK26_1_6_0 => 1198,
+
+            self::CK22_1_1_1 => 799,
+            self::CK22_1_1_2 => 799,
+            self::CK22_1_2_1 => 799,
+            self::CK22_1_2_2 => 998,
+            self::CK22_1_3_1 => 639,
+            self::CK22_1_3_2 => 599,
+            self::CK22_1_1_0 => 599,
+            self::CK22_1_2_0 => 599,
+            self::CK22_1_3_0 => 599,
+
+            self::CK26_2_1_1 => 1597,
+            self::CK26_2_1_2 => 1238,
+            self::CK26_2_1_0 => 1198,
+
+            self::CK22_2_1_1 => 1757,
+            self::CK22_2_1_2 => 1798,
+            self::CK22_2_1_0 => 1793,
+
+            self::CK22_3_1_1 => 1118,
+            self::CK22_3_1_2 => 1087,
+            self::CK22_3_1_0 => 1141,
+        };
+    }
+
+    public function getMass(): float
+    {
+        return match($this) {
+            self::CK26_1_1_1 => 6821,
+            self::CK26_1_1_2 => 6757,
+            self::CK26_1_1_5 => 6750,
+            self::CK26_1_1_4 => 6752,
+            self::CK26_1_1_3 => 6733,
+            self::CK26_1_2_1 => 6849,
+            self::CK26_1_2_2 => 6804,
+            self::CK26_1_2_5 => 6770,
+            self::CK26_1_2_4 => 6735,
+            self::CK26_1_2_3 => 6712,
+            self::CK26_1_3_1 => 6992,
+            self::CK26_1_3_4 => 6801,
+            self::CK26_1_3_3 => 6796,
+            self::CK26_1_4_1 => 6860,
+            self::CK26_1_5_1 => 6997,
+            self::CK26_1_6_1 => 6910,
+            self::CK26_1_6_2 => 6883,
+            self::CK26_1_1_0 => 6896,
+            self::CK26_1_2_0 => 6929,
+            self::CK26_1_3_0 => 7054,
+            self::CK26_1_4_0 => 6933,
+            self::CK26_1_6_0 => 6984,
+
+            self::CK22_1_1_1 => 4819,
+            self::CK22_1_1_2 => 4765,
+            self::CK22_1_2_1 => 4847,
+            self::CK22_1_2_2 => 4816,
+            self::CK22_1_3_1 => 4809,
+            self::CK22_1_3_2 => 4526,
+            self::CK22_1_1_0 => 5027,
+            self::CK22_1_2_0 => 5332,
+            self::CK22_1_3_0 => 4995,
+
+            self::CK26_2_1_1 => 6952,
+            self::CK26_2_1_2 => 6848,
+            self::CK26_2_1_0 => 7105,
+
+            self::CK22_2_1_1 => 6418,
+            self::CK22_2_1_2 => 6334,
+            self::CK22_2_1_0 => 6571,
+
+            self::CK22_3_1_1 => 6086,
+            self::CK22_3_1_2 => 6066,
+            self::CK22_3_1_0 => 6220,
+        };
+    }
+
     /**
      * Предельный момент по образованию трещин (kN·m)
      */
@@ -178,10 +278,38 @@ enum PillarEnum: string
         // Top diameter depends on series
         $topDiameter = str_starts_with($designation, 'СК26') ? 410 : 440;
 
+        $bottomInternalDiameter = 500;
+        $topInternalDiameter = 300;
+        $start = substr($designation, 0, 6);
+        switch ($start) {
+            case 'СК26.1':
+                $bottomInternalDiameter = 500;
+                $topInternalDiameter = 300;
+                break;
+            case 'СК26.2':
+                $bottomInternalDiameter = 504;
+                $topInternalDiameter = 280;
+                break;
+            case 'СК22.1':
+                $bottomInternalDiameter = 540;
+                $topInternalDiameter = 330;
+                break;
+            case 'СК22.2':
+                $bottomInternalDiameter = 490;
+                $topInternalDiameter = 310;
+                break;
+            case 'СК22.3':
+                $bottomInternalDiameter = 510;
+                $topInternalDiameter = 310;
+                break;
+        }
+
         return [
             'height' => $height,
             'bottom_diameter' => $bottomDiameter,
-            'top_diameter' => $topDiameter
+            'top_diameter' => $topDiameter,
+            'bottom_internal_diameter' => $bottomInternalDiameter,
+            'top_internal_diameter' => $topInternalDiameter,
         ];
     }
 
@@ -221,6 +349,27 @@ enum PillarEnum: string
         $totalHeight = $dimensions['height'];
         $bottomDiameter = $dimensions['bottom_diameter'];
         $topDiameter = $dimensions['top_diameter'];
+
+        // Проверка диапазона высоты
+        if ($heightAtPoint < 0 || $heightAtPoint > $totalHeight) {
+            throw new \InvalidArgumentException(
+                "Высота должна быть между 0 и {$totalHeight} мм, получено {$heightAtPoint} мм"
+            );
+        }
+
+        // Формула линейной интерполяции: d = d_низ + (d_верх - d_низ) * (h / H)
+        $diameterDifference = $topDiameter - $bottomDiameter;
+        $heightRatio = $heightAtPoint / $totalHeight;
+
+        return $bottomDiameter + ($diameterDifference * $heightRatio);
+    }
+
+    public function getInternalDiameterAtHeight(float $heightAtPoint): float
+    {
+        $dimensions = $this->getGeometricDimensions();
+        $totalHeight = $dimensions['height'];
+        $bottomDiameter = $dimensions['bottom_internal_diameter'];
+        $topDiameter = $dimensions['top_internal_diameter'];
 
         // Проверка диапазона высоты
         if ($heightAtPoint < 0 || $heightAtPoint > $totalHeight) {

@@ -58,6 +58,9 @@ class Calculation
     #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: PillarPlatform::class, cascade: ['persist', 'remove'])]
     private ?PillarPlatform $pillarPlatform = null;
 
+    #[ORM\OneToMany(mappedBy: 'calculation', targetEntity: CalculationResultTable::class, cascade: ['persist', 'remove'])]
+    private ?Collection $calculationResultTables = null;
+
     public function __construct()
     {
         $this->createdAt = new DateTimeImmutable();
@@ -222,6 +225,14 @@ class Calculation
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, CalculationResultTable>
+     */
+    public function getCalculationResultTables(): ?Collection
+    {
+        return $this->calculationResultTables;
     }
 
     public static function getAvailableTypes(): array
