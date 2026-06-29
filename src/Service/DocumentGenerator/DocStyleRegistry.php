@@ -49,7 +49,12 @@ final class DocStyleRegistry
 
     public static function paragraphLeft(): array
     {
-        return ['alignment' => Jc::START];
+        return [
+            'alignment' => Jc::START,
+            'indentation' => [
+                'left' => (int)Converter::cmToTwip(1),
+            ],
+        ];
     }
 
     public static function paragraphRight(): array
@@ -152,9 +157,9 @@ final class DocStyleRegistry
         return [
             'alignment' => Jc::BOTH,
             'indentation' => [
-                'left' => (int) Converter::cmToTwip(1),
-                'right' => 0,
-                'firstLine' => (int) Converter::cmToTwip(1.25),
+                'left' => (int)Converter::cmToTwip(1),
+                'right' => (int)Converter::cmToTwip(1.25),
+                'firstLine' => (int)Converter::cmToTwip(1.25),
                 'hanging' => 0,
             ],
             'spaceAfter' => 0,

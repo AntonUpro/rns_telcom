@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Service\DocumentGenerator\Report\Section;
 
 use App\Service\DocumentGenerator\Report\ReportContext;
+use PhpOffice\PhpWord\ComplexType\TblWidth as TblWidthType;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
+use PhpOffice\PhpWord\SimpleType\TblWidth;
 
 /**
  * Генерирует два титульных листа перед содержанием:
@@ -189,7 +191,7 @@ final class TitlePageGenerator
             'lineHeight' => 1,
         ];
 
-        $table = $section->addTable();
+        $table = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
 
         // --- Строка 1 ---
         $table->addRow(Converter::cmToTwip(1));
@@ -234,7 +236,7 @@ final class TitlePageGenerator
         $section->addTextBreak(2);
 
         $cellStyle = ['valign' => 'center'];
-        $tableSign = $section->addTable();
+        $tableSign = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
         $tableSign->addRow(Converter::cmToTwip(3));
         $c1 = $tableSign->addCell(Converter::cmToTwip(8), $cellStyle);
         $c1->addText('Главный инженер проекта', $fStyle);

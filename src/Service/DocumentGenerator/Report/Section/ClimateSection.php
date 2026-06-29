@@ -19,7 +19,7 @@ final class ClimateSection implements SectionBuilderInterface
     {
         $data = $context->getData();
         $body = DocStyleRegistry::bodyText();
-        $para = DocStyleRegistry::paragraphLeft();
+        $para = DocStyleRegistry::paragraphIndent();
         $ind  = DocStyleRegistry::paragraphIndent();
 
         $section->addText('Расположение объекта:', $body, $para);

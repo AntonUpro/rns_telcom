@@ -17,7 +17,7 @@ final class MaterialSection implements SectionBuilderInterface
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $body = DocStyleRegistry::bodyText();
-        $para = DocStyleRegistry::paragraphLeft();
+        $para = DocStyleRegistry::paragraphIndent();
 
         $lines = [
             '• модуль упругости стальных элементов 2,06 × 10⁵ Н/мм²;',

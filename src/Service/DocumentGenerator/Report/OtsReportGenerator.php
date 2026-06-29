@@ -103,7 +103,7 @@ final readonly class OtsReportGenerator
         $engineerSignaturePath = null;
         if ($engineer?->getSignatureFileName() !== null) {
             $engineerSignaturePath = $this->projectDir . '/var/uploads/signatures/' . $engineer->getSignatureFileName();
-            if (!file_exists($engineerSignaturePath)) {
+            if (! file_exists($engineerSignaturePath)) {
                 $engineerSignaturePath = null;
             }
         }
@@ -128,7 +128,9 @@ final readonly class OtsReportGenerator
         $this->addFooterStamp($mainSection, $context);
         // ── Содержание ────────────────────────────────────────────────────────
         $mainSection->addTitle('СОДЕРЖАНИЕ', 1);
-        $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [], 1, 2);
+        $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [            'indentation' => [
+            'left' => (int) Converter::cmToTwip(1),
+        ],], 1, 2);
         $mainSection->addPageBreak();
 
         $sectionNum = 0;
@@ -266,6 +268,10 @@ final readonly class OtsReportGenerator
             'italic' => true,
         ], [
             'alignment' => Jc::BOTH,
+            'indentation' => [
+                'left' => (int) Converter::cmToTwip(1),
+                'firstLine' => (int) Converter::cmToTwip(1.25),
+            ],
             'spaceAfter' => 0,
         ]);
 
@@ -273,7 +279,7 @@ final readonly class OtsReportGenerator
         $phpWord->addSection([
             'paperSize' => 'A4',
             'marginLeft' => Converter::cmToTwip(2.0),
-            'marginRight' => Converter::cmToTwip(1.5),
+            'marginRight' => Converter::cmToTwip(0.5),
             'marginTop' => Converter::cmToTwip(2.0),
             'marginBottom' => Converter::cmToTwip(2.0),
             'footerHeight' => Converter::cmToTwip(0.5),
@@ -282,14 +288,17 @@ final readonly class OtsReportGenerator
         $section = $phpWord->addSection([
             'paperSize' => 'A4',
             'marginLeft' => Converter::cmToTwip(2.0),
-            'marginRight' => Converter::cmToTwip(1.5),
+            'marginRight' => Converter::cmToTwip(0.5),
             'marginTop' => Converter::cmToTwip(1.5),
             'marginBottom' => Converter::cmToTwip(2.0),
             'headerHeight' => 0,
             'footerHeight' => Converter::cmToTwip(0.5),
         ]);
         $section->addHeader();
-        $phpWord->setDefaultParagraphStyle(['line-spacing' => 150, 'spaceAfter' => 0]);
+        $phpWord->setDefaultParagraphStyle([
+            'line-spacing' => 150,
+            'spaceAfter' => 0,
+        ]);
 
         return $phpWord;
     }
@@ -328,7 +337,7 @@ final readonly class OtsReportGenerator
 
         // Гарантируем наличие updateFields в settings.xml
         $settingsXml = $zip->getFromName('word/settings.xml');
-        if ($settingsXml !== false && !str_contains($settingsXml, 'w:updateFields')) {
+        if ($settingsXml !== false && ! str_contains($settingsXml, 'w:updateFields')) {
             $settingsXml = str_replace(
                 '</w:settings>',
                 '<w:updateFields w:val="true"/></w:settings>',
@@ -363,8 +372,8 @@ final readonly class OtsReportGenerator
             'borderColor' => '000000',
             'cellMargin' => 0, // Отступ внутри ячеек
             'borderBottomSize' => 0,
-            'indent' => new TblWidthType(Converter::cmToTwip(-1), TblWidth::TWIP),
-            'alignment' => 'left'
+            'indent' => new TblWidthType(Converter::cmToTwip(0), TblWidth::TWIP),
+            'alignment' => 'left',
         ]);
 
         $fStyle = [
@@ -405,7 +414,7 @@ final readonly class OtsReportGenerator
         $stamp->addCell(Converter::cmToTwip(1.5))->addText('', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'continue']);
-        $stamp->addCell(Converter::cmToTwip(1.0),  ['vMerge' => 'continue']);
+        $stamp->addCell(Converter::cmToTwip(1.0), ['vMerge' => 'continue']);
 
         $stamp->addRow(Converter::cmToTwip(0.5));
         $stamp->addCell(Converter::cmToTwip(0.7))->addText('Изм', $fStyle, $pStyle);

@@ -7,9 +7,11 @@ namespace App\Service\DocumentGenerator\Report\Section;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
 use App\Service\DocumentGenerator\Report\SectionBuilderInterface;
+use PhpOffice\PhpWord\ComplexType\TblWidth as TblWidthType;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
+use PhpOffice\PhpWord\SimpleType\TblWidth;
 
 /**
  * Раздел «Заключение».
@@ -90,7 +92,7 @@ final class ConclusionSection implements SectionBuilderInterface
         ];
         $cellStyle = ['valign' => 'center'];
 
-        $table = $section->addTable();
+        $table = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
 
         // Строка 1: Главный инженер проекта
         $table->addRow(Converter::cmToTwip(2.5));
