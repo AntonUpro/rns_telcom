@@ -149,18 +149,10 @@ final class DocStyleRegistry
 
     public static function paragraphIndent(): array
     {
-        return ['alignment' => Jc::BOTH,
-            'indentation' => [
-                'left' => 0,
-                'right' => 0,
-                'firstLine' => 709,
-                'hanging' => 0,
-            ],
+        return [
+            'alignment' => Jc::BOTH,
+            'firstLineIndent' => 709,
             'spaceAfter' => 0,
-            'widowControl' => true,
-            'keepNext' => false,
-            'keepLines' => false,
-            'pageBreakBefore' => false,
         ];
     }
 
