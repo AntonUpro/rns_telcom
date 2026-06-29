@@ -290,7 +290,7 @@ final readonly class OtsReportGenerator
             'footerHeight' => Converter::cmToTwip(0.5),
         ]);
         $section->addHeader();
-        $phpWord->setDefaultParagraphStyle(['line-spacing' => 150]);
+        $phpWord->setDefaultParagraphStyle(['line-spacing' => 150, 'spaceAfter' => 0]);
 
         return $phpWord;
     }
