@@ -156,8 +156,10 @@ final class DocStyleRegistry
                 'firstLine' => Converter::cmToTwip(1.25),
             ],
             'spaceAfter' => 0,
-            'spaceBefore' => 0,
-            'spacing' => 0,
+            'widowControl' => true,
+            'keepNext' => false,
+            'keepLines' => false,
+            'pageBreakBefore' => false,
         ];
     }
 
