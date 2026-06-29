@@ -149,7 +149,7 @@ final class DocStyleRegistry
 
     public static function paragraphIndent(): array
     {
-        return ['alignment' => Jc::BOTH, 'indentation' => ['left' => 0, 'firstLine' => Converter::cmToTwip(1.25)], 'spaceAfter' => 0];
+        return ['alignment' => Jc::BOTH, 'indentation' => ['left' => Converter::cmToTwip(1.25), 'firstLine' => Converter::cmToTwip(1.25)], 'spaceAfter' => 0];
     }
 
     public static function tableStyleReport(): array
