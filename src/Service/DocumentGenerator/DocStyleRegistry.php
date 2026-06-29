@@ -65,9 +65,9 @@ final class DocStyleRegistry
     public static function paragraphTitle(): array
     {
         return [
-            'alignment'   => Jc::CENTER,
+            'alignment' => Jc::CENTER,
             'spaceBefore' => Converter::cmToTwip(0.5),
-            'spaceAfter'  => 0,
+            'spaceAfter' => 0,
         ];
     }
 
@@ -76,10 +76,10 @@ final class DocStyleRegistry
     public static function tableStyle(): array
     {
         return [
-            'borderSize'  => 1,
+            'borderSize' => 1,
             'borderColor' => '000000',
-            'cellMargin'  => 50,
-            'alignment'   => JcTable::CENTER,
+            'cellMargin' => 50,
+            'alignment' => JcTable::CENTER,
         ];
     }
 
@@ -134,7 +134,7 @@ final class DocStyleRegistry
 
     public static function titleTableTextUnderline(): array
     {
-        return ['size' => 12, 'italic' => true, 'name' => 'Times New Roman', 'underline' => 'single', ];
+        return ['size' => 12, 'italic' => true, 'name' => 'Times New Roman', 'underline' => 'single',];
     }
 
     public static function titleTableTextUnderlineBold(): array
@@ -149,16 +149,25 @@ final class DocStyleRegistry
 
     public static function paragraphIndent(): array
     {
-        return ['alignment' => Jc::BOTH, 'indentation' => ['left' => Converter::cmToTwip(1.25), 'firstLine' => Converter::cmToTwip(1.25)], 'spaceAfter' => 0];
+        return ['alignment' => Jc::BOTH,
+            'indentation' => [
+                'left' => 0,
+                'right' => 0,
+                'firstLine' => Converter::cmToTwip(1.25),
+            ],
+            'spaceAfter' => 0,
+            'spaceBefore' => 0,
+            'spacing' => 0,
+        ];
     }
 
     public static function tableStyleReport(): array
     {
         return [
-            'borderSize'  => 1,
+            'borderSize' => 1,
             'borderColor' => '000000',
-            'cellMargin'  => 40,
-            'alignment'   => JcTable::CENTER,
+            'cellMargin' => 40,
+            'alignment' => JcTable::CENTER,
         ];
     }
 }
