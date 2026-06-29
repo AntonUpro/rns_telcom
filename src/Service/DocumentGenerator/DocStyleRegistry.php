@@ -153,7 +153,7 @@ final class DocStyleRegistry
             'indentation' => [
                 'left' => 0,
                 'right' => 0,
-                'firstLine' => (int) round(Converter::cmToTwip(1.25)),
+                'firstLine' => 709,
                 'hanging' => 0,
             ],
             'spaceAfter' => 0,
