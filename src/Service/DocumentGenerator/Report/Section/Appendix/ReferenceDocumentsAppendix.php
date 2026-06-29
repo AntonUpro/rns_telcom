@@ -40,7 +40,6 @@ final class ReferenceDocumentsAppendix implements SectionBuilderInterface
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $italic = DocStyleRegistry::normalText();
-        $body   = DocStyleRegistry::bodyText();
         $center = DocStyleRegistry::paragraphCenter();
         $lineSpacingZero = DocStyleRegistry::paragraphLineSpacing();
         $left   = DocStyleRegistry::paragraphLeft();

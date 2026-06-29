@@ -151,8 +151,14 @@ final class DocStyleRegistry
     {
         return [
             'alignment' => Jc::BOTH,
-            'firstLineIndent' => 709,
+            'indentation' => [
+                'left' => 0,
+                'right' => 0,
+                'firstLine' => (int) Converter::cmToTwip(1.25),
+                'hanging' => 0,
+            ],
             'spaceAfter' => 0,
+
         ];
     }
 
