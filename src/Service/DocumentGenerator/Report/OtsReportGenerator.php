@@ -234,7 +234,7 @@ final readonly class OtsReportGenerator
 
         $filePath = sprintf('%s/ots_report_%d.docx', rtrim($outputDir, '/'), $calculationId);
         IOFactory::createWriter($phpWord, 'Word2007')->save($filePath);
-//        $this->injectPageBorders($filePath);
+        $this->injectPageBorders($filePath);
 
         return $filePath;
     }
