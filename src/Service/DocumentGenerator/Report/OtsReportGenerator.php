@@ -272,7 +272,7 @@ final readonly class OtsReportGenerator
         // Секция с титулами
         $phpWord->addSection([
             'paperSize' => 'A4',
-            'marginLeft' => Converter::cmToTwip(3.0),
+            'marginLeft' => Converter::cmToTwip(2.0),
             'marginRight' => Converter::cmToTwip(1.5),
             'marginTop' => Converter::cmToTwip(2.0),
             'marginBottom' => Converter::cmToTwip(2.0),
@@ -281,7 +281,7 @@ final readonly class OtsReportGenerator
         // Главная секция
         $section = $phpWord->addSection([
             'paperSize' => 'A4',
-            'marginLeft' => Converter::cmToTwip(3.0),
+            'marginLeft' => Converter::cmToTwip(2.0),
             'marginRight' => Converter::cmToTwip(1.5),
             'marginTop' => Converter::cmToTwip(1.5),
             'marginBottom' => Converter::cmToTwip(2.0),
