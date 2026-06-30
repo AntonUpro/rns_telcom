@@ -182,7 +182,7 @@ final class TitlePageGenerator
             'borderBottomSize' => 6,
             'borderBottomColor' => '000000',
             'valign' => 'center',
-            'cellMargin' => 100,
+            'marginLeft' => 100,
         ];
 
         $fStyle = [
@@ -196,7 +196,6 @@ final class TitlePageGenerator
 
         $table = $section->addTable([
             'indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP),
-            'cellMargin' => 100,
         ]);
 
         // --- Строка 1 ---
@@ -241,7 +240,7 @@ final class TitlePageGenerator
 
         $section->addTextBreak(2);
 
-        $cellStyle = ['valign' => 'center'];
+        $cellStyle = ['valign' => 'center', 'marginLeft' => 100];
         $tableSign = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
         $tableSign->addRow(Converter::cmToTwip(3));
         $c1 = $tableSign->addCell(Converter::cmToTwip(8), $cellStyle);
