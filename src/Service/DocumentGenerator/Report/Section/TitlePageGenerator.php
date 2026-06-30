@@ -54,6 +54,9 @@ final class TitlePageGenerator
             'italic' => true,
         ], [
             'alignment' => Jc::END,
+            'indentation' => [
+                'right' => (int)Converter::cmToTwip(1),
+            ],
             'spaceAfter' => 0,
         ]);
 
@@ -191,7 +194,10 @@ final class TitlePageGenerator
             'lineHeight' => 1,
         ];
 
-        $table = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
+        $table = $section->addTable([
+            'indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP),
+            'cellMargin' => 100,
+        ]);
 
         // --- Строка 1 ---
         $table->addRow(Converter::cmToTwip(1));
