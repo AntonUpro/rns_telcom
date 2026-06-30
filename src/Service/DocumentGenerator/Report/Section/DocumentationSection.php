@@ -31,12 +31,10 @@ final class DocumentationSection implements SectionBuilderInterface
             $section->addText('- документы не указаны.', $body, $para);
         } else {
             foreach ($context->documents as $i => $doc) {
-                $section->addListItem(
-                    $doc->getName(),
-                    0,
+                $section->addText(
+                    '- ' . $doc->getName(),
                     $body,
-                    ['listType' => ListItem::TYPE_BULLET_FILLED],
-                    $left,
+                    $para,
                 );
             }
         }
