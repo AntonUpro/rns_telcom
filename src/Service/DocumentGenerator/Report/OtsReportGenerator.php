@@ -126,11 +126,20 @@ final readonly class OtsReportGenerator
         $this->addFooterStamp($mainSection, $context);
         // ── Содержание ────────────────────────────────────────────────────────
         $mainSection->addTitle('СОДЕРЖАНИЕ', 1);
-        $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [
-            'indentation' => [
-                'left' => (int)Converter::cmToTwip(1),
-            ],
-        ], 1, 2);
+        $mainSection->addTOC(
+            array_merge(DocStyleRegistry::sectionTitle(), [
+                'paragraph' => [
+                    'indentation' => [
+                        'left'    => (int) Converter::cmToTwip(1),
+                        'right'   => (int) Converter::cmToTwip(1),
+                        'hanging' => null,
+                    ],
+                ],
+            ]),
+            null,
+            1,
+            2,
+        );
         $mainSection->addPageBreak();
 
         $sectionNum = 0;
@@ -342,15 +351,15 @@ final readonly class OtsReportGenerator
         $zip->addFromString('word/document.xml', $xml);
 
         // Гарантируем наличие updateFields в settings.xml
-        $settingsXml = $zip->getFromName('word/settings.xml');
-        if ($settingsXml !== false && ! str_contains($settingsXml, 'w:updateFields')) {
-            $settingsXml = str_replace(
-                '</w:settings>',
-                '<w:updateFields w:val="true"/></w:settings>',
-                $settingsXml,
-            );
-            $zip->addFromString('word/settings.xml', $settingsXml);
-        }
+//        $settingsXml = $zip->getFromName('word/settings.xml');
+//        if ($settingsXml !== false && ! str_contains($settingsXml, 'w:updateFields')) {
+//            $settingsXml = str_replace(
+//                '</w:settings>',
+//                '<w:updateFields w:val="true"/></w:settings>',
+//                $settingsXml,
+//            );
+//            $zip->addFromString('word/settings.xml', $settingsXml);
+//        }
 
         $zip->close();
     }
