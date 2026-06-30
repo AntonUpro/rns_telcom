@@ -317,12 +317,13 @@ final readonly class OtsReportGenerator
             throw new RuntimeException('Не удалось прочитать word/document.xml из архива');
         }
 
-        // offsetFrom="page": space задаётся от края листа в пунктах (0.5cm≈14pt, 2cm≈57pt)
-        $borders = '<w:pgBorders w:offsetFrom="page">'
-            . '<w:top w:val="single" w:sz="6" w:space="14" w:color="000000"/>'
-            . '<w:left w:val="single" w:sz="6" w:space="56" w:color="000000"/>'
-            . '<w:bottom w:val="single" w:sz="6" w:space="14" w:color="000000"/>'
-            . '<w:right w:val="single" w:sz="6" w:space="14" w:color="000000"/>'
+        // offsetFrom="text": space=0 ставит рамку точно на границу текстового поля (поля страницы).
+        // offsetFrom="page" вызывает смещение левой рамки в Word из-за ограничений области печати.
+        $borders = '<w:pgBorders w:offsetFrom="text">'
+            . '<w:top w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
+            . '<w:left w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
+            . '<w:bottom w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
+            . '<w:right w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
             . '</w:pgBorders>';
 
         $xml = str_replace('</w:sectPr>', $borders . '</w:sectPr>', $xml);
