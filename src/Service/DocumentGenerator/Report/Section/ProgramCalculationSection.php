@@ -8,7 +8,6 @@ use App\Dto\Calculation\PillarByHeight\SimpleResultDto;
 use App\Entity\CalculationImage;
 use App\Service\Calculation\PillarByHeight\SimpleCalculator;
 use App\Service\DocumentGenerator\DocStyleRegistry;
-use App\Service\DocumentGenerator\Report\Data\PillarSectionTableData;
 use App\Service\DocumentGenerator\Report\ReportContext;
 use App\Service\DocumentGenerator\Report\SectionBuilderInterface;
 use PhpOffice\PhpWord\Element\Section;
@@ -45,7 +44,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
 
             $textRun->addImage($imageSchemePC->getFilePath(), [
 //                'width'         => Converter::cmToPoint(8),
-                'height' => Converter::cmToPoint(22),
+                'height' => Converter::cmToPoint(21),
                 'wrappingStyle' => 'inline',
                 'alignment' => Jc::CENTER,
             ]);
@@ -187,7 +186,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             'Rsp, МПа', 'Rs, МПа', 'Rsc, МПа', 'Rb, МПа', 'Eb, МПа',
             'As,tot см²', 'А, м²',
         ];
-        $tbl->addRow(300);
+        $tbl->addRow(400);
         foreach ($headers as $i => $header) {
             $tbl->addCell($w[$i], $hCell)->addText($header, $italic, $center);
         }
@@ -195,7 +194,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         // ─── Строки данных ────────────────────────────────────────────────────
         foreach ($calculationResult as $row){
 
-            $tbl->addRow(350);
+            $tbl->addRow(300);
             $vals = [
                 number_format($row->mark, 1, ',', ''),
                 (string)$row->countPrestressingReinforcement,
