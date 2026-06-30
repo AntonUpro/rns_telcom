@@ -131,7 +131,6 @@ final readonly class OtsReportGenerator
                 'paragraph' => [
                     'indentation' => [
                         'left'    => (int) Converter::cmToTwip(1),
-                        'right'   => (int) Converter::cmToTwip(1),
                         'hanging' => null,
                     ],
                 ],
@@ -350,16 +349,42 @@ final readonly class OtsReportGenerator
 
         $zip->addFromString('word/document.xml', $xml);
 
-        // Гарантируем наличие updateFields в settings.xml
-//        $settingsXml = $zip->getFromName('word/settings.xml');
-//        if ($settingsXml !== false && ! str_contains($settingsXml, 'w:updateFields')) {
-//            $settingsXml = str_replace(
-//                '</w:settings>',
-//                '<w:updateFields w:val="true"/></w:settings>',
-//                $settingsXml,
-//            );
-//            $zip->addFromString('word/settings.xml', $settingsXml);
-//        }
+        // Инжектируем именованные стили TOC 1 / TOC 2 в styles.xml.
+        // Word при обновлении полей применяет именно эти стили — без них форматирование сбрасывается.
+        $stylesXml = $zip->getFromName('word/styles.xml');
+        if ($stylesXml !== false && ! str_contains($stylesXml, 'w:styleId="TOC1"')) {
+            $leftTwip = (int) Converter::cmToTwip(1); // 1 cm
+            $tocStyles = sprintf(
+                '<w:style w:type="paragraph" w:styleId="TOC1">'
+                    . '<w:name w:val="toc 1"/><w:basedOn w:val="Normal"/>'
+                    . '<w:pPr>'
+                        . '<w:spacing w:after="0"/>'
+                        . '<w:ind w:left="%1$d" w:right="%1$d"/>'
+                        . '<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="9062"/></w:tabs>'
+                    . '</w:pPr>'
+                    . '<w:rPr>'
+                        . '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+                        . '<w:b/><w:i/><w:sz w:val="24"/><w:szCs w:val="24"/>'
+                    . '</w:rPr>'
+                . '</w:style>'
+                . '<w:style w:type="paragraph" w:styleId="TOC2">'
+                    . '<w:name w:val="toc 2"/><w:basedOn w:val="Normal"/>'
+                    . '<w:pPr>'
+                        . '<w:spacing w:after="0"/>'
+                        . '<w:ind w:left="%2$d" w:right="%1$d"/>'
+                        . '<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="9062"/></w:tabs>'
+                    . '</w:pPr>'
+                    . '<w:rPr>'
+                        . '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+                        . '<w:b/><w:i/><w:sz w:val="24"/><w:szCs w:val="24"/>'
+                    . '</w:rPr>'
+                . '</w:style>',
+                $leftTwip,
+                $leftTwip + 200, // TOC 2: base + один уровень отступа (TOCStyle::$indent = 200 twip)
+            );
+            $stylesXml = str_replace('</w:styles>', $tocStyles . '</w:styles>', $stylesXml);
+            $zip->addFromString('word/styles.xml', $stylesXml);
+        }
 
         $zip->close();
     }
