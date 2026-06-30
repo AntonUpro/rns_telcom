@@ -271,6 +271,7 @@ final readonly class OtsReportGenerator
             'indentation' => [
                 'left' => (int) Converter::cmToTwip(1),
                 'firstLine' => (int) Converter::cmToTwip(1.25),
+                'hanging' => null,
             ],
             'spaceAfter' => 0,
         ]);
