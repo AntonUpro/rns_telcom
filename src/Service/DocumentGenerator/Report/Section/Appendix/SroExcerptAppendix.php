@@ -31,15 +31,15 @@ final class SroExcerptAppendix implements SectionBuilderInterface
             }
 
             $absolutePath = $this->projectDir . '/var/uploads/appendix_images/' . $image->getFileName();
-            if (!file_exists($absolutePath)) {
+            if (! file_exists($absolutePath)) {
                 continue;
             }
 
             $section->addImage($absolutePath, [
-                'width'         => Converter::cmToPoint(17),
-                'height'        => Converter::cmToPoint(24),
+//                'width'         => Converter::cmToPoint(17),
+                'height' => $i === 0 ? Converter::cmToPoint(23) : Converter::cmToPoint(24),
                 'wrappingStyle' => 'inline',
-                'alignment'     => Jc::CENTER,
+                'alignment' => Jc::CENTER,
             ]);
         }
     }
