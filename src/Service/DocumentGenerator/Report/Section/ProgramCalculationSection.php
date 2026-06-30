@@ -44,7 +44,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
 
             $textRun->addImage($imageSchemePC->getFilePath(), [
 //                'width'         => Converter::cmToPoint(8),
-                'height' => Converter::cmToPoint(21),
+                'height' => Converter::cmToPoint(22),
                 'wrappingStyle' => 'inline',
                 'alignment' => Jc::CENTER,
             ]);
@@ -66,7 +66,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         if (file_exists($imageMosaicN->getFilePath())) {
             $section->addImage($imageMosaicN->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
-                'height' => Converter::cmToPoint(24),
+                'height' => Converter::cmToPoint(23),
                 'wrappingStyle' => 'inline',
                 'alignment' => Jc::CENTER,
             ]);
@@ -82,7 +82,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         if (file_exists($imageMosaicM->getFilePath())) {
             $section->addImage($imageMosaicM->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
-                'height' => Converter::cmToPoint(24),
+                'height' => Converter::cmToPoint(23),
                 'wrappingStyle' => 'inline',
                 'alignment' => Jc::CENTER,
             ]);
@@ -99,7 +99,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         if (file_exists($imageMosaicDis->getFilePath())) {
             $section->addImage($imageMosaicDis->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
-                'height' => Converter::cmToPoint(24),
+                'height' => Converter::cmToPoint(23),
                 'wrappingStyle' => 'inline',
                 'alignment' => Jc::CENTER,
             ]);

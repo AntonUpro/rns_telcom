@@ -29,7 +29,7 @@ final class FoundationCalcAppendix implements SectionBuilderInterface
 
             $section->addImage($image->getFilePath(), [
                 'width'         => Converter::cmToPoint(17),
-                'height'        => Converter::cmToPoint(24),
+                'height'        => $i === 0 ? Converter::cmToPoint(24) : Converter::cmToPoint(22),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);
