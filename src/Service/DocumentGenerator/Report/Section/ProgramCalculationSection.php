@@ -113,7 +113,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
                 $this->sectionNum,
                 'РАСЧЕТ ЖЕЛЕЗОБЕТОННОЙ СТОЙКИ',
                 $context->calculation->getCalculationData()?->getConcretePillarSpecificData()?->pillarStamp,
-            ), 1);
+            ), 2);
 
             $section->addText(
                 'Расчет выполнен согласно Пособию по проектированию предварительно напряженных железобетонных конструкций из тяжелых и легких бетонов, п. 3.43.',

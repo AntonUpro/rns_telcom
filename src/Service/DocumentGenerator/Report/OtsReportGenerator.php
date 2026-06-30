@@ -131,11 +131,13 @@ final readonly class OtsReportGenerator
                 'paragraph' => [
                     'indentation' => [
                         'left'    => (int) Converter::cmToTwip(1),
+                        'right'   => (int) Converter::cmToTwip(1),
                         'hanging' => null,
                     ],
                 ],
             ]),
-            null,
+            // tab = ширина текста (18.5cm) − правый отступ (1cm) = 17.5cm от левого поля
+            ['position' => (int) Converter::cmToTwip(17.5)],
             1,
             2,
         );
@@ -354,13 +356,15 @@ final readonly class OtsReportGenerator
         $stylesXml = $zip->getFromName('word/styles.xml');
         if ($stylesXml !== false && ! str_contains($stylesXml, 'w:styleId="TOC1"')) {
             $leftTwip = (int) Converter::cmToTwip(1); // 1 cm
+            // tab = ширина текста (18.5cm) − правый отступ (1cm) = 17.5cm от левого поля
+            $tabTwip  = (int) Converter::cmToTwip(17.5);
             $tocStyles = sprintf(
                 '<w:style w:type="paragraph" w:styleId="TOC1">'
                     . '<w:name w:val="toc 1"/><w:basedOn w:val="Normal"/>'
                     . '<w:pPr>'
                         . '<w:spacing w:after="0"/>'
                         . '<w:ind w:left="%1$d" w:right="%1$d"/>'
-                        . '<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="9062"/></w:tabs>'
+                        . '<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="%3$d"/></w:tabs>'
                     . '</w:pPr>'
                     . '<w:rPr>'
                         . '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
@@ -372,7 +376,7 @@ final readonly class OtsReportGenerator
                     . '<w:pPr>'
                         . '<w:spacing w:after="0"/>'
                         . '<w:ind w:left="%2$d" w:right="%1$d"/>'
-                        . '<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="9062"/></w:tabs>'
+                        . '<w:tabs><w:tab w:val="right" w:leader="dot" w:pos="%3$d"/></w:tabs>'
                     . '</w:pPr>'
                     . '<w:rPr>'
                         . '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
@@ -381,6 +385,7 @@ final readonly class OtsReportGenerator
                 . '</w:style>',
                 $leftTwip,
                 $leftTwip + 200, // TOC 2: base + один уровень отступа (TOCStyle::$indent = 200 twip)
+                $tabTwip,
             );
             $stylesXml = str_replace('</w:styles>', $tocStyles . '</w:styles>', $stylesXml);
             $zip->addFromString('word/styles.xml', $stylesXml);
