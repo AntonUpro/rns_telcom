@@ -9,7 +9,6 @@ use App\Repository\AppendixStaticImageRepository;
 use App\Repository\CalculationDocumentRepository;
 use App\Repository\CalculationImageRepository;
 use App\Repository\CalculationRepository;
-use App\Repository\CalculationReportFileRepository;
 use App\Repository\CalculationResultTableRepository;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Entity\CalculationImage;
@@ -76,7 +75,6 @@ final readonly class OtsReportGenerator
         private CalculationDocumentRepository $documentRepository,
         private CalculationImageRepository $imageRepository,
         private CalculationResultTableRepository $resultTableRepository,
-        private CalculationReportFileRepository $reportFileRepository,
         private WindLoadsSection $windLoadsSection,
         private CertificatesAppendix $certificatesAppendix,
         private SroExcerptAppendix $sroExcerptAppendix,
@@ -128,9 +126,11 @@ final readonly class OtsReportGenerator
         $this->addFooterStamp($mainSection, $context);
         // ── Содержание ────────────────────────────────────────────────────────
         $mainSection->addTitle('СОДЕРЖАНИЕ', 1);
-        $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [            'indentation' => [
-            'left' => (int) Converter::cmToTwip(1),
-        ],], 1, 2);
+        $mainSection->addTOC(DocStyleRegistry::sectionTitle(), [
+            'indentation' => [
+                'left' => (int)Converter::cmToTwip(1),
+            ],
+        ], 1, 2);
         $mainSection->addPageBreak();
 
         $sectionNum = 0;
@@ -259,6 +259,11 @@ final readonly class OtsReportGenerator
             'alignment' => Jc::CENTER,
             'spaceBefore' => Converter::cmToTwip(0.3),
             'spaceAfter' => 0,
+            'indentation' => [
+                'left' => (int)Converter::cmToTwip(1),
+                'right' => (int)Converter::cmToTwip(1),
+                'hanging' => null,
+            ],
         ]);
 
         $phpWord->addTitleStyle(2, [
@@ -269,8 +274,8 @@ final readonly class OtsReportGenerator
         ], [
             'alignment' => Jc::BOTH,
             'indentation' => [
-                'left' => (int) Converter::cmToTwip(1),
-                'firstLine' => (int) Converter::cmToTwip(1.25),
+                'left' => (int)Converter::cmToTwip(1),
+                'right' => (int)Converter::cmToTwip(1),
                 'hanging' => null,
             ],
             'spaceAfter' => 0,
@@ -281,7 +286,7 @@ final readonly class OtsReportGenerator
             'paperSize' => 'A4',
             'marginLeft' => Converter::cmToTwip(2.0),
             'marginRight' => Converter::cmToTwip(0.5),
-            'marginTop' => Converter::cmToTwip(2.0),
+            'marginTop' => Converter::cmToTwip(1.5),
             'marginBottom' => Converter::cmToTwip(2.0),
             'footerHeight' => Converter::cmToTwip(0.5),
         ]);
@@ -292,7 +297,6 @@ final readonly class OtsReportGenerator
             'marginRight' => Converter::cmToTwip(0.5),
             'marginTop' => Converter::cmToTwip(1.5),
             'marginBottom' => Converter::cmToTwip(2.0),
-            'headerHeight' => 0,
             'footerHeight' => Converter::cmToTwip(0.5),
         ]);
         $section->addHeader();
@@ -320,7 +324,7 @@ final readonly class OtsReportGenerator
         // offsetFrom="text": space=0 ставит рамку точно на границу текстового поля (поля страницы).
         // offsetFrom="page" вызывает смещение левой рамки в Word из-за ограничений области печати.
         $borders = '<w:pgBorders w:offsetFrom="text">'
-            . '<w:top w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
+            . '<w:top w:val="single" w:sz="6" w:space="20" w:color="000000"/>'
             . '<w:left w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
             . '<w:bottom w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
             . '<w:right w:val="single" w:sz="6" w:space="0" w:color="000000"/>'
