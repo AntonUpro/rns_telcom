@@ -37,7 +37,7 @@ final class CertificatesAppendix implements SectionBuilderInterface
 
             $section->addImage($absolutePath, [
                 'width'         => Converter::cmToPoint(17),
-                'height'        => Converter::cmToPoint(25),
+                'height'        => Converter::cmToPoint(24),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);

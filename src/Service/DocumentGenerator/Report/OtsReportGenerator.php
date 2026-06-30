@@ -225,7 +225,6 @@ final readonly class OtsReportGenerator
 
         $this->addAppendix($mainSection, $appendixNum, 'УВЕДОМЛЕНИЕ НОПРИЗ');
         $this->noprizNotificationAppendix->build($mainSection, $context, $tableNum);
-        $mainSection->addPageBreak();
 
         if ($context->getCalculationImagesByType(CalculationImage::TYPE_EQUIPMENT_LIST) !== []) {
             $mainSection->addPageBreak();

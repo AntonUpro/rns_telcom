@@ -37,7 +37,7 @@ final class NoprizNotificationAppendix implements SectionBuilderInterface
 
             $section->addImage($absolutePath, [
                 'width'         => Converter::cmToPoint(17),
-                'height'        => Converter::cmToPoint(24),
+                'height'        => Converter::cmToPoint(23),
                 'wrappingStyle' => 'inline',
                 'alignment'     => Jc::CENTER,
             ]);
