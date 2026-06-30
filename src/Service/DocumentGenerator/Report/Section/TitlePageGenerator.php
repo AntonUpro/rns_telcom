@@ -182,7 +182,7 @@ final class TitlePageGenerator
             'borderBottomSize' => 6,
             'borderBottomColor' => '000000',
             'valign' => 'center',
-            'marginLeft' => 100,
+            'marginLeft' => (int) Converter::cmToTwip(0.2),
         ];
 
         $fStyle = [
@@ -240,7 +240,7 @@ final class TitlePageGenerator
 
         $section->addTextBreak(2);
 
-        $cellStyle = ['valign' => 'center', 'marginLeft' => 100];
+        $cellStyle = ['valign' => 'center', 'marginLeft' => (int) Converter::cmToTwip(0.2)];
         $tableSign = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
         $tableSign->addRow(Converter::cmToTwip(3));
         $c1 = $tableSign->addCell(Converter::cmToTwip(8), $cellStyle);

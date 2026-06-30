@@ -13,6 +13,7 @@ use App\Service\DocumentGenerator\Report\ReportContext;
 use App\Service\DocumentGenerator\Report\SectionBuilderInterface;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
+use PhpOffice\PhpWord\SimpleType\Jc;
 
 /**
  * Раздел «Результаты расчёта и выводы».
@@ -411,7 +412,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
 
         $italic = DocStyleRegistry::italicCenter();
         $center = array_merge(DocStyleRegistry::paragraphCenter(), DocStyleRegistry::paragraphLineSpacing());
-        $left = array_merge(DocStyleRegistry::paragraphLeft(), DocStyleRegistry::paragraphLineSpacing());
+        $left = array_merge(['alignment' => Jc::START], DocStyleRegistry::paragraphLineSpacing());
         $dc = DocStyleRegistry::dataCell();
         $c = DocStyleRegistry::center();
 

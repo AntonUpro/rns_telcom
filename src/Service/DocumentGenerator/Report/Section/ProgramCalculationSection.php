@@ -187,7 +187,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             'Rsp, МПа', 'Rs, МПа', 'Rsc, МПа', 'Rb, МПа', 'Eb, МПа',
             'As,tot см²', 'А, м²',
         ];
-        $tbl->addRow(400);
+        $tbl->addRow(300);
         foreach ($headers as $i => $header) {
             $tbl->addCell($w[$i], $hCell)->addText($header, $italic, $center);
         }
@@ -250,7 +250,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         }
 
         foreach ($calculationResult as $row) {
-            $tbl->addRow(350);
+            $tbl->addRow(300);
             $vals = [
                 number_format($row->mark, 1, ',', ''),
                 number_format($row->rm, 3, ',', ''),
