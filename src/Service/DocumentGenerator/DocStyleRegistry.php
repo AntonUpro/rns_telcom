@@ -160,10 +160,8 @@ final class DocStyleRegistry
                 'left' => (int)Converter::cmToTwip(1),
                 'right' => (int)Converter::cmToTwip(1.25),
                 'firstLine' => (int)Converter::cmToTwip(1.25),
-                'hanging' => 0,
             ],
             'spaceAfter' => 0,
-
         ];
     }
 
