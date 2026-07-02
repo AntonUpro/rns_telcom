@@ -7,7 +7,7 @@ echo "==> [1/6] git pull"
 git pull
 
 echo "==> [2/6] docker compose up --build"
-docker compose --env-file .env.prod -f docker-compose-prod.yaml up -d --build
+docker compose --env-file .env.prod -f docker-compose-prod.yaml up -d
 
 echo "==> [3/6] composer install (no-dev)"
 docker exec --user root rns-telcom-app composer install --no-dev --optimize-autoloader
@@ -19,7 +19,7 @@ docker exec --user root rns-telcom-app npm run build
 echo "==> [5/6] doctrine migrations"
 docker exec --user root rns-telcom-app bin/console doctrine:migrations:migrate --no-interaction
 
-echo "==> [6/6] cache warmup"
-docker exec --user root rns-telcom-app bin/console cache:warmup --env=prod
+echo "==> [6/6] cache clear"
+docker exec --user root rns-telcom-app bin/console cache:clear --env=prod
 
 echo "==> Done!"
