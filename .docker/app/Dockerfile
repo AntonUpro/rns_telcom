@@ -23,6 +23,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 RUN groupmod -g "${GID}" www-data \
  && usermod -u "${UID}" -g "${GID}" www-data
 
+RUN chmod -R 777 /var/www/rns_telcom/var/cache
+
 WORKDIR /var/www/rns_telcom
 
 COPY ./conf/prod.ini /usr/local/etc/php/conf.d/prod.ini
