@@ -126,6 +126,13 @@ class PillarPlatform
         return $this->sections->toArray();
     }
 
+    public function getSortSectionsByNumber(): array
+    {
+        $sections = $this->getSections();
+        usort($sections, fn(PillarPlatformSection $a, PillarPlatformSection $b) => $a->getNumberSection() <=> $b->getNumberSection());
+        return $sections;
+    }
+
     public function addSection(PillarPlatformSection $section): static
     {
         if (!$this->sections->contains($section)) {

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Dto\Calculation\PillarPlatform\ElementDto;
+use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
+use App\Enum\Pillar\SectionConstructTypeEnum;
 use App\Repository\PillarPlatformSectionsRepository;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
@@ -157,6 +160,11 @@ class PillarPlatformSection
         return $this->mountHeightTop;
     }
 
+    public function getMountHeightTopM(): ?float
+    {
+        return $this->mountHeightTop / 1000;
+    }
+
     public function setMountHeightTop(int $mountHeightTop): static
     {
         $this->mountHeightTop = $mountHeightTop;
@@ -167,6 +175,25 @@ class PillarPlatformSection
     public function getElements(): ?array
     {
         return $this->elements;
+    }
+
+    /**
+     * @return ElementDto[]
+     */
+    public function getElementsDto(): ?array
+    {
+        $elements = [];
+        foreach ($this->getElements() as $element) {
+            $elements[] = new ElementDto(
+                elementType: ElementTypeEnum::from($element['type']),
+                sectionConstructType: SectionConstructTypeEnum::from($element['sectionType']),
+                with: $element['widthElement'],
+                length: $element['lengthElement'],
+                count: $element['countElement'],
+            );
+        }
+
+        return $elements;
     }
 
     public function setElements(?array $elements): static

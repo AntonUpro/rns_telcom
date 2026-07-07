@@ -343,7 +343,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                                 @change="onElementChange(idx, $event.target.value)"
                             >
                                 <option value="">— выбрать —</option>
-                                <option v-for="opt in elementOptions" :key="opt.value" :value="opt.label">
+                                <option v-for="opt in elementOptions" :key="opt.value" :value="opt.value">
                                     {{ opt.label }}
                                 </option>
                             </select>

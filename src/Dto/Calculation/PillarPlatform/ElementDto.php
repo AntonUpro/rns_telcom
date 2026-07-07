@@ -27,4 +27,9 @@ final readonly class ElementDto
     {
         return $this->with / 1000 * $this->sectionConstructType->cx();
     }
+
+    public function getLengthCm(): float
+    {
+        return $this->length / 10;
+    }
 }

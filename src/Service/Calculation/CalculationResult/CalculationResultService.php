@@ -6,7 +6,12 @@ namespace App\Service\Calculation\CalculationResult;
 
 use App\Entity\Calculation;
 use App\Entity\CalculationResultTable;
+use App\Enum\Calculation\BraceConnectionTypeEnum;
+use App\Enum\Calculation\FlexibilityTypeEnum;
+use App\Enum\Calculation\LoadTypeEnum;
 use App\Enum\Calculation\ResultTableTypeEnum;
+use App\Enum\Calculation\SchemeNumberEnum;
+use App\Enum\Pillar\ElementTypeEnum;
 use App\Repository\CalculationResultTableRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -76,9 +81,7 @@ final class CalculationResultService
             ];
         }
 
-        if (empty($result)) {
-            $result = $this->addDefaultData($calculation);
-        }
+        $result = $this->addDefaultData($calculation, $result);
 
         return $result;
     }
@@ -107,24 +110,65 @@ final class CalculationResultService
         $this->entityManager->flush();
     }
 
-    private function addDefaultData(Calculation $calculation): array
+    private function addDefaultData(Calculation $calculation, array &$result): array
     {
         $pillarEnum = $calculation->getCalculationData()->getConcretePillarSpecificData()->toEnumPillar();
 
-        $result[ResultTableTypeEnum::PILLAR_FORCES->value] = [
-            'enabled' => true,
-            'rows'    => [
-                ['mark' => 0, 'pillarType' => $pillarEnum->value, 'mAllowable' => $pillarEnum->getAllowableMomentByStrength()],
-            ],
-        ];
+        if (empty($result[ResultTableTypeEnum::PILLAR_FORCES->value])) {
+            $result[ResultTableTypeEnum::PILLAR_FORCES->value] = [
+                'enabled' => true,
+                'rows'    => [
+                    ['mark' => 0, 'pillarType' => $pillarEnum->value, 'mAllowable' => $pillarEnum->getAllowableMomentByStrength()],
+                ],
+            ];
+        }
 
-        $result[ResultTableTypeEnum::CRACK_OPENING->value] = [
-            'enabled' => true,
-            'rows'    => [
-                ['mark' => 0, 'pillarType' => $pillarEnum->value, 'crackWidthAllowable' => 0.3],
-            ],
-        ];
+//        $result[ResultTableTypeEnum::CRACK_OPENING->value] = [
+//            'enabled' => true,
+//            'rows'    => [
+//                ['mark' => 0, 'pillarType' => $pillarEnum->value, 'crackWidthAllowable' => 0.3],
+//            ],
+//        ];
+
+        if (empty($result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY->value])) {
+            $result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY->value] = [
+                'enabled' => false,
+                'rows'    => $this->addDefaultDataSuperstructureStability($calculation),
+            ];
+        }
 
         return $result;
+    }
+
+    private function addDefaultDataSuperstructureStability(Calculation $calculation): array
+    {
+        $rows = [];
+
+        foreach ($calculation->getPillarPlatform()?->getSortSectionsByNumber() ?? [] as $section) {
+            if ($section->isStrut()) {
+                continue;
+            }
+
+            foreach ($section->getElementsDto() as $element) {
+                if (in_array($element->elementType->value, [ElementTypeEnum::BELT->value, ElementTypeEnum::BRACE->value])) {
+                    $rows[] = [
+                        'mark' => $section->getMountHeightTopM(),
+                        'element' => $element->elementType,
+                        'profileType' => $element->sectionConstructType->toGaugeProfile()->value,
+                        'elementLength' => $element->getLengthCm(),
+                        'loadType' => LoadTypeEnum::COMPRESSED->value,
+                        'connectionType' => BraceConnectionTypeEnum::SINGLE_BOLT_OR_GUSSET->value,
+                        'schemeNumber' => SchemeNumberEnum::A->value,
+                        'flexibility' => $element->elementType->value === ElementTypeEnum::BELT->value
+                            ? FlexibilityTypeEnum::ONE_A->value
+                            : FlexibilityTypeEnum::TWO_A->value,
+//                        'ry' => $calculation->getCalculationData()->getConcretePillarSpecificData()->defaultValues->cableDiameterValues,
+                        'ry' => 240,
+                    ];
+                }
+            }
+        }
+
+        return $rows;
     }
 }

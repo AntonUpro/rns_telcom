@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Enum\Pillar;
 
+use App\Enum\Gauge\GaugeProfileTypeEnum;
+
 enum SectionConstructTypeEnum: string
 {
     case ROUND_PIPE = 'round_pipe';
@@ -54,6 +56,18 @@ enum SectionConstructTypeEnum: string
             self::CHANNEL      => '[',
             self::DOUBLE_ANGLE => '∟∟',
             self::OTHER        => '—',
+        };
+    }
+
+    public function toGaugeProfile(): ?GaugeProfileTypeEnum
+    {
+        return match ($this) {
+            self::ROUND_PIPE   => GaugeProfileTypeEnum::PIPE_ROUND,
+            self::SQUARE_PIPE  => GaugeProfileTypeEnum::PIPE_SQUARE,
+            self::ANGLE        => GaugeProfileTypeEnum::ANGLE_EQUAL,
+            self::CHANNEL      => GaugeProfileTypeEnum::CHANNEL,
+            self::DOUBLE_ANGLE => GaugeProfileTypeEnum::ANGLE_EQUAL,
+            self::OTHER        => null,
         };
     }
 }
