@@ -37,7 +37,9 @@ class GaugeSearchService
      * {
      *   id, designation, name, standard, area,
      *   momentResistances: [{ key, label, value }, ...],
-     *   defaultMomentResistanceKey: string
+     *   defaultMomentResistanceKey: string,
+     *   momentsOfInertia: [{ key, label, value }, ...],
+     *   defaultMomentInertiaKey: string
      * }
      *
      * Для типов без таблицы в БД (ANGLE_UNEQUAL, SHEET) возвращается пустой массив.
@@ -98,6 +100,11 @@ class GaugeSearchService
                 ['key' => 'min', 'label' => 'Wmin', 'value' => (float)$g->getMomentResistanceMin()],
             ],
             'defaultMomentResistanceKey' => 'x',
+            'momentsOfInertia' => [
+                ['key' => 'x', 'label' => 'Ix/Iy', 'value' => (float)$g->getMomentInertiaX()],
+                ['key' => 'min', 'label' => 'Imin', 'value' => (float)($g->getMomentInertiaMin() ?? 0.0)],
+            ],
+            'defaultMomentInertiaKey' => 'x',
         ];
     }
 
@@ -116,6 +123,11 @@ class GaugeSearchService
                 ['key' => 'y_near', 'label' => "W'y (ближний)", 'value' => $wyNear],
             ],
             'defaultMomentResistanceKey' => 'y',
+            'momentsOfInertia' => [
+                ['key' => 'x', 'label' => 'Ix', 'value' => (float)$g->getMomentInertiaX()],
+                ['key' => 'y', 'label' => 'Iy', 'value' => (float)$g->getMomentInertiaY()],
+            ],
+            'defaultMomentInertiaKey' => 'y',
         ];
     }
 
@@ -129,6 +141,11 @@ class GaugeSearchService
                 ['key' => 'y', 'label' => 'Wy (ось Y)', 'value' => (float)$g->getMomentResistanceY()],
             ],
             'defaultMomentResistanceKey' => 'y',
+            'momentsOfInertia' => [
+                ['key' => 'x', 'label' => 'Ix', 'value' => (float)$g->getMomentInertiaX()],
+                ['key' => 'y', 'label' => 'Iy', 'value' => (float)$g->getMomentInertiaY()],
+            ],
+            'defaultMomentInertiaKey' => 'y',
         ];
     }
 
@@ -141,6 +158,10 @@ class GaugeSearchService
                 ['key' => 'w', 'label' => 'W', 'value' => (float)$g->getMomentResistance()],
             ],
             'defaultMomentResistanceKey' => 'w',
+            'momentsOfInertia' => [
+                ['key' => 'w', 'label' => 'I', 'value' => (float)$g->getMomentInertia()],
+            ],
+            'defaultMomentInertiaKey' => 'w',
         ];
     }
 
@@ -153,6 +174,10 @@ class GaugeSearchService
                 ['key' => 'w', 'label' => 'W', 'value' => (float)$g->getMomentResistance()],
             ],
             'defaultMomentResistanceKey' => 'w',
+            'momentsOfInertia' => [
+                ['key' => 'w', 'label' => 'I', 'value' => (float)$g->getMomentInertia()],
+            ],
+            'defaultMomentInertiaKey' => 'w',
         ];
     }
 
@@ -165,6 +190,10 @@ class GaugeSearchService
                 ['key' => 'w', 'label' => 'W', 'value' => (float)$g->getMomentResistance()],
             ],
             'defaultMomentResistanceKey' => 'w',
+            'momentsOfInertia' => [
+                ['key' => 'w', 'label' => 'I', 'value' => (float)$g->getMomentInertia()],
+            ],
+            'defaultMomentInertiaKey' => 'w',
         ];
     }
 }

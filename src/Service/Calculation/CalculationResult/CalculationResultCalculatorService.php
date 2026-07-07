@@ -10,6 +10,7 @@ use App\Service\Calculation\CalculationResult\Calculator\CrackOpeningCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\DeformationCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\PillarForcesCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\StressCalculator;
+use App\Service\Calculation\CalculationResult\Calculator\SuperstructureStabilityCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TableCalculatorInterface;
 
 final class CalculationResultCalculatorService
@@ -21,6 +22,7 @@ final class CalculationResultCalculatorService
         PillarForcesCalculator $pillarForcesCalculator,
         CrackOpeningCalculator $crackOpeningCalculator,
         StressCalculator $stressCalculator,
+        SuperstructureStabilityCalculator $superstructureStabilityCalculator,
         DeformationCalculator $deformationCalculator,
         FoundationForcesCalculator $basePillarForcesCalculator,
     ) {
@@ -29,6 +31,7 @@ final class CalculationResultCalculatorService
             ResultTableTypeEnum::CRACK_OPENING->value => $crackOpeningCalculator,
             ResultTableTypeEnum::BRACE_STRESS->value => $stressCalculator,
             ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $stressCalculator,
+            ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY->value => $superstructureStabilityCalculator,
             ResultTableTypeEnum::PLATFORM_FORCES->value => $stressCalculator,
             ResultTableTypeEnum::DEFORMATION->value => $deformationCalculator,
             ResultTableTypeEnum::FOUNDATION->value => $basePillarForcesCalculator,

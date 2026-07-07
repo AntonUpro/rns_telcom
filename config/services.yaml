@@ -37,3 +37,7 @@ services:
     App\Service\DocumentGenerator\Report\OtsReportGenerator:
         arguments:
             $projectDir: '%kernel.project_dir%'
+
+    App\Controller\Api\StaticImage\StaticImageController:
+        arguments:
+            $projectDir: '%kernel.project_dir%'

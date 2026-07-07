@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace App\Controller\Api\CalculationResults;
 
 use App\Controller\Api\AbstractApiController;
+use App\Enum\Calculation\BraceConnectionTypeEnum;
+use App\Enum\Calculation\FlexibilityTypeEnum;
+use App\Enum\Calculation\LoadTypeEnum;
+use App\Enum\Calculation\SchemeNumberEnum;
 use App\Enum\Gauge\GaugeProfileTypeEnum;
 use App\Enum\Pillar\ElementTypeEnum;
 use App\Repository\CalculationRepository;
@@ -72,6 +76,11 @@ class CalculationResultsController extends AbstractApiController
                         ],
                         ElementTypeEnum::cases(),
                     ),
+                    'loadTypes' => LoadTypeEnum::toOptions(),
+                    'connectionTypes' => BraceConnectionTypeEnum::toOptions(),
+                    'schemeNumbers' => SchemeNumberEnum::toOptions(),
+                    'flexibilityBeltOptions' => FlexibilityTypeEnum::optionsForBelt(),
+                    'flexibilityOtherOptions' => FlexibilityTypeEnum::optionsForOther(),
                 ],
                 'savedData' => $savedData ?: null,
             ]);

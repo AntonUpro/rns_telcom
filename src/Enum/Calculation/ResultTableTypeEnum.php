@@ -10,6 +10,7 @@ enum ResultTableTypeEnum: string
     case CRACK_OPENING = 'crack_opening';
     case BRACE_STRESS = 'brace_stress';
     case SUPERSTRUCTURE_STRESS = 'superstructure_stress';
+    case SUPERSTRUCTURE_STABILITY = 'superstructure_stability';
     case PLATFORM_FORCES = 'platform_forces';
     case BASE_PILLAR_FORCES = 'base_forces';
     case DEFORMATION = 'deformation';
@@ -31,6 +32,7 @@ enum ResultTableTypeEnum: string
             self::BRACE_STRESS => 'Максимальные напряжения в элементах подкосов площадки',
             self::PLATFORM_FORCES => 'Максимальные напряжения в элементах площадки',
             self::SUPERSTRUCTURE_STRESS => 'Максимальные напряжения в элементах поясов надстройки',
+            self::SUPERSTRUCTURE_STABILITY => 'Максимальные напряжения в элементах надстройки (устойчивость)',
             self::BASE_PILLAR_FORCES => 'Максимальные усилия в основании опоры',
             self::DEFORMATION => 'Деформации опоры',
             self::FOUNDATION => 'Результаты расчёта основания опоры',
@@ -45,6 +47,7 @@ enum ResultTableTypeEnum: string
             self::BRACE_STRESS => 'выполнить усиление подкосов опоры',
             self::PLATFORM_FORCES => 'выполнить усиление площадки опоры',
             self::SUPERSTRUCTURE_STRESS => 'выполнить усиление надстройки опоры',
+            self::SUPERSTRUCTURE_STABILITY => 'выполнить усиление надстройки опоры',
             self::BASE_PILLAR_FORCES => 'выполнить усиление основания опоры',
             self::DEFORMATION => 'выполнить усиление ствола опоры',
             self::FOUNDATION => 'выполнить усиление фундамента опоры',

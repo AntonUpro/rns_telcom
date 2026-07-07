@@ -27,7 +27,7 @@ enum GaugeProfileTypeEnum: string
             self::CHANNEL       => 'Швеллер',
             self::I_BEAM        => 'Двутавр',
             self::PIPE_ROUND    => 'Труба круглая',
-            self::PIPE_SQUARE   => 'Труба профильная квадратная',
+            self::PIPE_SQUARE   => 'Труба проф. квадратная',
             self::CIRCLE        => 'Круг',
             self::SHEET         => 'Лист',
         };
