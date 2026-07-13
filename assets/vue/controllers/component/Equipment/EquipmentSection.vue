@@ -14,7 +14,7 @@ const props = defineProps({
     debounceMs: { type: Number, default: 300 },
     apiUrl: { type: String, default: '/api/v1/equipment/search' } // поменяйте под ваш бэкенд
 });
-const emit = defineEmits(['update:rows', 'add-item', 'remove-item']);
+const emit = defineEmits(['update:rows', 'add-item', 'remove-item', 'duplicate-item']);
 
 const localRows = ref([]);
 
@@ -613,11 +613,21 @@ function onOperatorBlur(row, idx) {
         <td class="cell-actions">
             <div class="action-buttons" v-if="editable">
                 <button
+                    @click="emit('duplicate-item', index)"
+                    class="btn-action-icon btn-duplicate"
+                    title="Копировать оборудование"
+                >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                </button>
+                <button
                     @click="emit('remove-item', index)"
                     class="btn-action-icon btn-remove"
                     title="Удалить оборудование"
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M18 6L6 18M6 6l12 12"/>
                     </svg>
                 </button>
@@ -766,8 +776,18 @@ function onOperatorBlur(row, idx) {
     background: #5a6268;
 }
 
+.btn-duplicate {
+    background: #3498db;
+}
+
+.btn-duplicate:hover {
+    background: #2980b9;
+}
+
 .btn-remove {
     background: #f68d82;
+    width: 18px;
+    height: 18px;
 }
 
 .btn-remove:hover {
@@ -777,7 +797,8 @@ function onOperatorBlur(row, idx) {
 /* Кнопки действий в строке */
 .action-buttons {
     display: flex;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.5rem;
     justify-content: center;
 }
 
