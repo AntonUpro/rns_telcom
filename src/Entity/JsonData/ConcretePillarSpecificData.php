@@ -17,7 +17,7 @@ final class ConcretePillarSpecificData extends AbstractJsonData
         public readonly float $markBottom,
         public readonly bool $strengtheningExist,
         public readonly ?Strengthening $strengthening,
-        public readonly DefaultValues $defaultValues,
+        public readonly ?DefaultValues $defaultValues,
     ) {
     }
 
@@ -29,19 +29,19 @@ final class ConcretePillarSpecificData extends AbstractJsonData
             'markBottom' => $this->markBottom,
             'strengtheningExist' => $this->strengtheningExist,
             'strengthening' => $this->strengthening?->toArray(),
-            'defaultValues' => $this->defaultValues->toArray(),
+            'defaultValues' => $this->defaultValues?->toArray(),
         ];
     }
 
     public static function fromArray(array $data): static
     {
         return new static(
-            pillarStamp: $data['pillarStamp'],
+            pillarStamp: $data['pillarStamp'] ?? null,
             pillarHeight: $data['pillarHeight'] ?? null,
             markBottom: $data['markBottom'] ?? 0,
-            strengtheningExist: $data['strengtheningExist'],
+            strengtheningExist: $data['strengtheningExist'] ?? false,
             strengthening: isset($data['strengthening']) ? Strengthening::fromArray($data['strengthening']) : null,
-            defaultValues: DefaultValues::fromArray($data['defaultValues']),
+            defaultValues: isset($data['defaultValues']) ? DefaultValues::fromArray($data['defaultValues']) : null,
         );
     }
 

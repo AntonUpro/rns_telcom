@@ -149,7 +149,7 @@ final class TitlePageGenerator
 
         $section->addTextBreak(2);
 
-        $section->addText('Шифр проекта: ' . $context->calculation->getCalculationData()->getObjectCode(), [
+        $section->addText('Шифр проекта: ' . $context->calculation->getObjectCode(), [
             'size' => 14,
             'name' => 'Times New Roman',
             'italic' => true,
@@ -217,7 +217,7 @@ final class TitlePageGenerator
         $c1 = $table->addCell($colWidth, $cellStyle);
         $c1->addText('Номер и название БС по классификации оператора сотовой связи', $fStyle);
         $c2 = $table->addCell($colWidth, $cellStyle);
-        $c2->addText($context->calculation?->getCalculationData()?->getObjectCode(), $fStyle);
+        $c2->addText($context->calculation?->getObjectCode(), $fStyle);
 
         $heightAMS = $context->calculation?->getCalculationData()?->getAmsHeight() ?? '—';
         $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? '—';

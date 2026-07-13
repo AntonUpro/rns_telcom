@@ -344,7 +344,7 @@ const saveGeneralData = async () => {
                 pillarData: {
                     pillarStamp: formData.pillarStamp,
                     pillarHeight: formData.pillarHeight,
-                    markBottom: formData.markBottom,
+                    // markBottom: formData.markBottom,
                     strengtheningExist: formData.strengtheningExist,
                     strengtheningGeometry: formData.strengtheningGeometry || null,
                     strengtheningWidth: formData.strengtheningWidth || null,
@@ -416,6 +416,7 @@ onMounted(async () => {
                             v-model="formData.objectCode"
                             class="form-calculation-control compact-input"
                             placeholder="Введите шифр объекта"
+                            disabled
                         />
                     </div>
                 </div>
@@ -438,16 +439,16 @@ onMounted(async () => {
                     />
                 </div>
                 <div class="form-group compact-group">
-                    <label>Населённый пункт:</label>
+                    <label>Город или поселок, улица, № дома:</label>
                     <input
                         type="text"
                         v-model="formData.locality"
                         class="form-calculation-control compact-input"
-                        placeholder="Введите населенный пункт"
+                        placeholder="Введите адрес"
                     />
                 </div>
                 <div class="form-group compact-group">
-                    <label>Заказчик:</label>
+                    <label>Выберите заказчика из выпадающего списка:</label>
                     <select v-model="formData.customer" class="form-calculation-control compact-input">
                         <option :value="null">— Выберите заказчика —</option>
                         <option v-for="c in customers" :key="c.id" :value="c.id">
@@ -462,6 +463,7 @@ onMounted(async () => {
                         v-model="formData.amsType"
                         class="form-calculation-control compact-input"
                         placeholder="Введите тип АМС"
+                        disabled
                     />
                 </div>
                 <div class="form-group compact-group">
@@ -478,11 +480,36 @@ onMounted(async () => {
                     </div>
                 </div>
                 <div class="form-group compact-group">
+                    <label>Широта:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.latitude"
+                            class="form-calculation-control compact-input"
+                            step="0.000001"
+                        />
+                        <span class="unit">°</span>
+                    </div>
+                </div>
+                <div class="form-group compact-group">
+                    <label>Долгота:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.longitude"
+                            class="form-calculation-control compact-input"
+                            step="0.000001"
+                        />
+                        <span class="unit">°</span>
+                    </div>
+                </div>
+                <div class="form-group compact-group">
                     <label>Дата обследования:</label>
                     <input
                         type="date"
                         v-model="formData.inspectionDate"
                         class="form-calculation-control compact-input"
+                        disabled
                     />
                 </div>
             </div>
@@ -519,7 +546,7 @@ onMounted(async () => {
                 </div>
                 <div class="form-group compact-group">
                     <label>Снеговой район:</label>
-                    <select v-model="formData.snowRegion" class="form-calculation-control compact-input">
+                    <select v-model="formData.snowRegion" class="form-calculation-control compact-input" disabled>
                         <option v-for="region in snowRegions" :key="region.value" :value="region.value">
                             {{ region.label }}
                         </option>
@@ -527,7 +554,7 @@ onMounted(async () => {
                 </div>
                 <div class="form-group compact-group">
                     <label>Гололедный район:</label>
-                    <select v-model="formData.iceRegion" class="form-calculation-control compact-input">
+                    <select v-model="formData.iceRegion" class="form-calculation-control compact-input" disabled>
                         <option v-for="region in icingRegions" :key="region.value" :value="region.value">
                             {{ region.label }}
                         </option>
@@ -557,19 +584,19 @@ onMounted(async () => {
                         </option>
                     </select>
                 </div>
-                <div class="form-group compact-group">
-                    <label>Отметка низа столба:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.markBottom"
-                            class="form-calculation-control compact-input"
-                            step="0.01"
-                            min="-3"
-                        />
-                        <span class="unit">м</span>
-                    </div>
-                </div>
+<!--                <div class="form-group compact-group">-->
+<!--                    <label>Отметка низа столба:</label>-->
+<!--                    <div class="input-with-unit">-->
+<!--                        <input-->
+<!--                            type="number"-->
+<!--                            v-model.number="formData.markBottom"-->
+<!--                            class="form-calculation-control compact-input"-->
+<!--                            step="0.01"-->
+<!--                            min="-3"-->
+<!--                        />-->
+<!--                        <span class="unit">м</span>-->
+<!--                    </div>-->
+<!--                </div>-->
                 <div class="form-group compact-group">
                     <label>Высота бетонного ствола опоры:</label>
                     <div class="input-with-unit">

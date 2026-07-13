@@ -28,9 +28,9 @@ class Calculation
     private ?User $user = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: 'Название расчета обязательно')]
+    #[Assert\NotBlank(message: 'Шифр проекта')]
     #[Assert\Length(max: 255, maxMessage: 'Название не должно превышать 255 символов')]
-    private ?string $name = null;
+    private ?string $objectCode = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\Choice(callback: 'getAvailableTypes', message: 'Выберите корректный тип расчета')]
@@ -90,14 +90,14 @@ class Calculation
         return $this;
     }
 
-    public function getName(): ?string
+    public function getObjectCode(): ?string
     {
-        return $this->name;
+        return $this->objectCode;
     }
 
-    public function setName(string $name): static
+    public function setObjectCode(string $objectCode): static
     {
-        $this->name = $name;
+        $this->objectCode = $objectCode;
 
         return $this;
     }

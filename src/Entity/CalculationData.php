@@ -30,11 +30,6 @@ class CalculationData
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Calculation $calculation = null;
 
-    // Основные данные объекта
-    #[ORM\Column(length: 50, nullable: true)]
-    #[Assert\Length(max: 50)]
-    private ?string $objectCode = null;
-
     // номер базовой станции
     #[ORM\Column(length: 50, nullable: true)]
     #[Assert\Length(max: 50)]
@@ -130,19 +125,6 @@ class CalculationData
     public function setCalculation(Calculation $calculation): static
     {
         $this->calculation = $calculation;
-
-        return $this;
-    }
-
-    // Геттеры и сеттеры для основных полей
-    public function getObjectCode(): ?string
-    {
-        return $this->objectCode;
-    }
-
-    public function setObjectCode(?string $objectCode): static
-    {
-        $this->objectCode = $objectCode;
 
         return $this;
     }
@@ -354,7 +336,6 @@ class CalculationData
         return [
             'id' => $this->id,
             'calculation_id' => $this->calculation?->getId(),
-            'objectCode' => $this->objectCode,
             'baseStationNumber' => $this->baseStationNumber,
             'region' => $this->region,
             'locality' => $this->locality,

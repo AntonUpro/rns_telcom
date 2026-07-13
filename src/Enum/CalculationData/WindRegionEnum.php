@@ -25,17 +25,17 @@ enum WindRegionEnum: string
         };
     }
 
-    public function pressureKgPerM(): int
+    public function pressureKgPerM(): float
     {
-        return match($this) {
-            self::I => 23,
-            self::II => 30,
-            self::III => 38,
-            self::IV => 48,
-            self::V => 60,
-            self::VI => 73,
-            self::VII => 85,
-        };
+        return round(match($this) {
+            self::I => 230 / 9.81,
+            self::II => 30 / 9.81,
+            self::III => 38 / 9.81,
+            self::IV => 48 / 9.81,
+            self::V => 60 / 9.81,
+            self::VI => 73 / 9.81,
+            self::VII => 85 / 9.81,
+        }, 1);
     }
 
     public function label(): string

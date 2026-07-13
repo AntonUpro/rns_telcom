@@ -41,7 +41,6 @@ class RegistrationFormType extends AbstractType
             ])
             ->add('patronymic', TextType::class, [
                 'label' => 'Отчество',
-                'required' => false,
                 'attr' => [
                     'class' => 'form-control'
                 ]

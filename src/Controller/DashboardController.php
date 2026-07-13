@@ -4,8 +4,10 @@
 namespace App\Controller;
 
 use App\Entity\Calculation;
+use App\Entity\CalculationData;
 use App\Enum\CalculationStatusEnum;
 use App\Enum\CalculationTypeEnum;
+use App\Service\CalculationCreate\CalculationCreateService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,6 +18,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class DashboardController extends AbstractController
 {
     public function __construct(
+        private CalculationCreateService $calculationCreateService,
         private EntityManagerInterface $entityManager,
     ) {
     }
@@ -40,18 +43,11 @@ final class DashboardController extends AbstractController
 
         // Обработка создания нового расчета
         if ($request->isMethod('POST')) {
-            $name = $request->request->get('name');
-            $type = $request->request->get('type');
+            $objectCode = trim($request->request->get('objectCode'));
+            $type = trim($request->request->get('type'));
 
-            if ($name && $type && CalculationTypeEnum::tryFrom($type)) {
-                $calculation = new Calculation();
-                $calculation->setUser($user);
-                $calculation->setName($name);
-                $calculation->setType(CalculationTypeEnum::from($type));
-                $calculation->setStatus(CalculationStatusEnum::DRAFT);
-
-                $this->entityManager->persist($calculation);
-                $this->entityManager->flush();
+            if ($objectCode && $type && CalculationTypeEnum::tryFrom($type)) {
+                $calculation = $this->calculationCreateService->createCalculation(CalculationTypeEnum::from($type), $objectCode, $user);
 
                 $this->addFlash('success', 'Расчет успешно создан');
 

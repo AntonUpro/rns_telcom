@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, computed, watch, onMounted} from 'vue';
 import SectionItem2 from "./SectionItem.vue";
 
 const props = defineProps({
@@ -15,9 +15,9 @@ const elementTypes = ref([]);
 const sectionTypes = ref([]);
 const strut = ref({
     id: null,
-    height: 2.5,
-    widthBottom: 0.5,
-    widthTop: 2,
+    height: 1500,
+    widthBottom: 500,
+    widthTop: 2000,
     elements: [{}, {}]
 });
 
@@ -26,6 +26,15 @@ const totalData = ref({
     mountHeightPlatform: 23000,
     facetsCount: 4,
 });
+
+// Высота подкосов всегда равна разнице отметок установки площадки и подкосов
+const strutHeight = computed(() => (totalData.value.mountHeightPlatform ?? 0) - (totalData.value.mountHeightStrut ?? 0));
+
+watch(strutHeight, (value) => {
+    if (strut.value && strut.value.height !== undefined) {
+        strut.value.height = value;
+    }
+}, {immediate: true});
 
 // Инициализация пустой секции
 const createEmptySection = () => ({
@@ -74,7 +83,7 @@ const insertSectionAfter = (index) => sections.value.splice(index + 1, 0, create
 const addStrut = () => {
     strut.value = {
         id: null,
-        height: 2.5,
+        height: strutHeight.value,
         widthBottom: 0.5,
         widthTop: 2,
         elements: [{}, {}]
@@ -225,7 +234,7 @@ const fetchPlatformData = async () => {
                             min="0"
                             max="100000"
                         />
-                        <span class="unit">м</span>
+                        <span class="unit">мм</span>
                     </div>
                 </div>
                 <div class="form-group compact-group">
@@ -239,7 +248,7 @@ const fetchPlatformData = async () => {
                             min="0"
                             max="100000"
                         />
-                        <span class="unit">м</span>
+                        <span class="unit">мм</span>
                     </div>
                 </div>
                 <div class="form-group compact-group">

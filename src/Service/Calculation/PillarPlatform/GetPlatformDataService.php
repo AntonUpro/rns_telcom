@@ -33,7 +33,18 @@ class GetPlatformDataService
 
         $platformData = $calculation->getPillarPlatform();
         if (! $platformData) {
-            return null;
+            $mountHeightPlatform = ($calculation->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?: 23) * 1000;
+            $mountHeightStrut = $mountHeightPlatform - 1500;
+            return new PlatformSaveDataDto(
+                calculationId: $calculationId,
+                totalData: new TotalDataPlatform(
+                    mountHeightStrut: (int) $mountHeightStrut,
+                    mountHeightPlatform: (int) $mountHeightPlatform,
+                    facetsCount: 4,
+                ),
+                strut: null,
+                sections: [],
+            );
         }
 
         $sections = [];
@@ -57,6 +68,7 @@ class GetPlatformDataService
                 );
             }
         }
+
 
         return new PlatformSaveDataDto(
             calculationId: $calculationId,
