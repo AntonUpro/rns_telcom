@@ -1,6 +1,7 @@
 <script setup>
 import {ref, computed, watch, onMounted} from 'vue';
 import SectionItem2 from "./SectionItem.vue";
+import {useUnsavedChanges} from '../shared/useUnsavedChanges.js';
 
 const props = defineProps({
     calculationId: {
@@ -26,6 +27,8 @@ const totalData = ref({
     mountHeightPlatform: 23000,
     facetsCount: 4,
 });
+
+const {markDirty, markClean} = useUnsavedChanges('wind-platform');
 
 // Высота подкосов всегда равна разнице отметок установки площадки и подкосов
 const strutHeight = computed(() => (totalData.value.mountHeightPlatform ?? 0) - (totalData.value.mountHeightStrut ?? 0));
@@ -71,7 +74,8 @@ const createEmptyElement = () => ({
 
 // Загрузка данных при монтировании
 onMounted(async () => {
-    fetchPlatformData(props.calculationId)
+    await fetchPlatformData();
+    watch([sections, strut, totalData], () => markDirty(), {deep: true});
 });
 
 // Добавление секций
@@ -159,7 +163,7 @@ const savePlatformData = async () => {
 
     if (!validateAllData()) {
         alert('Пожалуйста, заполните все обязательные поля. Значения не могут быть пустыми или равными 0.');
-        return;
+        return false;
     }
 
     try {
@@ -181,9 +185,12 @@ const savePlatformData = async () => {
         }
 
         showErrors.value = false;
+        markClean();
+        return true;
     } catch (error) {
         console.error('Error get equipment:', error);
         alert('Ошибка получения данных по оборудованию');
+        return false;
     }
 };
 
@@ -215,6 +222,8 @@ const fetchPlatformData = async () => {
         alert('Ошибка получения данных по площадке');
     }
 };
+
+defineExpose({save: savePlatformData});
 
 </script>
 

@@ -1,5 +1,6 @@
 <script setup>
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
+import {useUnsavedChanges} from "../shared/useUnsavedChanges.js";
 
 const props = defineProps({
     calculationId: {
@@ -102,6 +103,8 @@ const formData = reactive({
 const isLoading = ref(false);
 const isSaving = ref(false);
 const savedCalculations = ref([]);
+
+const {markDirty, markClean} = useUnsavedChanges('initial');
 
 // Dynamic data from API
 const customers = ref([]);
@@ -370,9 +373,12 @@ const saveGeneralData = async () => {
         }
 
         alert('Общие данные сохранены');
+        markClean();
+        return true;
     } catch (error) {
         console.error('Ошибка сохранения:', error);
         alert('Не удалось сохранить данные');
+        return false;
     } finally {
         isSaving.value = false;
     }
@@ -389,7 +395,10 @@ onMounted(async () => {
     await fetchPillarTotalInfo();
     await fetchGeneralData();
     // loadSavedCalculations();
+    watch(formData, () => markDirty(), {deep: true});
 });
+
+defineExpose({save: saveGeneralData});
 </script>
 
 <template>
