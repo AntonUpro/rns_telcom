@@ -181,6 +181,12 @@ defineExpose({save: saveEquipment});
 
 <template>
     <div class="equipment-table-container">
+        <div class="table-header">
+            <div class="header-actions">
+                <button class="btn-save-table" @click="saveEquipment">Сохранить</button>
+            </div>
+        </div>
+
         <EquipmentTable
             v-model="allEquipment.existEquipment"
             :editable="editable"
@@ -225,6 +231,20 @@ defineExpose({save: saveEquipment});
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     margin-bottom: 2rem;
+}
+
+/* Шапка таблицы */
+.table-header {
+    padding: 0.5rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 /* Футер таблицы */
@@ -282,6 +302,7 @@ defineExpose({save: saveEquipment});
 }
 
 @media (max-width: 768px) {
+    .header-actions,
     .footer-actions {
         flex-direction: column;
         gap: 0.5rem;
