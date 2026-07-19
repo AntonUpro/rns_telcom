@@ -181,8 +181,8 @@ onMounted(() => {
                                 </td>
                                 <td>{{ formatNum(row.topHeight) }}</td>
                                 <td>{{ formatNum(row.height) }}</td>
-                                <td class="col-value">{{ formatNum(row.totalLoad) }}</td>
-                                <td class="col-value">{{ formatNum(row.loadPerLinearMeterPerBelt) }}</td>
+                                <td class="col-value col-value-plain">{{ formatNum(row.totalLoad) }}</td>
+                                <td class="col-value col-value-plain">{{ formatNum(row.loadPerLinearMeterPerBelt) }}</td>
                             </tr>
                             <tr v-if="platformSections.length === 0">
                                 <td colspan="5" class="no-data">Нет данных для отображения</td>
@@ -352,7 +352,6 @@ onMounted(() => {
 /* Подкосы — слегка выделяем строку */
 .row-strut td {
     background-color: #fafafa;
-    font-style: italic;
 }
 
 .badge-strut {
@@ -379,6 +378,12 @@ onMounted(() => {
     font-family: 'Courier New', Courier, monospace;
     font-size: 13px;
     color: #1a2533;
+}
+
+/* Ветровая нагрузка на площадку и надстройку — шрифт значений как в левых столбцах таблицы */
+.col-value-plain {
+    font-family: inherit;
+    font-size: 14px;
 }
 
 /* Вычисляемое значение — подсветка */

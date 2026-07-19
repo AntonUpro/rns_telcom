@@ -919,6 +919,20 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Неактивные (disabled) поля — мягкий серый цвет, чтобы визуально показать, что поле сейчас не работает */
+.form-calculation-control:disabled,
+.form-calculation-control[readonly] {
+    background-color: #dee2e6;
+    border-color: #ced4da;
+    color: #5f6368;
+    cursor: not-allowed;
+}
+
+select.form-calculation-control:disabled {
+    background-color: #dee2e6;
+    color: #5f6368;
+}
+
 /* Стили для значений по умолчанию */
 .default-values-row {
     margin-bottom: 1rem;

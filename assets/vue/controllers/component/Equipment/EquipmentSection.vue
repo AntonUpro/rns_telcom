@@ -400,7 +400,10 @@ function onOperatorBlur(row, idx) {
             <div>{{ label }}</div>
         </td>
         <td></td>
-        <td></td>
+        <td class="dimensions-caption">
+            <span v-if="category === 'rrl'">Диаметр</span>
+            <span v-else>Высота × Ширина × Глубина</span>
+        </td>
         <td></td>
         <td></td>
         <td></td>
@@ -653,6 +656,12 @@ function onOperatorBlur(row, idx) {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+}
+
+.dimensions-caption {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: center;
 }
 
 .table-actions {
