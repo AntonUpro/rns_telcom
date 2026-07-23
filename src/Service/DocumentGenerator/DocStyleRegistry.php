@@ -59,7 +59,7 @@ final class DocStyleRegistry
 
     public static function paragraphRight(): array
     {
-        return ['alignment' => Jc::END];
+        return ['alignment' => Jc::END, 'keepNext' => true];
     }
 
     public static function paragraphLineSpacing(): array
