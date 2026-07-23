@@ -50,13 +50,6 @@ final class EquipmentWindPressureTableBuilder
      */
     public function build(Section $section, array $data, int &$tableNum): void
     {
-        $section->addText(
-            'Состав оборудования принят в соответствии с предоставленной документацией и результатами натурного обследования:',
-            DocStyleRegistry::normalText(),
-            DocStyleRegistry::paragraphIndent(),
-        );
-        $section->addTextBreak(1);
-
         $tableNum++;
         $section->addText(
             'Таблица ' . $tableNum,

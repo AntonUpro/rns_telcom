@@ -36,19 +36,23 @@ final class WindLoadsSection implements SectionBuilderInterface
 
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
-        $calcId = $context->calculation->getId();
-
-        $this->buildPillarSubsection($section, $calcId, $tableNum);
-        $this->buildEquipmentSubsection($section, $calcId, $tableNum);
+        $this->buildPillarSubsection($section, $context, $tableNum);
+        $section->addPageBreak();
+        $this->buildEquipmentSubsection($section, $context, $tableNum);
     }
 
-    private function buildPillarSubsection(Section $section, int $calculationId, int &$tableNum): void
+    private function buildPillarSubsection(Section $section, ReportContext $context, int &$tableNum): void
     {
+        $calculationId = $context->calculation->getId();
+
         $section->addTitle('8.1 ВЕТРОВОЕ ДАВЛЕНИЕ НА СТВОЛ ОПОРЫ', 2);
 
         $section->addText(
-            'Состав нагрузки принят в соответствии с предоставленной документацией '
-            . 'и результатами натурного обследования.',
+            'Состав нагрузки принят в соответствии с предоставленной документацией'
+            . $context->calculation->getCalculationData()->isSurveyPerformed()
+                ? ' и результатами натурного обследования'
+                : ''
+                . '.',
             DocStyleRegistry::bodyText(),
             DocStyleRegistry::paragraphIndent(),
         );
@@ -73,9 +77,22 @@ final class WindLoadsSection implements SectionBuilderInterface
         }
     }
 
-    private function buildEquipmentSubsection(Section $section, int $calcId, int &$tableNum): void
+    private function buildEquipmentSubsection(Section $section, ReportContext $context, int &$tableNum): void
     {
+        $calcId = $context->calculation->getId();
+
         $section->addTitle('8.2 ВЕТРОВОЕ ДАВЛЕНИЕ НА ОБОРУДОВАНИЕ', 2);
+
+        $section->addText(
+            'Состав нагрузки принят в соответствии с предоставленной документацией'
+            . $context->calculation->getCalculationData()->isSurveyPerformed()
+                ? ' и результатами натурного обследования'
+                : ''
+                . '.',
+            DocStyleRegistry::bodyText(),
+            DocStyleRegistry::paragraphIndent(),
+        );
+        $section->addTextBreak(1);
 
         try {
             $equipmentData = $this->equipmentWindService->calculate($calcId);

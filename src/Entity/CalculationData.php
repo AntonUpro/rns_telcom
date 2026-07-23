@@ -63,6 +63,10 @@ class CalculationData
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $surveyDate = null;
 
+    // Проводилось обследование
+    #[ORM\Column]
+    private bool $surveyPerformed = false;
+
     // Климатические параметры
     #[ORM\Column(length: 10, nullable: true)]
     #[Assert\Choice(callback: 'getAvailableWindRegions')]
@@ -219,6 +223,18 @@ class CalculationData
         return $this;
     }
 
+    public function isSurveyPerformed(): bool
+    {
+        return $this->surveyPerformed;
+    }
+
+    public function setSurveyPerformed(bool $surveyPerformed): static
+    {
+        $this->surveyPerformed = $surveyPerformed;
+
+        return $this;
+    }
+
     public function getWindRegion(): ?WindRegionEnum
     {
         return $this->windRegion;
@@ -343,6 +359,7 @@ class CalculationData
             'amsType' => $this->amsType,
             'amsHeight' => $this->amsHeight,
             'surveyDate' => $this->surveyDate?->format('Y-m-d'),
+            'surveyPerformed' => $this->surveyPerformed,
             'windRegion' => $this->windRegion?->value,
             'terrainType' => $this->terrainType?->value,
             'snowRegion' => $this->snowRegion?->value,

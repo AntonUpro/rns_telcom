@@ -211,7 +211,13 @@ final readonly class OtsReportGenerator
         (new SymbolsClassificationAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
-        $this->addAppendix($mainSection, $appendixNum, 'ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
+        $this->addAppendix(
+            $mainSection,
+            $appendixNum,
+            $context->getData()?->isSurveyPerformed()
+                ? 'ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ И РАСЧЁТА'
+                : 'ПРОГРАММА ПРОВЕДЕНИЯ РАСЧЁТА',
+        );
         (new InspectionProgramAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 

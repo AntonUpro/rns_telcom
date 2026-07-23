@@ -40,6 +40,9 @@ class TotalDataDto
         #[Assert\Type('numeric')]
         #[Assert\Range(min: -180, max: 180)]
         public ?float $longitude = null,
+
+        #[Assert\Type('bool')]
+        public bool $surveyPerformed = false,
     ) {}
 
     public function toArray(): array
@@ -55,6 +58,7 @@ class TotalDataDto
             'inspectionDate' => $this->inspectionDate,
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
+            'surveyPerformed' => $this->surveyPerformed,
         ];
     }
 
@@ -71,11 +75,17 @@ class TotalDataDto
             inspectionDate: $data['inspectionDate'] ?? null,
             latitude: isset($data['latitude']) ? (float) $data['latitude'] : null,
             longitude: isset($data['longitude']) ? (float) $data['longitude'] : null,
+            surveyPerformed: isset($data['surveyPerformed'])
+                ? filter_var($data['surveyPerformed'], FILTER_VALIDATE_BOOLEAN)
+                : false,
         );
     }
 
     public function isEmpty(): bool
     {
-        return empty(array_filter($this->toArray(), fn($value) => $value !== null));
+        $array = $this->toArray();
+        // Игнорируем булево поле surveyPerformed при проверке на пустоту
+        unset($array['surveyPerformed']);
+        return empty(array_filter($array, fn($value) => $value !== null));
     }
 }

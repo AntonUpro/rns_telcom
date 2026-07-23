@@ -64,6 +64,7 @@ final readonly class PillarCalculationService
             $calculationData->setSurveyDate($calculationDataDto->totalData->inspectionDate
                 ? new DateTime($calculationDataDto->totalData->inspectionDate)
                 : null);
+            $calculationData->setSurveyPerformed($calculationDataDto->totalData->surveyPerformed);
             $calculationData->setLatitude((string)$calculationDataDto->totalData->latitude);
             $calculationData->setLongitude((string)$calculationDataDto->totalData->longitude);
 
@@ -126,6 +127,7 @@ final readonly class PillarCalculationService
                 inspectionDate: $calculation->getCalculationData()->getSurveyDate()?->format('Y-m-d'),
                 latitude: (float)$calculation->getCalculationData()->getLatitude(),
                 longitude: (float)$calculation->getCalculationData()->getLongitude(),
+                surveyPerformed: $calculation->getCalculationData()->isSurveyPerformed(),
             ),
             pillarData: new PillarDataDto(
                 pillarStamp: $calculation->getCalculationData()->getConcretePillarSpecificData()?->pillarStamp,

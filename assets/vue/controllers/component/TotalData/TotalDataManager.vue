@@ -51,6 +51,7 @@ const formData = reactive({
     inspectionDate: new Date().toISOString().split('T')[0],
     latitude: 0,
     longitude: 0,
+    surveyPerformed: false,
 
     // Климатические условия
     windRegion: 'I',
@@ -157,6 +158,7 @@ const fetchGeneralData = async () => {
         formData.inspectionDate = data.data.totalData?.inspectionDate || '';
         formData.latitude = data.data.totalData?.latitude || '';
         formData.longitude = data.data.totalData?.longitude || '';
+        formData.surveyPerformed = data.data.totalData?.surveyPerformed || false;
 
         formData.windRegion = data.data.climateData?.windRegion || '';
         formData.terrainType = data.data.climateData?.terrainType || '';
@@ -337,6 +339,7 @@ const saveGeneralData = async () => {
                     inspectionDate: formData.inspectionDate,
                     latitude: formData.latitude,
                     longitude: formData.longitude,
+                    surveyPerformed: formData.surveyPerformed,
                 },
                 climateData: {
                     windRegion: formData.windRegion,
@@ -519,6 +522,15 @@ defineExpose({save: saveGeneralData});
                         v-model="formData.inspectionDate"
                         class="form-calculation-control compact-input"
                         disabled
+                    />
+                </div>
+                <div class="form-group compact-group">
+                    <label for="surveyPerformed">Проводилось обследование:</label>
+                    <input
+                        type="checkbox"
+                        v-model.bool="formData.surveyPerformed"
+                        id="surveyPerformed"
+                        class="strengthening-checkbox"
                     />
                 </div>
             </div>
