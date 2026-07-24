@@ -78,12 +78,12 @@ final class PillarSectionsTableBuilder
     private function addHeader(Table $table): void
     {
         $italic   = DocStyleRegistry::italicCenter();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $hCell  = DocStyleRegistry::headerCell();
         $w      = self::COL_WIDTHS;
 
         // ── Строка 1: базовые столбцы + названия групп ──────────────────────
-        $table->addRow(600);
+        $table->addRow(600, ['cantSplit' => true]);
 
         $table->addCell($w[0], [...$hCell, 'vMerge' => 'restart'])->addText('№', $italic, $center);
         $table->addCell($w[1], [...$hCell, 'vMerge' => 'restart'])->addText('z верх, м', $italic, $center);
@@ -98,14 +98,14 @@ final class PillarSectionsTableBuilder
         }
 
         // ── Строка 2: подзаголовки подгрупп ─────────────────────────────────
-        $table->addRow(500);
+        $table->addRow(500, ['cantSplit' => true]);
 
-        $table->addCell($w[0], ['vMerge' => 'continue']);
-        $table->addCell($w[1], ['vMerge' => 'continue']);
-        $table->addCell($w[2], ['vMerge' => 'continue']);
-        $table->addCell($w[3], ['vMerge' => 'continue']);
-        $table->addCell($w[4], ['vMerge' => 'continue']);
-        $table->addCell($w[5], ['vMerge' => 'continue']);
+        $table->addCell($w[0], ['vMerge' => 'continue', 'keepNext' => true]);
+        $table->addCell($w[1], ['vMerge' => 'continue', 'keepNext' => true]);
+        $table->addCell($w[2], ['vMerge' => 'continue', 'keepNext' => true]);
+        $table->addCell($w[3], ['vMerge' => 'continue', 'keepNext' => true]);
+        $table->addCell($w[4], ['vMerge' => 'continue', 'keepNext' => true]);
+        $table->addCell($w[5], ['vMerge' => 'continue', 'keepNext' => true]);
 
         for ($g = 0; $g < 4; $g++) {
             $table->addCell($w[6 + $g * 3], $hCell)->addText('A, м²', $italic, $center);
@@ -117,12 +117,12 @@ final class PillarSectionsTableBuilder
     private function addDataRow(Table $table, PillarCalculationDto $dto): void
     {
         $meta   = $dto->totalCalculationDataDto;
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $c      = DocStyleRegistry::center();
         $dc     = DocStyleRegistry::dataCell();
         $w      = self::COL_WIDTHS;
 
-        $table->addRow(400);
+        $table->addRow(400, ['cantSplit' => true]);
 
         $table->addCell($w[0], $dc)->addText((string)$meta->numberSection, $c, $center);
         $table->addCell($w[1], $dc)->addText($this->fmt($meta->topHeight / 1000), $c, $center);

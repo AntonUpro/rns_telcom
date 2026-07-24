@@ -49,9 +49,9 @@ final class WindLoadsSection implements SectionBuilderInterface
 
         $section->addText(
             'Состав нагрузки принят в соответствии с предоставленной документацией'
-            . $context->calculation->getCalculationData()->isSurveyPerformed()
+            . ($context->calculation->getCalculationData()->isSurveyPerformed()
                 ? ' и результатами натурного обследования'
-                : ''
+                : '')
                 . '.',
             DocStyleRegistry::bodyText(),
             DocStyleRegistry::paragraphIndent(),
@@ -85,9 +85,9 @@ final class WindLoadsSection implements SectionBuilderInterface
 
         $section->addText(
             'Состав нагрузки принят в соответствии с предоставленной документацией'
-            . $context->calculation->getCalculationData()->isSurveyPerformed()
+            . ($context->calculation->getCalculationData()->isSurveyPerformed()
                 ? ' и результатами натурного обследования'
-                : ''
+                : '')
                 . '.',
             DocStyleRegistry::bodyText(),
             DocStyleRegistry::paragraphIndent(),

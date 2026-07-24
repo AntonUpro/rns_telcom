@@ -66,7 +66,7 @@ final class TotalLoadTableBuilder
     private function addPillarHeader(Table $table): void
     {
         $bold = DocStyleRegistry::italicCenter();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $hCell = DocStyleRegistry::headerCell();
         $w = self::PILLAR_WIDTHS;
 
@@ -81,7 +81,7 @@ final class TotalLoadTableBuilder
     private function addPillarRow(Table $table, array $row): void
     {
         $c = DocStyleRegistry::center();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $dc = DocStyleRegistry::dataCell();
         $w = self::PILLAR_WIDTHS;
 
@@ -113,11 +113,11 @@ final class TotalLoadTableBuilder
     private function addPlatformHeader(Table $table): void
     {
         $bold = DocStyleRegistry::italicCenter();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $hCell = DocStyleRegistry::headerCell();
         $w = self::PLATFORM_WIDTHS;
 
-        $table->addRow(600);
+        $table->addRow(600, ['cantSplit' => true]);
         $table->addCell($w[0], $hCell)->addText('Элемент', $bold, $center);
         $table->addCell($w[1], $hCell)->addText('Верхняя отметка, м', $bold, $center);
         $table->addCell($w[2], $hCell)->addText('Высота, м', $bold, $center);
@@ -128,11 +128,11 @@ final class TotalLoadTableBuilder
     private function addPlatformRow(Table $table, array $row): void
     {
         $c = DocStyleRegistry::center();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $dc = DocStyleRegistry::dataCell();
         $w = self::PLATFORM_WIDTHS;
 
-        $table->addRow(400);
+        $table->addRow(400, ['cantSplit' => true]);
         $table->addCell($w[0], $dc)->addText($row['label'], $c, $center);
         $table->addCell($w[1], $dc)->addText($this->fmt($row['topHeight'] / 1000), $c, $center);
         $table->addCell($w[2], $dc)->addText($this->fmt($row['height'] / 1000), $c, $center);
@@ -160,11 +160,11 @@ final class TotalLoadTableBuilder
     private function addEquipmentHeader(Table $table): void
     {
         $bold = DocStyleRegistry::italicCenter();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $hCell = DocStyleRegistry::headerCell();
         $w = self::EQUIPMENT_WIDTHS;
 
-        $table->addRow(600);
+        $table->addRow(600, ['cantSplit' => true]);
         $table->addCell($w[0], $hCell)->addText('№ группы', $bold, $center);
         $table->addCell($w[1], $hCell)->addText('Высотная отметка, мм', $bold, $center);
         $table->addCell($w[2], $hCell)->addText('Суммарная нагрузка, кг', $bold, $center);
@@ -173,11 +173,11 @@ final class TotalLoadTableBuilder
     private function addEquipmentRow(Table $table, array $row): void
     {
         $c = DocStyleRegistry::center();
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $dc = DocStyleRegistry::dataCell();
         $w = self::EQUIPMENT_WIDTHS;
 
-        $table->addRow(400);
+        $table->addRow(400, ['cantSplit' => true]);
         $table->addCell($w[0], $dc)->addText((string)$row['heightMark'], $c, $center);
         $table->addCell($w[1], $dc)->addText($this->fmt($row['height'], 0), $c, $center);
         $table->addCell($w[2], $dc)->addText($this->fmt($row['totalLoad'], 1), $c, $center);

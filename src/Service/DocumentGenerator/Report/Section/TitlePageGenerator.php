@@ -198,26 +198,28 @@ final class TitlePageGenerator
             'indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP),
         ]);
 
+        $keepNext = ['keepNext' => true];
+
         // --- Строка 1 ---
-        $table->addRow(Converter::cmToTwip(1));
+        $table->addRow(Converter::cmToTwip(1), ['cantSplit' => true]);
         $c1 = $table->addCell($colWidth, $cellStyle);
-        $c1->addText('Субъект РФ', $fStyle);
+        $c1->addText('Субъект РФ', $fStyle, $keepNext);
         $c2 = $table->addCell($colWidth, $cellStyle);
-        $c2->addText($context->calculation?->getCalculationData()?->getRegion(), $fStyle);
+        $c2->addText($context->calculation?->getCalculationData()?->getRegion(), $fStyle, $keepNext);
 
         // --- Строка 2 ---
-        $table->addRow(Converter::cmToTwip(1));
+        $table->addRow(Converter::cmToTwip(1), ['cantSplit' => true]);
         $c1 = $table->addCell($colWidth, $cellStyle);
-        $c1->addText('Адрес площадки', $fStyle);
+        $c1->addText('Адрес площадки', $fStyle, $keepNext);
         $c2 = $table->addCell($colWidth, $cellStyle);
-        $c2->addText($context->calculation?->getCalculationData()?->getLocality(), $fStyle);
+        $c2->addText($context->calculation?->getCalculationData()?->getLocality(), $fStyle, $keepNext);
 
         // --- Строка 3 ---
-        $table->addRow(Converter::cmToTwip(1));
+        $table->addRow(Converter::cmToTwip(1), ['cantSplit' => true]);
         $c1 = $table->addCell($colWidth, $cellStyle);
-        $c1->addText('Номер и название БС по классификации оператора сотовой связи', $fStyle);
+        $c1->addText('Номер и название БС по классификации оператора сотовой связи', $fStyle, $keepNext);
         $c2 = $table->addCell($colWidth, $cellStyle);
-        $c2->addText($context->calculation?->getObjectCode(), $fStyle);
+        $c2->addText($context->calculation?->getObjectCode(), $fStyle, $keepNext);
 
         $heightAMS = $context->calculation?->getCalculationData()?->getAmsHeight() ?? '—';
         $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? '—';
@@ -228,7 +230,7 @@ final class TitlePageGenerator
         $textPillar .= sprintf(', Н=%s м', $heightAMS);
 
         // --- Строка 4 (две высоты в одной ячейке) ---
-        $table->addRow(Converter::cmToTwip(1));
+        $table->addRow(Converter::cmToTwip(1), ['cantSplit' => true]);
         $c1 = $table->addCell($colWidth, $cellStyle);
         $c1->addText('Тип АМС и высота', $fStyle);
         $c2 = $table->addCell($colWidth, $cellStyle);
@@ -242,7 +244,7 @@ final class TitlePageGenerator
 
         $cellStyle = ['valign' => 'center', 'paddingLeft' => (int) Converter::cmToTwip(0.2)];
         $tableSign = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
-        $tableSign->addRow(Converter::cmToTwip(3));
+        $tableSign->addRow(Converter::cmToTwip(3), ['cantSplit' => true]);
         $c1 = $tableSign->addCell(Converter::cmToTwip(8), $cellStyle);
         $c1->addText('Главный инженер проекта', $fStyle);
         $c2 = $tableSign->addCell(Converter::cmToTwip(5.5), $cellStyle);

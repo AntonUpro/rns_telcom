@@ -95,9 +95,9 @@ final class ConclusionSection implements SectionBuilderInterface
         $table = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
 
         // Строка 1: Главный инженер проекта
-        $table->addRow(Converter::cmToTwip(2.5));
+        $table->addRow(Converter::cmToTwip(2.5), ['cantSplit' => true]);
         $c1 = $table->addCell(Converter::cmToTwip(7), $cellStyle);
-        $c1->addText('Главный инженер проекта:', $fStyle, ['alignment' => Jc::LEFT]);
+        $c1->addText('Главный инженер проекта:', $fStyle, ['alignment' => Jc::LEFT, 'keepNext' => true]);
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);
         if ($context->chiefEngineerSignaturePath !== null) {
             $c2->addImage($context->chiefEngineerSignaturePath, [
@@ -108,10 +108,10 @@ final class ConclusionSection implements SectionBuilderInterface
             ]);
         }
         $c3 = $table->addCell(Converter::cmToTwip(5.5), $cellStyle);
-        $c3->addText('Лобанов Д. А.', $fStyle, ['alignment' => Jc::LEFT]);
+        $c3->addText('Лобанов Д. А.', $fStyle, ['alignment' => Jc::LEFT, 'keepNext' => true]);
 
         // Строка 2: Инженер-проектировщик
-        $table->addRow(Converter::cmToTwip(2.5));
+        $table->addRow(Converter::cmToTwip(2.5), ['cantSplit' => true]);
         $c1 = $table->addCell(Converter::cmToTwip(7), $cellStyle);
         $c1->addText('Инженер-проектировщик:', $fStyle, ['alignment' => Jc::LEFT]);
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);

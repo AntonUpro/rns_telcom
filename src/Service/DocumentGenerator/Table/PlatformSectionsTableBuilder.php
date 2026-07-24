@@ -98,10 +98,10 @@ final class PlatformSectionsTableBuilder
     private function addHeader(Table $table): void
     {
         $bold   = self::TEXT_STYLE;
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $hCell  = DocStyleRegistry::headerCell();
 
-        $table->addRow(600);
+        $table->addRow(600, ['cantSplit' => true]);
 
         foreach (self::HEADERS as $i => $header) {
             $table->addCell(self::COL_WIDTHS[$i], $hCell)->addText($header, $bold, $center);
@@ -132,12 +132,12 @@ final class PlatformSectionsTableBuilder
         int $totalRows,
     ): void {
         $c      = self::TEXT_STYLE;
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $dc     = DocStyleRegistry::dataCell();
 
         $topHeightM = ($dto->mountingHeightSection + $dto->heightSection) / 1000;
 
-        $table->addRow(400);
+        $table->addRow(400, ['cantSplit' => true]);
 
         // ── Столбец 0: № (vMerge) ────────────────────────────────────────────
         $this->addMergedCell($table, 0, $isFirst, (string)$dto->numberSection, $totalRows, $c, $center);
@@ -210,11 +210,11 @@ final class PlatformSectionsTableBuilder
     private function addEmptySectionRow(Table $table, PillarPlatformSectionDto $dto): void
     {
         $c      = self::TEXT_STYLE;
-        $center = DocStyleRegistry::paragraphCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
         $dc     = DocStyleRegistry::dataCell();
         $topHeightM = ($dto->mountingHeightSection + $dto->heightSection) / 1000;
 
-        $table->addRow(400);
+        $table->addRow(400, ['cantSplit' => true]);
         $table->addCell(self::COL_WIDTHS[0], $dc)->addText((string)$dto->numberSection, $c, $center);
         $table->addCell(self::COL_WIDTHS[1], $dc)->addText($this->fmt($topHeightM), $c, $center);
         $table->addCell(self::COL_WIDTHS[2], $dc)->addText($this->fmt($dto->kze, 2), $c, $center);

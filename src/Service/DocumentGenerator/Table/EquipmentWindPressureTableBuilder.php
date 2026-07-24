@@ -72,13 +72,13 @@ final class EquipmentWindPressureTableBuilder
 
     private function addHeader(Table $table): void
     {
-        $bold   = DocStyleRegistry::italicCenter();
-        $center = DocStyleRegistry::paragraphCenter();
-        $hCell  = DocStyleRegistry::headerCell();
-        $w      = self::COL_WIDTHS;
+        $bold = DocStyleRegistry::italicCenter();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
+        $hCell = DocStyleRegistry::headerCell();
+        $w = self::COL_WIDTHS;
 
         // ── Строка: заголовки столбцов ───────────────────────────────────────
-        $table->addRow(600);
+        $table->addRow(600, ['cantSplit' => true]);
 
         $headers = [
             'Обозначение оборудования, габариты',
@@ -107,19 +107,19 @@ final class EquipmentWindPressureTableBuilder
      */
     private function fillData(Table $table, array $data): void
     {
-        $bold       = DocStyleRegistry::italicCenter();
-        $normal     = DocStyleRegistry::center();
-        $center     = DocStyleRegistry::paragraphCenter();
-        $catRow     = DocStyleRegistry::categoryRow();
-        $subRow     = DocStyleRegistry::subcategoryRow();
-        $dataCell   = DocStyleRegistry::dataCell();
-        $total      = array_sum(self::COL_WIDTHS);
+        $bold = DocStyleRegistry::italicCenter();
+        $normal = DocStyleRegistry::center();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
+        $catRow = DocStyleRegistry::categoryRow();
+        $subRow = DocStyleRegistry::subcategoryRow();
+        $dataCell = DocStyleRegistry::dataCell();
+        $total = array_sum(self::COL_WIDTHS);
 
         foreach ($data as $groupValue => $byType) {
             $groupLabel = EquipmentGroupEnum::from($groupValue)->label();
 
             // ── Строка группы (Существующее / Планируемое / Демонтируемое) ──
-            $table->addRow(400);
+            $table->addRow(400, ['cantSplit' => true]);
             $table->addCell($total, array_merge($catRow, ['gridSpan' => self::TOTAL_COLS]))
                 ->addText($groupLabel, $bold, $center);
 
@@ -127,7 +127,7 @@ final class EquipmentWindPressureTableBuilder
                 $typeValueEnum = EquipmentTypeEnum::from($typeValue);
 
                 // ── Строка подгруппы (РРЛ / Панельная / Радиоблок) ──────────
-                $table->addRow(400);
+                $table->addRow(400, ['cantSplit' => true]);
                 $table->addCell($total, array_merge($subRow, ['gridSpan' => self::TOTAL_COLS]))
                     ->addText($typeValueEnum->label(), $bold, $center);
 
@@ -148,23 +148,23 @@ final class EquipmentWindPressureTableBuilder
     ): void {
         $w = self::COL_WIDTHS;
 
-        $table->addRow(400);
+        $table->addRow(400, ['cantSplit' => true]);
 
         $designationCell = $table->addCell($w[0], $cellStyle);
-        $designationCell->addText($r->fullName, $fontStyle, DocStyleRegistry::paragraphCenter());
-        $designationCell->addText($r->dimensions, $fontStyle, DocStyleRegistry::paragraphCenter());
-        if (!empty($r->operator)) {
-            $designationCell->addText($r->operator, $fontStyle, DocStyleRegistry::paragraphCenter());
+        $designationCell->addText($r->fullName, $fontStyle, $paraStyle);
+        $designationCell->addText($r->dimensions, $fontStyle, $paraStyle);
+        if (! empty($r->operator)) {
+            $designationCell->addText($r->operator, $fontStyle, $paraStyle);
         }
-        $table->addCell($w[1],  $cellStyle)->addText((string)$r->quantity, $fontStyle, $paraStyle);
-        $table->addCell($w[2],  $cellStyle)->addText($this->fmt($r->monthHeight), $fontStyle, $paraStyle);
-        $table->addCell($w[3],  $cellStyle)->addText($this->fmt($r->kze), $fontStyle, $paraStyle);
-        $table->addCell($w[4],  $cellStyle)->addText($this->fmt($r->oneEquipmentArea), $fontStyle, $paraStyle);
-        $table->addCell($w[5],  $cellStyle)->addText($this->fmt($r->pipeStandArea), $fontStyle, $paraStyle);
-        $table->addCell($w[6],  $cellStyle)->addText($this->fmt($r->windPress), $fontStyle, $paraStyle);
-        $table->addCell($w[7],  $cellStyle)->addText($this->fmt($r->shadingCoefficient, 1), $fontStyle, $paraStyle);
-        $table->addCell($w[8],  $cellStyle)->addText($this->fmt($r->cxInf), $fontStyle, $paraStyle);
-        $table->addCell($w[9],  $cellStyle)->addText($this->fmt($r->kLambda), $fontStyle, $paraStyle);
+        $table->addCell($w[1], $cellStyle)->addText((string)$r->quantity, $fontStyle, $paraStyle);
+        $table->addCell($w[2], $cellStyle)->addText($this->fmt($r->monthHeight), $fontStyle, $paraStyle);
+        $table->addCell($w[3], $cellStyle)->addText($this->fmt($r->kze), $fontStyle, $paraStyle);
+        $table->addCell($w[4], $cellStyle)->addText($this->fmt($r->oneEquipmentArea), $fontStyle, $paraStyle);
+        $table->addCell($w[5], $cellStyle)->addText($this->fmt($r->pipeStandArea), $fontStyle, $paraStyle);
+        $table->addCell($w[6], $cellStyle)->addText($this->fmt($r->windPress), $fontStyle, $paraStyle);
+        $table->addCell($w[7], $cellStyle)->addText($this->fmt($r->shadingCoefficient, 1), $fontStyle, $paraStyle);
+        $table->addCell($w[8], $cellStyle)->addText($this->fmt($r->cxInf), $fontStyle, $paraStyle);
+        $table->addCell($w[9], $cellStyle)->addText($this->fmt($r->kLambda), $fontStyle, $paraStyle);
         $table->addCell($w[10], $cellStyle)->addText($this->fmt($r->cxEquipment), $fontStyle, $paraStyle);
         $table->addCell($w[11], $cellStyle)->addText($this->fmt($r->cxPipeStand, 1), $fontStyle, $paraStyle);
         $table->addCell($w[12], $cellStyle)->addText($this->fmt($r->securityCoefficient, 1), $fontStyle, $paraStyle);
@@ -182,25 +182,25 @@ final class EquipmentWindPressureTableBuilder
 
         $table = $section->addTable(DocStyleRegistry::tableStyle());
 
-        $bold   = DocStyleRegistry::italicCenter();
+        $bold = DocStyleRegistry::italicCenter();
         $normal = DocStyleRegistry::center();
-        $center = DocStyleRegistry::paragraphCenter();
-        $hCell  = DocStyleRegistry::headerCell();
-        $dCell  = DocStyleRegistry::dataCell();
+        $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);
+        $hCell = DocStyleRegistry::headerCell();
+        $dCell = DocStyleRegistry::dataCell();
 
         $widths = [3500, 2000, 2500, 2000];
 
-        $table->addRow(600);
+        $table->addRow(600, ['cantSplit' => true]);
         foreach (['Принадлежность оборудования', '∑Aоборуд, м²', '∑Аоборуд*k(z)*z', '∑Вес, кг'] as $i => $header) {
             $table->addCell($widths[$i], $hCell)->addText($header, $bold, $center);
         }
 
         foreach ($summaryData as $row) {
-            $table->addRow(400);
-            $table->addCell($widths[0], $dCell)->addText($row->label,                           $normal, $center);
-            $table->addCell($widths[1], $dCell)->addText($this->fmt($row->totalArea),            $normal, $center);
-            $table->addCell($widths[2], $dCell)->addText($this->fmt($row->totalPressure),        $normal, $center);
-            $table->addCell($widths[3], $dCell)->addText($this->fmt($row->totalWeight, 1),       $normal, $center);
+            $table->addRow(400, ['cantSplit' => true]);
+            $table->addCell($widths[0], $dCell)->addText($row->label, $normal, $center);
+            $table->addCell($widths[1], $dCell)->addText($this->fmt($row->totalArea), $normal, $center);
+            $table->addCell($widths[2], $dCell)->addText($this->fmt($row->totalPressure), $normal, $center);
+            $table->addCell($widths[3], $dCell)->addText($this->fmt($row->totalWeight, 1), $normal, $center);
         }
     }
 

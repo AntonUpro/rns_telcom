@@ -47,14 +47,21 @@ final class ReferenceDocumentsAppendix implements SectionBuilderInterface
         $w   = [2500, 7500];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
-        $tbl->addRow(500);
-        $tbl->addCell($w[0], DocStyleRegistry::headerCell())->addText('Обозначение', $italic, $center);
-        $tbl->addCell($w[1], DocStyleRegistry::headerCell())->addText('Наименование', $italic, $center);
+        $centerKeep = array_merge($center, ['keepNext' => true]);
+        $leftKeep = [...$left, ...$lineSpacingZero, 'keepNext' => true];
+        $leftPlain = [...$left, ...$lineSpacingZero];
+        $last = count(self::DOCUMENTS) - 1;
 
-        foreach (self::DOCUMENTS as [$code, $name]) {
-            $tbl->addRow(400);
-            $tbl->addCell($w[0], DocStyleRegistry::dataCell())->addText($code, DocStyleRegistry::normalText(), $center);
-            $tbl->addCell($w[1], DocStyleRegistry::dataCell())->addText($name, DocStyleRegistry::normalText(), [...$left, ...$lineSpacingZero]);
+        $tbl->addRow(500, ['cantSplit' => true]);
+        $headerPara = $last >= 0 ? $centerKeep : $center;
+        $tbl->addCell($w[0], DocStyleRegistry::headerCell())->addText('Обозначение', $italic, $headerPara);
+        $tbl->addCell($w[1], DocStyleRegistry::headerCell())->addText('Наименование', $italic, $headerPara);
+
+        foreach (self::DOCUMENTS as $i => [$code, $name]) {
+            $tbl->addRow(400, ['cantSplit' => true]);
+            $keepWithNext = $i < $last;
+            $tbl->addCell($w[0], DocStyleRegistry::dataCell())->addText($code, DocStyleRegistry::normalText(), $keepWithNext ? $centerKeep : $center);
+            $tbl->addCell($w[1], DocStyleRegistry::dataCell())->addText($name, DocStyleRegistry::normalText(), $keepWithNext ? $leftKeep : $leftPlain);
         }
 
         $section->addTextBreak(1);
