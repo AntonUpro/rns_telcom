@@ -24,6 +24,23 @@ const MULTI_SECTIONS = [
     {type: 'foundation_calc', label: 'Расчёт фундамента опоры'},
 ];
 
+// ─── Допустимые форматы изображений ───────────────────────────────────────────
+// PHPWord (SOURCE_LOCAL) умеет вставлять в документ только JPEG, PNG, GIF, BMP и TIFF.
+const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tif', 'tiff'];
+const ALLOWED_IMAGE_MIME_TYPES = [
+    'image/jpeg', 'image/pjpeg', 'image/png', 'image/gif',
+    'image/bmp', 'image/x-ms-bmp', 'image/tiff',
+];
+const ALLOWED_IMAGE_ACCEPT = '.jpg,.jpeg,.png,.gif,.bmp,.tif,.tiff,' + ALLOWED_IMAGE_MIME_TYPES.join(',');
+
+function isAllowedImageFile(file) {
+    if (file.type && ALLOWED_IMAGE_MIME_TYPES.includes(file.type)) return true;
+    const ext = file.name?.split('.').pop()?.toLowerCase();
+    return !!ext && ALLOWED_IMAGE_EXTENSIONS.includes(ext);
+}
+
+const UNSUPPORTED_FORMAT_MESSAGE = 'Неподдерживаемый формат файла. Разрешены: JPEG, PNG, GIF, BMP, TIFF';
+
 // ─── Состояние ────────────────────────────────────────────────────────────────
 /** Для каждого imageType хранит { previewUrl, saved: { id, version, ... } } */
 const images = ref(
@@ -130,6 +147,12 @@ function onFileSelected(imageType, event) {
     const file = event.target.files[0];
     if (!file) return;
     event.target.value = '';
+
+    if (!isAllowedImageFile(file)) {
+        imageMessage.value[imageType] = {type: 'error', text: UNSUPPORTED_FORMAT_MESSAGE};
+        return;
+    }
+
     uploadSingleImage(imageType, file);
 }
 
@@ -140,7 +163,14 @@ function onPaste(imageType, event) {
     for (const item of items) {
         if (item.type.startsWith('image/')) {
             const file = item.getAsFile();
-            if (file) uploadSingleImage(imageType, file);
+            if (!file) break;
+
+            if (!isAllowedImageFile(file)) {
+                imageMessage.value[imageType] = {type: 'error', text: UNSUPPORTED_FORMAT_MESSAGE};
+                break;
+            }
+
+            uploadSingleImage(imageType, file);
             break;
         }
     }
@@ -151,7 +181,7 @@ function focusZone(el) {
     el?.focus();
 }
 
-// ─── Мульти-загрузка ──────────────────────────────────────────────────────────
+// ─── Мульти-загрузка ──────────────────────────────────────────────────────────/images/multi
 async function uploadMultiFile(imageType, file) {
     const formData = new FormData();
     formData.append('imageType', imageType);
@@ -182,6 +212,10 @@ async function uploadMultiImages(imageType, event) {
     message.value = null;
 
     for (const file of files) {
+        if (!isAllowedImageFile(file)) {
+            message.value = {type: 'error', text: `«${file.name}»: ${UNSUPPORTED_FORMAT_MESSAGE}`};
+            continue;
+        }
         try {
             await uploadMultiFile(imageType, file);
         } catch (err) {
@@ -200,6 +234,11 @@ async function onPasteMulti(imageType, event) {
         if (item.type.startsWith('image/')) {
             const file = item.getAsFile();
             if (!file) break;
+
+            if (!isAllowedImageFile(file)) {
+                message.value = {type: 'error', text: UNSUPPORTED_FORMAT_MESSAGE};
+                break;
+            }
 
             isUploadingMulti.value[imageType] = true;
             message.value = null;
@@ -297,7 +336,7 @@ onMounted(fetchImages);
                             >
                                 <input
                                     type="file"
-                                    accept="image/*"
+                                    :accept="ALLOWED_IMAGE_ACCEPT"
                                     class="sc-file-input"
                                     :disabled="isUploadingImage[field.type]"
                                     @change="onFileSelected(field.type, $event)"
@@ -327,7 +366,7 @@ onMounted(fetchImages);
                         >
                             <input
                                 type="file"
-                                accept="image/*"
+                                :accept="ALLOWED_IMAGE_ACCEPT"
                                 class="sc-file-input"
                                 :disabled="isUploadingImage[field.type]"
                                 @change="onFileSelected(field.type, $event)"
@@ -385,7 +424,7 @@ onMounted(fetchImages);
                     <label :class="['sc-btn-upload', isUploadingMulti[ms.type] ? 'sc-btn-disabled' : '']">
                         <input
                             type="file"
-                            accept="image/*"
+                            :accept="ALLOWED_IMAGE_ACCEPT"
                             multiple
                             class="sc-file-input"
                             :disabled="isUploadingMulti[ms.type]"
