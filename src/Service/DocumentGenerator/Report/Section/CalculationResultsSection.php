@@ -65,6 +65,9 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true, $last >= 0);
 
         foreach ($rows as $i => $row) {
+            if ($i !== 0) {
+                continue;
+            }
             $this->addRow($tbl, $w, [
                 (string)($i + 1),
                 $this->fmt($row['mark'] ?? null),

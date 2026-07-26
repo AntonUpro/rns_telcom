@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\Calculation\CalculationResult\Calculator;
 
+use App\Entity\Calculation;
+
 interface TableCalculatorInterface
 {
     /**
@@ -13,5 +15,5 @@ interface TableCalculatorInterface
      * @param array<int, array<string, mixed>> $rawRows
      * @return array<int, array<string, mixed>>
      */
-    public function calculateRows(array $rawRows): array;
+    public function calculateRows(array $rawRows, ?Calculation $calculation = null): array;
 }

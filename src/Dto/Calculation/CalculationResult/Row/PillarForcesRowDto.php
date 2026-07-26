@@ -12,6 +12,8 @@ final readonly class PillarForcesRowDto
         public ?float $mCalc,
         public ?float $mAllowable = null,
         public ?float $kMax = null,
+        public bool $mAllowableManual = false,
+        public bool $sectionDataAvailable = true,
     ) {
     }
 
@@ -23,10 +25,12 @@ final readonly class PillarForcesRowDto
             mCalc: isset($data['mCalc']) ? (float)$data['mCalc'] : null,
             mAllowable: isset($data['mAllowable']) ? (float)$data['mAllowable'] : null,
             kMax: isset($data['kMax']) ? (float)$data['kMax'] : null,
+            mAllowableManual: (bool)($data['mAllowableManual'] ?? false),
+            sectionDataAvailable: (bool)($data['sectionDataAvailable'] ?? true),
         );
     }
 
-    public function withComputed(float $mAllowable, ?float $kMax): self
+    public function withComputed(float $mAllowable, ?float $kMax, bool $sectionDataAvailable = true): self
     {
         return new self(
             mark: $this->mark,
@@ -34,6 +38,8 @@ final readonly class PillarForcesRowDto
             mCalc: $this->mCalc,
             mAllowable: $mAllowable,
             kMax: $kMax,
+            mAllowableManual: $this->mAllowableManual,
+            sectionDataAvailable: $sectionDataAvailable,
         );
     }
 
@@ -45,6 +51,8 @@ final readonly class PillarForcesRowDto
             'mCalc' => $this->mCalc,
             'mAllowable' => $this->mAllowable,
             'kMax' => $this->kMax,
+            'mAllowableManual' => $this->mAllowableManual,
+            'sectionDataAvailable' => $this->sectionDataAvailable,
         ];
     }
 }

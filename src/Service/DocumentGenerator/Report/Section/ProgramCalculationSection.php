@@ -39,7 +39,12 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $imageSchemePC = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
         $imageMosaicSections = $context->getCalculationImageByType(CalculationImage::TYPE_SECTIONS);
 
-        if (file_exists($imageSchemePC->getFilePath()) && file_exists($imageMosaicSections->getFilePath())) {
+        if (
+            $imageSchemePC
+            && $imageMosaicSections
+            && file_exists($imageSchemePC->getFilePath())
+            && file_exists($imageMosaicSections->getFilePath())
+        ) {
             $textRun = $section->addTextRun($center);
 
             $textRun->addImage($imageSchemePC->getFilePath(), [
@@ -63,7 +68,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $center,
         );
         $imageMosaicN = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_N);
-        if (file_exists($imageMosaicN->getFilePath())) {
+        if ($imageMosaicN && file_exists($imageMosaicN->getFilePath())) {
             $section->addImage($imageMosaicN->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
                 'height' => Converter::cmToPoint(23),
@@ -79,7 +84,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $center,
         );
         $imageMosaicM = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_M);
-        if (file_exists($imageMosaicM->getFilePath())) {
+        if ($imageMosaicM && file_exists($imageMosaicM->getFilePath())) {
             $section->addImage($imageMosaicM->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
                 'height' => Converter::cmToPoint(23),
@@ -96,7 +101,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $center,
         );
         $imageMosaicDis = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_DISPLACEMENT);
-        if (file_exists($imageMosaicDis->getFilePath())) {
+        if ($imageMosaicDis && file_exists($imageMosaicDis->getFilePath())) {
             $section->addImage($imageMosaicDis->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
                 'height' => Converter::cmToPoint(23),

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Calculation\CalculationResult;
 
+use App\Entity\Calculation;
 use App\Enum\Calculation\ResultTableTypeEnum;
 use App\Service\Calculation\CalculationResult\Calculator\FoundationForcesCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\CrackOpeningCalculator;
@@ -42,14 +43,14 @@ final class CalculationResultCalculatorService
      * @param array<string, array{enabled?: bool, rows: array}> $payload
      * @return array<string, array{enabled?: bool, rows: array}>
      */
-    public function calculateAll(array $payload): array
+    public function calculateAll(array $payload, ?Calculation $calculation = null): array
     {
         foreach ($this->calculators as $key => $calculator) {
             if (! isset($payload[$key]['rows'])) {
                 continue;
             }
 
-            $payload[$key]['rows'] = $calculator->calculateRows($payload[$key]['rows']);
+            $payload[$key]['rows'] = $calculator->calculateRows($payload[$key]['rows'], $calculation);
         }
 
         return $payload;
