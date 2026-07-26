@@ -37,17 +37,38 @@ enum ResultTableTypeEnum: string
         };
     }
 
-    // Формулировка типа усиления которое необходимо выполнить для опоры
-    public function constructFormulation(): string
+    /**
+     * Формулировка типа усиления, которое необходимо выполнить для опоры.
+     *
+     * @param float|null $topExceedMark для PILLAR_FORCES — самая верхняя отметка (м),
+     *        на которой коэффициент использования по несущей способности ещё ≥ 1;
+     *        если передана, дополняет формулировку словами «до отметки +N,NNN м».
+     */
+    public function constructFormulation(?float $topExceedMark = null): string
     {
+        $pillarSuffix = ($this === self::PILLAR_FORCES && $topExceedMark !== null)
+            ? sprintf(' до отметки %s м', self::formatMark($topExceedMark))
+            : '';
+
         return match ($this) {
-            self::PILLAR_FORCES => 'выполнить усиление ствола опоры',
+            self::PILLAR_FORCES => 'выполнить усиление ствола опоры' . $pillarSuffix,
             self::BRACE_STRESS => 'выполнить усиление подкосов опоры',
             self::PLATFORM_FORCES => 'выполнить усиление площадки опоры',
             self::SUPERSTRUCTURE_STRESS => 'выполнить усиление надстройки опоры',
             self::BASE_PILLAR_FORCES => 'выполнить усиление основания опоры',
             self::DEFORMATION => 'выполнить усиление ствола опоры',
             self::FOUNDATION => 'выполнить усиление фундамента опоры',
+        };
+    }
+
+    private static function formatMark(float $mark): string
+    {
+        $formatted = number_format(abs($mark), 3, ',', '');
+
+        return match (true) {
+            $mark > 0 => '+' . $formatted,
+            $mark < 0 => '-' . $formatted,
+            default => $formatted,
         };
     }
 }

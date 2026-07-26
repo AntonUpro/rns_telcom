@@ -516,21 +516,21 @@ defineExpose({save: saveGeneralData});
                     </div>
                 </div>
                 <div class="form-group compact-group">
-                    <label>Дата обследования:</label>
-                    <input
-                        type="date"
-                        v-model="formData.inspectionDate"
-                        class="form-calculation-control compact-input"
-                        disabled
-                    />
-                </div>
-                <div class="form-group compact-group">
                     <label for="surveyPerformed">Проводилось обследование:</label>
                     <input
                         type="checkbox"
                         v-model.bool="formData.surveyPerformed"
                         id="surveyPerformed"
                         class="strengthening-checkbox"
+                    />
+                </div>
+                <div class="form-group compact-group">
+                    <label>Дата обследования:</label>
+                    <input
+                        type="date"
+                        v-model="formData.inspectionDate"
+                        class="form-calculation-control compact-input"
+                        :disabled="!formData.surveyPerformed"
                     />
                 </div>
             </div>

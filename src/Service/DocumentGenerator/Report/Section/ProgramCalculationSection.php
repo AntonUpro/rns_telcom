@@ -238,15 +238,19 @@ final class ProgramCalculationSection implements SectionBuilderInterface
     {
         $italic = DocStyleRegistry::italicCenter();
         $italic['size'] = 8;
+        $italicExceed = array_merge($italic, ['bold' => true, 'underline' => 'single']);
         $center = DocStyleRegistry::paragraphCenter();
         $hCell = DocStyleRegistry::headerCell();
         $dCell = DocStyleRegistry::dataCell();
 
         $w = [700, 450, 650, 450, 650, 700, 550, 550, 850, 650, 550, 650, 650, 850, 700, 650];
+        $kispColumnIndex = count($w) - 1;
 
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
         $centerKeep = array_merge($center, ['keepNext' => true]);
         $last = count($calculationResult) - 1;
+
+        $lastExceedIdx = self::lastReinforcementIndex($calculationResult);
 
         $headers = [
             'Отметка, м', 'rm, м', 'rs, rsp м', 'σbp МПа', 'δsp', 'δs',
@@ -282,10 +286,31 @@ final class ProgramCalculationSection implements SectionBuilderInterface
                 number_format($row->k, 2, ',', ''),
             ];
             foreach ($vals as $j => $val) {
-                $tbl->addCell($w[$j], $dCell)->addText($val, $italic, $rowPara);
+                $cellStyle = ($j === $kispColumnIndex && $i <= $lastExceedIdx) ? $italicExceed : $italic;
+                $tbl->addCell($w[$j], $dCell)->addText($val, $cellStyle, $rowPara);
             }
         }
 
         $section->addTextBreak(1);
+    }
+
+    /**
+     * Самый верхний индекс (считая от основания опоры, index 0 = низ), где
+     * Кисп ещё ≥ 1. Все строки от основания и до него включительно нужно
+     * подсвечивать жирным и подчёркиванием — даже если между ними встречаются
+     * отметки с Кисп < 1 (учёт вернулся выше единицы).
+     *
+     * @param SimpleResultDto[] $calculationResult
+     */
+    private static function lastReinforcementIndex(array $calculationResult): int
+    {
+        $lastExceedIdx = -1;
+        foreach ($calculationResult as $i => $row) {
+            if ($row->k >= 1) {
+                $lastExceedIdx = $i;
+            }
+        }
+
+        return $lastExceedIdx;
     }
 }

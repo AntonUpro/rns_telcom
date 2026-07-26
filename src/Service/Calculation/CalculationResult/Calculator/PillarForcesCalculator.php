@@ -57,15 +57,12 @@ final class PillarForcesCalculator implements TableCalculatorInterface
      */
     private function calculateMomentsByMark(array $rows, ?Calculation $calculation): array
     {
-        $maxMoment = 0.0;
+        $moments = [];
         foreach ($rows as $row) {
-            if ($row->mCalc !== null && $row->mCalc > $maxMoment) {
-                $maxMoment = $row->mCalc;
+            if ($row->mCalc !== null && $row->mark !== null) {
+                $markMm = (int)$row->mark * 1000;
+                $moments[$markMm] = $row->mCalc;
             }
-        }
-
-        if ($maxMoment <= 0) {
-            return [];
         }
 
         $specificData = $calculation?->getCalculationData()?->getConcretePillarSpecificData();
@@ -81,7 +78,7 @@ final class PillarForcesCalculator implements TableCalculatorInterface
             return [];
         }
 
-        return (new SimpleCalculator())->calculateAllowableMomentsByHeight($pillar, $pillarHeightM, $maxMoment);
+        return (new SimpleCalculator())->calculateAllowableMomentsByHeight($pillar, $pillarHeightM, $moments);
     }
 
     private function isSectionDataAvailable(PillarEnum $pillar): bool
