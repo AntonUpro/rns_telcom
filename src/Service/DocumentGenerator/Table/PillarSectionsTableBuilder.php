@@ -57,7 +57,7 @@ final class PillarSectionsTableBuilder
 
     public function build(Section $section, SectionCollectionDto $data, int &$tableNum): void
     {
-        $section->addText('Ветровое давление на ствол опоры и коммуникации:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndent());
+        $section->addText('Ветровое давление на ствол опоры и коммуникации:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndentWithKeepNext());
 
         $tableNum++;
         $section->addText(

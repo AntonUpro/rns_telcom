@@ -166,6 +166,11 @@ final class DocStyleRegistry
         ];
     }
 
+    public static function paragraphIndentWithKeepNext(): array
+    {
+        return array_merge(self::paragraphIndent(), ['keepNext' => true]);
+    }
+
     public static function tableStyleReport(): array
     {
         return [

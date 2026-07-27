@@ -52,7 +52,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Максимальные усилия в стволе опоры от расчётных нагрузок:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
@@ -112,7 +112,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Максимальное раскрытие трещин в стволе опоры от нормативных нагрузок:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
@@ -174,7 +174,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Максимальные ' . $description . ':',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
@@ -240,7 +240,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Деформации опоры от воздействия ветровых нагрузок:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
@@ -297,7 +297,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         }
 
         $num = $this->nextTableNum();
-        $section->addText('Расчетные нагрузки, возникающие в уровне заделки стойки:', DocStyleRegistry::titleTableTextUnderline(), DocStyleRegistry::paragraphIndent());
+        $section->addText('Расчетные нагрузки, возникающие в уровне заделки стойки:', DocStyleRegistry::titleTableTextUnderline(), DocStyleRegistry::paragraphIndentWithKeepNext());
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $w = [400, 3600, 2000, 2000, 2000];
@@ -334,7 +334,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Результаты расчёта основания опоры:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
