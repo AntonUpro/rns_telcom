@@ -137,7 +137,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $section->addText(
                 'Исходные данные сечений стойки',
                 $body,
-                $left,
+                DocStyleRegistry::paragraphIndentWithKeepNext(),
             );
 
             $calculationResult = (new SimpleCalculator())->calculate($context);
@@ -148,7 +148,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $section->addText(
                 'Проверка сечений железобетонной стойки',
                 $body,
-                $left,
+                DocStyleRegistry::paragraphIndentWithKeepNext(),
             );
 
             $this->buildTableResult($section, $calculationResult);

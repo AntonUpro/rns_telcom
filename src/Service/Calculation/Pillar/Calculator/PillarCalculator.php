@@ -11,6 +11,7 @@ use App\Dto\DefaultConstant;
 use App\Enum\CalculationData\TerrainTypeEnum;
 use App\Enum\CalculationData\WindRegionEnum;
 use App\Enum\Pillar\PillarEnum;
+use App\Service\Calculation\CxCylinder;
 
 final class PillarCalculator
 {
@@ -63,14 +64,20 @@ final class PillarCalculator
 
     private function calcCxInf(): float
     {
-        return $this->calcRe() < 100000
+        $re = $this->calcRe();
+        return $re < 100000
             ? 1.2
-            : 0.9; // TODO сложный расчет переделать
+            : CxCylinder::getCx($re, $this->calcDelta()); // TODO сложный расчет переделать
     }
 
     private function calcKLambda(): float
     {
         $lambdaE = $this->pillarEnum->calcLambdaE($this->height);
         return CalculatorKLambda::calc($lambdaE);
+    }
+
+    private function calcDelta(): float
+    {
+        return 1 / $this->sectionDto->getAverageDiameter();
     }
 }
