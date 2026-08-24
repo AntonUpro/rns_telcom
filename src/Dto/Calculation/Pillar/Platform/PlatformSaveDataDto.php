@@ -24,7 +24,7 @@ class PlatformSaveDataDto
             calculationId: $data['calculationId'],
             totalData: TotalDataPlatform::fromArray($data['totalData']),
             sections: array_map(fn (array $section) => PlatformSection::fromArray($section), $data['sections']),
-            strut: PlatformSection::fromArray($data['strut']) ?? null,
+            strut: !empty($data['strut']) ? PlatformSection::fromArray($data['strut']) : null,
         );
     }
 

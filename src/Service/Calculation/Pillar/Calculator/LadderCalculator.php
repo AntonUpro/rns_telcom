@@ -30,13 +30,15 @@ class LadderCalculator
             return null;
         }
 
+        $shadingCoefficient = $this->defaultValues->shadingCoefficients['ladder'] ?? DefaultConstant::SHADING_COEFFICIENT_LADDER;
+
         $height = $this->sectionDto->height;
         if ($this->sectionDto->topMark < $ladderBottom) {
             $height = 0;
         } elseif ($this->sectionDto->topMark > $ladderBottom && $this->sectionDto->buttonMark() < $ladderBottom) {
             $height = $this->sectionDto->topMark - $ladderBottom;
         }
-        $area = $ladderArea * $height / 1000;
+        $area = $ladderArea * $height / 1000 * $shadingCoefficient;
 
         $press = $this->windRegionEnum->pressureKgPerM()
             * $this->terrainTypeEnum->roughnessCoefficient(height: $this->sectionDto->middleMark() / 1000)

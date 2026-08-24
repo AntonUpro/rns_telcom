@@ -53,6 +53,10 @@ final class StructuralSection implements SectionBuilderInterface
 
         $section->addText($pillarInfo, $body, $para);
 
+        if (! $existStrut) {
+            $section->addText('Подкосы в конструкции площадки отсутствуют.', $body, $para);
+        }
+
         $section->addText('Для подъема на опору предусмотрена вертикальная лестница с корзиной ограждения.', $body, $para);
         $section->addText('Кабельная трасса прокладывается параллельно лестнице.', $body, $para);
 

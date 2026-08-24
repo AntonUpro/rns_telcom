@@ -23,6 +23,14 @@ const props = defineProps({
 
 const emit = defineEmits(['update:rows']);
 
+const makeRow = () => ({
+    mark: null,
+    pillarType: '',
+    mCalc: null,
+    mAllowable: null,  // computed by backend
+    kMax: null,        // computed by backend
+});
+
 const VISIBLE_COLLAPSED_COUNT = 2;
 const isExpanded = ref(false);
 
@@ -36,6 +44,8 @@ const updateCell = (idx, field, value) => {
     emit('update:rows', updated);
 };
 
+const addRow = () => emit('update:rows', [...props.rows, makeRow()]);
+
 const updateAllowable = (idx, value) => {
     const updated = props.rows.map((r, i) => i === idx ? { ...r, mAllowable: value, mAllowableManual: true } : r);
     emit('update:rows', updated);
@@ -47,6 +57,11 @@ const resetAllowable = (idx) => {
 };
 
 const fmt2 = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(2) : '';
+
+const removeRow = (idx) => {
+    if (props.rows.length <= 1) return;
+    emit('update:rows', props.rows.filter((_, i) => i !== idx));
+};
 
 const fmtKmax = (v) => (v !== null && v !== undefined) ? Number(v).toFixed(2) : '—';
 
@@ -66,6 +81,7 @@ const fmtMark = (mark) => {
                 <h3 class="rt-title">Таблица {{ tableNumber }}. Максимальные усилия в стволе опоры</h3>
                 <p class="rt-subtitle">Усилия от расчётных нагрузок по отметкам высоты столба</p>
             </div>
+<!--            <button class="rt-btn-add" @click="addRow">+ строка</button>-->
         </div>
 
         <div class="table-wrap">
@@ -117,6 +133,13 @@ const fmtMark = (mark) => {
                         <td class="td-computed td-kmax" :class="{ 'td-warn': row.kMax !== null && row.kMax > 1 }">
                             {{ fmtKmax(row.kMax) }}
                         </td>
+<!--                        <td class="td-center">-->
+<!--                            <button-->
+<!--                                class="rt-btn-del" title="Удалить строку"-->
+<!--                                :disabled="rows.length <= 1"-->
+<!--                                @click="removeRow(idx)"-->
+<!--                            >×</button>-->
+<!--                        </td>-->
                     </tr>
                     <tr v-if="rows.length === 0">
                         <td colspan="6" class="td-empty">Нет данных — заполните высоту столба в исходных данных</td>
@@ -167,6 +190,21 @@ const fmtMark = (mark) => {
     font-size: 11px;
     color: #6c757d;
 }
+
+.rt-btn-add {
+    flex-shrink: 0;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1976d2;
+    background: #fff;
+    border: 1px solid #1976d2;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s;
+}
+.rt-btn-add:hover { background: #1976d2; color: #fff; }
 
 .table-wrap { overflow-x: auto; }
 

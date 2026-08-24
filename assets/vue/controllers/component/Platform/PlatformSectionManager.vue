@@ -103,7 +103,7 @@ const removeSection = (index) => {
 
 // Удаление подкосов
 const removeStrut = () => {
-    strut.value = {};
+    strut.value = null;
 };
 
 // Работа с элементами
@@ -147,7 +147,7 @@ function validateAllData() {
     if (!(Number(totalData.value.mountHeightPlatform) > 0)) return false;
     if (!(Number(totalData.value.facetsCount) > 0)) return false;
 
-    if (strut.value.height !== undefined) {
+    if (strut.value && strut.value.height !== undefined) {
         if (!validateSection(strut.value)) return false;
     }
 
@@ -209,9 +209,7 @@ const fetchPlatformData = async () => {
         if (responseData.data.sections) {
             sections.value = responseData.data.sections;
         }
-        if (responseData.data.strut) {
-            strut.value = responseData.data.strut;
-        }
+        strut.value = responseData.data.strut || null;
         if (responseData.data.totalData) {
             totalData.value = responseData.data.totalData;
         }
@@ -280,7 +278,7 @@ defineExpose({save: savePlatformData});
         <div class="sections">
             <div class="sections-toolbar">
                 <button class="btn-add-section" @click="addSectionAtStart">+ Добавить секцию в начало</button>
-                <button class="btn-add-section" @click="addStrut">+ Добавить подкосы</button>
+                <button class="btn-add-section" @click="addStrut" v-if="!strut">+ Добавить подкосы</button>
             </div>
             <table>
                 <thead>
@@ -295,6 +293,7 @@ defineExpose({save: savePlatformData});
                 </thead>
                 <tbody>
                 <SectionItem2
+                    v-if="strut"
                     :key="0"
                     :section="strut"
                     :index="0"

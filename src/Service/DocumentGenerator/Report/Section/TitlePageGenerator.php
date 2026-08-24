@@ -21,7 +21,7 @@ final class TitlePageGenerator
     /** Реквизиты компании — статичные данные из шаблона */
     private const COMPANY_NAME = 'Общество с ограниченной ответственностью «ТелКом»';
     private const ACTUAL_ADDRESS = '620075, г. Екатеринбург, ул. Первомайская, 56, офис 706';
-    private const LEGAL_ADDRESS = '614068, г. Пермь, ул. Сухобруса, д.27, оф. 405';
+    private const LEGAL_ADDRESS = self::ACTUAL_ADDRESS;
     private const INN = '5903099085';
     private const KPP = '590301001';
     private const OGRN = '1095903005604';

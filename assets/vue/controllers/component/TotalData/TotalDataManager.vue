@@ -35,7 +35,9 @@ const defaultValues = reactive({
         panelAntenna: 0,
         radioBlocks: 0,
         cableTray: 0,
-        otherEquipment: 0
+        otherEquipment: 0,
+        cableChannel: 0,
+        ladder: 0
     }
 });
 
@@ -89,7 +91,9 @@ const formData = reactive({
         panelAntenna: 0,
         radioBlocks: 0,
         cableTray: 0,
-        otherEquipment: 0
+        otherEquipment: 0,
+        cableChannel: 0,
+        ladder: 0
     },
 
     // Материалы
@@ -192,7 +196,9 @@ const fetchGeneralData = async () => {
             panelAntenna: data.data.defaultValues?.shadingCoefficients?.panelAntenna || defaultValues.shadingCoefficients?.panelAntenna,
             radioBlocks: data.data.defaultValues?.shadingCoefficients?.radioBlocks || defaultValues.shadingCoefficients?.radioBlocks,
             cableTray: data.data.defaultValues?.shadingCoefficients?.cableTray || defaultValues.shadingCoefficients?.cableTray,
-            otherEquipment: data.data.defaultValues?.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment
+            otherEquipment: data.data.defaultValues?.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment,
+            cableChannel: data.data.defaultValues?.shadingCoefficients?.cableChannel || defaultValues.shadingCoefficients?.cableChannel,
+            ladder: data.data.defaultValues?.shadingCoefficients?.ladder || defaultValues.shadingCoefficients?.ladder
         };
 
     } catch (error) {
@@ -268,6 +274,8 @@ const fetchPillarTotalInfo = async () => {
         defaultValues.shadingCoefficients.radioBlocks = data.data.defaultValues.shadingCoefficients.radioBlocks;
         defaultValues.shadingCoefficients.cableTray = data.data.defaultValues.shadingCoefficients.cableTray;
         defaultValues.shadingCoefficients.otherEquipment = data.data.defaultValues.shadingCoefficients.otherEquipment;
+        defaultValues.shadingCoefficients.cableChannel = data.data.defaultValues.shadingCoefficients.cableChannel;
+        defaultValues.shadingCoefficients.ladder = data.data.defaultValues.shadingCoefficients.ladder;
     } catch (error) {
         console.error('Ошибка загрузки справочных данных:', error);
         alert('Не удалось загрузить справочные данные');
@@ -893,6 +901,28 @@ defineExpose({save: saveGeneralData});
                         <input
                             type="number"
                             v-model.number="formData.shadingCoefficients.otherEquipment"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Кабельрост:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.cableChannel"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Лестница:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.ladder"
                             class="form-calculation-control compact-input"
                             step="0.01"
                             min="0.1"

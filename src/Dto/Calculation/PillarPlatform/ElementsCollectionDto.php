@@ -24,11 +24,11 @@ final readonly class ElementsCollectionDto
         return $area;
     }
 
-    public function sumAiCxi(): float
+    public function sumAiCxi(float $windPressureKgPerM, float $kze): float
     {
         $sum = 0;
         foreach ($this->elements as $element) {
-            $sum += $element->sectionConstructType->cx() * $element->areaElements();
+            $sum += $element->cx($windPressureKgPerM, $kze) * $element->areaElements();
         }
 
         return $sum;

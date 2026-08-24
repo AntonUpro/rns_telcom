@@ -34,7 +34,7 @@ final readonly class SectionCalculator
 
         $elements = $this->buildElements();
 
-        $cx = $elements->sumAiCxi() / $areaContourSection;
+        $cx = $elements->sumAiCxi($this->windRegion->pressureKgPerM(), $kze) / $areaContourSection;
 
         $fi = $elements->sumElementArea() / $areaContourSection;
 

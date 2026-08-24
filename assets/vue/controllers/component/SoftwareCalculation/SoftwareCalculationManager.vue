@@ -281,6 +281,9 @@ onMounted(fetchImages);
         <div v-if="isLoading" class="sc-state-loading">Загрузка сохранённых изображений...</div>
 
         <template v-else>
+            <div class="sc-allowed-formats-hint">
+                Разрешённые форматы изображений: {{ ALLOWED_IMAGE_EXTENSIONS.join(', ').toUpperCase() }}
+            </div>
             <div class="sc-grid">
                 <div
                     v-for="field in IMAGE_FIELDS"
@@ -490,6 +493,12 @@ onMounted(fetchImages);
     background: #e3f2fd;
     border: 1px solid #90caf9;
     border-radius: 6px;
+}
+
+.sc-allowed-formats-hint {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 12px;
 }
 
 /* ── Сетка карточек ── */

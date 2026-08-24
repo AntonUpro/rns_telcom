@@ -108,7 +108,7 @@ class SavePlatformDataService
             $deleteSectionIds = array_diff($existNumberSections, $requestSectionNumbers);
 
             if ($deleteSectionIds && $pillarPlatform->getId()) {
-                $this->pillarPlatformSectionsRepository->deleteSectionByNumberAndCalculationId($deleteSectionIds, $pillarPlatform->getId());
+                $this->pillarPlatformSectionsRepository->deleteSectionByNumberAndCalculationId($deleteSectionIds, $pillarPlatform);
             }
 
             $this->entityManager->flush();

@@ -59,6 +59,8 @@ class GetPillarTotalInfoController extends AbstractApiController
                         'radioBlocks' => DefaultConstant::SHADING_COEFFICIENT_RADIO_BLOCKS,
                         'cableTray' => DefaultConstant::SHADING_COEFFICIENT_CABLE_TRAY,
                         'otherEquipment' => DefaultConstant::SHADING_COEFFICIENT_OTHER_EQUIPMENT,
+                        'cableChannel' => DefaultConstant::SHADING_COEFFICIENT_CABLE_CHANNEL,
+                        'ladder' => DefaultConstant::SHADING_COEFFICIENT_LADDER,
                     ],
                 ],
             ]);

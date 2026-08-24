@@ -17,14 +17,14 @@ class PillarPlatformSectionsRepository extends ServiceEntityRepository
         parent::__construct($registry, PillarPlatformSection::class);
     }
 
-    public function deleteSectionByNumberAndCalculationId(array $sectionNumbers, int $pillarPlatformId): void
+    public function deleteSectionByNumberAndCalculationId(array $sectionNumbers, PillarPlatform $pillarPlatform): void
     {
         $this->createQueryBuilder('s')
             ->delete()
-            ->where('s.number_section IN (:sectionNumbers)')
-            ->andWhere('s.pillar_platform_id = :pillarPlatformId')
+            ->where('s.numberSection IN (:sectionNumbers)')
+            ->andWhere('s.pillarPlatform = :pillarPlatformId')
             ->setParameter('sectionNumbers', $sectionNumbers)
-            ->setParameter('pillarPlatformId', $pillarPlatformId)
+            ->setParameter('pillarPlatformId', $pillarPlatform)
             ->getQuery()
             ->execute();
     }

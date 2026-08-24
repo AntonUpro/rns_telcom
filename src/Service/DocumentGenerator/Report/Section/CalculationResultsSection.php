@@ -60,6 +60,20 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
         $rows = $table->getRows();
+
+        $specificData = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData();
+        $strengtheningHeight = ($specificData?->strengtheningExist ?? false)
+            ? $specificData->strengthening?->strengtheningHeight
+            : null;
+
+        if ($strengtheningHeight !== null && $strengtheningHeight > 0) {
+            $pillarHeight = (float)($specificData?->pillarHeight ?? 0);
+            $this->buildPillarForcesWithStrengthening($section, $tbl, $w, $rows, $strengtheningHeight, $pillarHeight);
+            $section->addTextBreak(1);
+
+            return;
+        }
+
         $last = count($rows) - 1;
 
         $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true, $last >= 0);
@@ -97,6 +111,86 @@ final class CalculationResultsSection implements SectionBuilderInterface
         }
 
         $section->addTextBreak(1);
+    }
+
+    /**
+     * При усилении ж/б столба таблица «Максимальные усилия в стволе опоры»
+     * содержит 2 строки: Кисп в пределах усиления (от 0 до высоты усиления)
+     * и Кисп выше усиления (от высоты усиления до верха опоры), каждая —
+     * со своим абзацем-выводом под таблицей.
+     */
+    private function buildPillarForcesWithStrengthening(
+        Section $section,
+        Table $tbl,
+        array $w,
+        array $rows,
+        float $strengtheningHeight,
+        float $pillarHeight,
+    ): void {
+        $reinforcedRows = array_values(array_filter(
+            $rows,
+            static fn(array $row): bool => ((float)($row['mark'] ?? 0)) <= $strengtheningHeight,
+        ));
+        $aboveRows = array_values(array_filter(
+            $rows,
+            static fn(array $row): bool => ((float)($row['mark'] ?? 0)) > $strengtheningHeight,
+        ));
+
+        $groups = [
+            [$reinforcedRows, 0.0, $strengtheningHeight],
+            [$aboveRows, $strengtheningHeight, $pillarHeight],
+        ];
+
+        $last = count($groups) - 1;
+        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true, $last >= 0);
+
+        foreach ($groups as $i => [$groupRows, $fromMark, $toMark]) {
+            $maxRow = $this->findMaxKRowFromRows($groupRows, 'kMax');
+            if ($maxRow === null) {
+                continue;
+            }
+
+            $this->addRow($tbl, $w, [
+                (string)($i + 1),
+                $this->fmt($maxRow['mark'] ?? null),
+                (string)($maxRow['pillarType'] ?? '—'),
+                $this->fmt($maxRow['mCalc'] ?? null, 3),
+                $this->fmt($maxRow['mAllowable'] ?? null, 3),
+                $this->fmt($maxRow['kMax'] ?? null, 3),
+            ], false, $i < $last);
+
+            $comply = ((float)($maxRow['kMax'] ?? 0)) <= 1.0;
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+
+            $textRun = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+            $textRun->addText(
+                sprintf(
+                    'Максимальное усилие в стволе опоры от %s до %s м составляет ',
+                    self::formatMark($fromMark),
+                    self::formatMark($toMark),
+                ),
+                DocStyleRegistry::bodyText(),
+            );
+            $textRun->addText(sprintf('%.2f', (float)($maxRow['mCalc'] ?? 0)), $style);
+            $textRun->addText(' тс·м при допустимом ', DocStyleRegistry::bodyText());
+            $textRun->addText(sprintf('%.2f', (float)($maxRow['mAllowable'] ?? 0)), $style);
+            $textRun->addText(' тс·м, ', DocStyleRegistry::bodyText());
+            $textRun->addText(sprintf('Кисп=%d%%', (int)round((float)($maxRow['kMax'] ?? 0) * 100)), $style);
+            $textRun->addText(', что ', DocStyleRegistry::bodyText());
+            $textRun->addText($comply ? 'удовлетворяет' : 'не удовлетворяет', $style);
+            $textRun->addText(' требованиям СП 63.13330.2018;', DocStyleRegistry::bodyText());
+        }
+    }
+
+    private static function formatMark(float $mark): string
+    {
+        $formatted = number_format(abs($mark), 3, ',', '');
+
+        return match (true) {
+            $mark > 0 => '+' . $formatted,
+            $mark < 0 => '-' . $formatted,
+            default => $formatted,
+        };
     }
 
     // ─── Раскрытие трещин ────────────────────────────────────────────────────
@@ -461,12 +555,14 @@ final class CalculationResultsSection implements SectionBuilderInterface
 
         $maxKUse = max($pillarKuse, $foundKuse);
 
+        $fmtPercent = fn(?float $k): string => $k !== null ? $this->fmt($k * 100, 0) : '—';
+
         $rows = [
-            ['Коэффициент использования конструкций (по наиболее нагруженному элементу)', $this->fmt($pillarKuse, 2)],
-            ['Коэффициент использования фундаментов', $this->fmt($foundKuse, 2)],
-            ['Площадь оборудования на момент расчета', $this->fmt($areaEquipment, 2)],
+            ['Коэффициент использования конструкций (по наиболее нагруженному элементу), %', $fmtPercent($pillarKuse)],
+            ['Коэффициент использования фундаментов, %', $fmtPercent($foundKuse)],
+            ['Площадь оборудования на момент расчета, м²', $this->fmt($areaEquipment, 2)],
             ['Вес оборудования на момент расчета, кг', $this->fmt($weightEquipment, 2)],
-            ['Максимально допустимая площадь оборудования (ориентировочно относительно отметок подвеса существующего оборудования)', $this->fmt($areaEquipment / $maxKUse, 2)],
+            ['Максимально допустимая площадь оборудования (ориентировочно относительно отметок подвеса существующего оборудования), м²', $this->fmt($areaEquipment / $maxKUse, 2)],
             ['Максимально допустимый вес оборудования на АМС, кг', $this->fmt($weightEquipment / $maxKUse, 2)],
         ];
 
@@ -505,9 +601,14 @@ final class CalculationResultsSection implements SectionBuilderInterface
 
     private function findMaxKRow(CalculationResultTable $table, string $field): ?array
     {
+        return $this->findMaxKRowFromRows($table->getRows(), $field);
+    }
+
+    private function findMaxKRowFromRows(array $rows, string $field): ?array
+    {
         $maxRow = null;
         $maxK = null;
-        foreach ($table->getRows() as $row) {
+        foreach ($rows as $row) {
             $k = isset($row[$field]) ? (float)$row[$field] : null;
             if ($k !== null && ($maxK === null || $k > $maxK)) {
                 $maxK = $k;
