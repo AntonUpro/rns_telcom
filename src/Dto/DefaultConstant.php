@@ -25,7 +25,9 @@ final readonly class DefaultConstant
     public const SHADING_COEFFICIENT_RRL = 1;
     public const SHADING_COEFFICIENT_PANEL_ANTENNA = 0.8;
     public const SHADING_COEFFICIENT_RADIO_BLOCKS = 0.3;
-    public const SHADING_COEFFICIENT_CABLE_TRAY = 0.3;
+    public const SHADING_COEFFICIENT_CABLE_TRAY = 0.7;
     public const SHADING_COEFFICIENT_OTHER_EQUIPMENT = 1;
+    public const SHADING_COEFFICIENT_CABLE_CHANNEL = 0.4;
+    public const SHADING_COEFFICIENT_LADDER = 0.7;
 
 }

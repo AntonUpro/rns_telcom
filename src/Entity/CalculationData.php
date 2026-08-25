@@ -30,11 +30,6 @@ class CalculationData
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Calculation $calculation = null;
 
-    // Основные данные объекта
-    #[ORM\Column(length: 50, nullable: true)]
-    #[Assert\Length(max: 50)]
-    private ?string $objectCode = null;
-
     // номер базовой станции
     #[ORM\Column(length: 50, nullable: true)]
     #[Assert\Length(max: 50)]
@@ -67,6 +62,10 @@ class CalculationData
     // Дата обследования
     #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $surveyDate = null;
+
+    // Проводилось обследование
+    #[ORM\Column]
+    private bool $surveyPerformed = false;
 
     // Климатические параметры
     #[ORM\Column(length: 10, nullable: true)]
@@ -130,19 +129,6 @@ class CalculationData
     public function setCalculation(Calculation $calculation): static
     {
         $this->calculation = $calculation;
-
-        return $this;
-    }
-
-    // Геттеры и сеттеры для основных полей
-    public function getObjectCode(): ?string
-    {
-        return $this->objectCode;
-    }
-
-    public function setObjectCode(?string $objectCode): static
-    {
-        $this->objectCode = $objectCode;
 
         return $this;
     }
@@ -233,6 +219,18 @@ class CalculationData
     public function setSurveyDate(?\DateTimeInterface $surveyDate): static
     {
         $this->surveyDate = $surveyDate;
+
+        return $this;
+    }
+
+    public function isSurveyPerformed(): bool
+    {
+        return $this->surveyPerformed;
+    }
+
+    public function setSurveyPerformed(bool $surveyPerformed): static
+    {
+        $this->surveyPerformed = $surveyPerformed;
 
         return $this;
     }
@@ -354,7 +352,6 @@ class CalculationData
         return [
             'id' => $this->id,
             'calculation_id' => $this->calculation?->getId(),
-            'objectCode' => $this->objectCode,
             'baseStationNumber' => $this->baseStationNumber,
             'region' => $this->region,
             'locality' => $this->locality,
@@ -362,6 +359,7 @@ class CalculationData
             'amsType' => $this->amsType,
             'amsHeight' => $this->amsHeight,
             'surveyDate' => $this->surveyDate?->format('Y-m-d'),
+            'surveyPerformed' => $this->surveyPerformed,
             'windRegion' => $this->windRegion?->value,
             'terrainType' => $this->terrainType?->value,
             'snowRegion' => $this->snowRegion?->value,

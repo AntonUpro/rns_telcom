@@ -66,6 +66,25 @@ function addRow(category) {
     };
 }
 
+function duplicateRow(category, index) {
+    const rows = group.value[category] ?? [];
+    const original = rows[index];
+    if (!original) return;
+
+    const copy = {
+        ...original,
+        id: null,
+        fromDropdown: false,
+    };
+
+    const next = rows.slice();
+    next.splice(index + 1, 0, copy);
+    group.value = {
+        ...group.value,
+        [category]: next
+    };
+}
+
 function removeRow(category, index) {
     if (confirm('Удалить оборудование?')) {
         const rows = group.value[category] ?? [];
@@ -147,6 +166,7 @@ const toggleSection = (section) => {
                 @update:rows="rows => updateRows('rrl', rows)"
                 @add-item="() => addRow('rrl')"
                 @remove-item="(idx) => removeRow('rrl', idx)"
+                @duplicate-item="(idx) => duplicateRow('rrl', idx)"
             />
 
             <!-- Панельные антенны -->
@@ -160,6 +180,7 @@ const toggleSection = (section) => {
                 @update:rows="rows => updateRows('panel', rows)"
                 @add-item="() => addRow('panel')"
                 @remove-item="(idx) => removeRow('panel', idx)"
+                @duplicate-item="(idx) => duplicateRow('panel', idx)"
             />
 
             <!-- Радиоблоки -->
@@ -173,6 +194,7 @@ const toggleSection = (section) => {
                 @update:rows="rows => updateRows('radio', rows)"
                 @add-item="() => addRow('radio')"
                 @remove-item="(idx) => removeRow('radio', idx)"
+                @duplicate-item="(idx) => duplicateRow('radio', idx)"
             />
 
             <!-- Прочее -->
@@ -186,6 +208,7 @@ const toggleSection = (section) => {
                 @update:rows="rows => updateRows('other', rows)"
                 @add-item="() => addRow('other')"
                 @remove-item="(idx) => removeRow('other', idx)"
+                @duplicate-item="(idx) => duplicateRow('other', idx)"
             />
 
             <!-- Итоги -->

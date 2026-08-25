@@ -14,6 +14,7 @@ enum ElementTypeEnum: string
     case FENCE = 'fence';
     case STRUT = 'strut';
     case PLATFORM = 'platform';
+    case SUPERSTRUCTURE = 'superstructure';
     case OTHER = 'other';
 
     public function label(): string
@@ -27,6 +28,7 @@ enum ElementTypeEnum: string
             self::FENCE => 'Ограждение',
             self::STRUT => 'Подкос',
             self::PLATFORM => 'Площадка',
+            self::SUPERSTRUCTURE => 'Надстройка',
             self::OTHER => 'Прочее',
         };
     }

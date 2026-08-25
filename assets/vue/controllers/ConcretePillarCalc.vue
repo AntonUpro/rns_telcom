@@ -1,5 +1,5 @@
 <script setup>
-import {ref, reactive, computed, onMounted} from 'vue';
+import {ref, reactive, computed, onMounted, onBeforeUnmount} from 'vue';
 import EquipmentManager from "./component/Equipment/EquipmentManager.vue";
 import TotalDataManager from "./component/TotalData/TotalDataManager.vue";
 import WindEquipmentManager from "./component/WindEquipment/WindEquipmentManager.vue";
@@ -8,6 +8,8 @@ import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
 import SoftwareCalculationManager from "./component/SoftwareCalculation/SoftwareCalculationManager.vue";
 import DocumentsForm from "./component/SoftwareCalculation/DocumentsForm.vue";
 import CalculationResultsManager from "./component/CalculationResults/CalculationResultsManager.vue";
+import UnsavedChangesModal from "./component/shared/UnsavedChangesModal.vue";
+import {isTabDirty, clearDirty, hasUnsavedChanges} from "./component/shared/useUnsavedChanges.js";
 
 const props = defineProps({
     user: {
@@ -28,8 +30,58 @@ const activeTab = ref(sessionStorage.getItem(TAB_STORAGE_KEY) || 'initial');
 const isLoading = ref(false);
 
 const setActiveTab = (tab) => {
+    if (tab === activeTab.value) return;
+
+    if (isTabDirty(activeTab.value)) {
+        pendingTab.value = tab;
+        showUnsavedModal.value = true;
+        return;
+    }
+
+    switchTab(tab);
+};
+
+const switchTab = (tab) => {
     activeTab.value = tab;
     sessionStorage.setItem(TAB_STORAGE_KEY, tab);
+};
+
+const handleModalSave = async () => {
+    showUnsavedModal.value = false;
+    const target = pendingTab.value;
+    pendingTab.value = null;
+
+    const tabRef = tabRefMap[activeTab.value];
+    if (!tabRef?.value?.save) {
+        if (target) switchTab(target);
+        return;
+    }
+
+    const ok = await tabRef.value.save();
+    if (ok && target) {
+        switchTab(target);
+    }
+    // если ok === false — остаёмся на вкладке, дочерний компонент уже показал свой alert()/message об ошибке
+};
+
+const handleModalDiscard = () => {
+    clearDirty(activeTab.value);
+    showUnsavedModal.value = false;
+    const target = pendingTab.value;
+    pendingTab.value = null;
+    if (target) switchTab(target);
+};
+
+const handleModalCancel = () => {
+    showUnsavedModal.value = false;
+    pendingTab.value = null;
+};
+
+const handleBeforeUnload = (event) => {
+    if (hasUnsavedChanges()) {
+        event.preventDefault();
+        event.returnValue = '';
+    }
 };
 
 // Остальные методы из исходного кода остаются без изменений
@@ -211,6 +263,24 @@ const loadSavedCalculations = () => {
 
 // Ref к компоненту «Результаты расчёта» (таб 7)
 const calcResultsRef = ref(null);
+const totalDataRef = ref(null);
+const equipmentRef = ref(null);
+const platformRef = ref(null);
+const documentsFormRef = ref(null);
+
+const tabRefMap = {
+    initial: totalDataRef,
+    'wind-equipment': equipmentRef,
+    'wind-platform': platformRef,
+    'software-calc': documentsFormRef,
+    'calc-results': calcResultsRef,
+};
+
+const showUnsavedModal = ref(false);
+const pendingTab = ref(null);
+
+onMounted(() => window.addEventListener('beforeunload', handleBeforeUnload));
+onBeforeUnmount(() => window.removeEventListener('beforeunload', handleBeforeUnload));
 
 // Platform sections data
 const platformSections = ref([]);
@@ -291,12 +361,14 @@ const totalElementsCount = computed(() => {
             <div v-if="activeTab === 'initial'" class="tab-content active">
                 <!-- Секция 1: Общие данные -->
                 <TotalDataManager
+                    ref="totalDataRef"
                     :calculation-id="calculationId"
                 />
             </div>
             <!-- Остальные табы (ветровые нагрузки) остаются без изменений -->
             <div v-if="activeTab === 'wind-equipment'" class="tab-content active">
                 <EquipmentManager
+                    ref="equipmentRef"
                     :calculation-id="calculationId"
                     :editable="true"
                 />
@@ -311,6 +383,7 @@ const totalElementsCount = computed(() => {
 
             <div v-if="activeTab === 'wind-platform'" class="tab-content active">
                 <PlatformSectionManager
+                    ref="platformRef"
                     :calculation-id="calculationId"
                 />
 
@@ -341,7 +414,7 @@ const totalElementsCount = computed(() => {
 
             <div v-if="activeTab === 'software-calc'" class="tab-content active">
                 <!-- Форма документов -->
-                <DocumentsForm :calculation-id="calculationId" />
+                <DocumentsForm ref="documentsFormRef" :calculation-id="calculationId" />
                 <!-- Форма скринов из лиры -->
                 <SoftwareCalculationManager
                     :calculation-id="calculationId"
@@ -367,6 +440,13 @@ const totalElementsCount = computed(() => {
                 Скачать таблицы
             </button>
         </div>
+
+        <UnsavedChangesModal
+            :visible="showUnsavedModal"
+            @save="handleModalSave"
+            @discard="handleModalDiscard"
+            @cancel="handleModalCancel"
+        />
     </div>
 </template>
 

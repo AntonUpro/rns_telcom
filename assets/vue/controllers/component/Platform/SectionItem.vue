@@ -8,7 +8,7 @@
             </div>
         </td>
         <td class="section-column section-dimensions form-column">
-            <input v-model.number="section.height" type="number" step="0.1" :class="{'input-error': showErrors && !(Number(section.height) > 0)}"/>
+            <input v-model.number="section.height" type="number" step="0.1" :disabled="isStrut" :class="{'input-error': showErrors && !(Number(section.height) > 0)}"/>
         </td>
         <td class="section-column section-dimensions form-column">
             <input v-model.number="section.widthBottom" type="number" step="0.01" :class="{'input-error': showErrors && !(Number(section.widthBottom) > 0)}"/>

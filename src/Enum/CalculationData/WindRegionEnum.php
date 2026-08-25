@@ -4,6 +4,7 @@ namespace App\Enum\CalculationData;
 
 enum WindRegionEnum: string
 {
+    case IA = 'Ia';
     case I = 'I';
     case II = 'II';
     case III = 'III';
@@ -15,6 +16,7 @@ enum WindRegionEnum: string
     public function pressure(): int
     {
         return match($this) {
+            self::IA => 170,
             self::I => 230,
             self::II => 300,
             self::III => 380,
@@ -25,17 +27,18 @@ enum WindRegionEnum: string
         };
     }
 
-    public function pressureKgPerM(): int
+    public function pressureKgPerM(): float
     {
-        return match($this) {
-            self::I => 23,
-            self::II => 30,
-            self::III => 38,
-            self::IV => 48,
-            self::V => 60,
-            self::VI => 73,
-            self::VII => 85,
-        };
+        return round(match($this) {
+            self::IA => 170 / 9.81,
+            self::I => 230 / 9.81,
+            self::II => 300 / 9.81,
+            self::III => 380 / 9.81,
+            self::IV => 480 / 9.81,
+            self::V => 600 / 9.81,
+            self::VI => 730 / 9.81,
+            self::VII => 850 / 9.81,
+        }, 1);
     }
 
     public function label(): string

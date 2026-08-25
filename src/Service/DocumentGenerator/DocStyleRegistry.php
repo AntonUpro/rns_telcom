@@ -59,7 +59,7 @@ final class DocStyleRegistry
 
     public static function paragraphRight(): array
     {
-        return ['alignment' => Jc::END];
+        return ['alignment' => Jc::END, 'keepNext' => true];
     }
 
     public static function paragraphLineSpacing(): array
@@ -164,6 +164,11 @@ final class DocStyleRegistry
             ],
             'spaceAfter' => 0,
         ];
+    }
+
+    public static function paragraphIndentWithKeepNext(): array
+    {
+        return array_merge(self::paragraphIndent(), ['keepNext' => true]);
     }
 
     public static function tableStyleReport(): array

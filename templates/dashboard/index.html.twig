@@ -47,12 +47,12 @@
             <form method="post" action="{{ path('app_dashboard') }}">
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="name">Название расчета *</label>
+                        <label for="objectCode">Шифр проекта *</label>
                         <input type="text"
-                               id="name"
-                               name="name"
+                               id="objectCode"
+                               name="objectCode"
                                class="form-control new-calc"
-                               placeholder="Например: Расчет ЖБ столба для БС №123"
+                               placeholder="Например: 123465-66-А7890"
                                required
                                maxlength="255">
                     </div>
@@ -103,7 +103,7 @@
                     {% for calculation in calculations %}
                         <tr>
                             <td>
-                                <strong>{{ calculation.name }}</strong>
+                                <strong>{{ calculation.objectCode }}</strong>
                                 {% if calculation.isDeleted() %}
                                     <br><small style="color: #e74c3c;">(Удален)</small>
                                 {% endif %}

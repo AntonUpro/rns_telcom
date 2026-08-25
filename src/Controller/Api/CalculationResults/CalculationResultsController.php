@@ -138,7 +138,7 @@ class CalculationResultsController extends AbstractApiController
 
             $payload = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
-            $computed = $this->calculatorService->calculateAll($payload);
+            $computed = $this->calculatorService->calculateAll($payload, $calculation);
 
             $this->resultService->saveAll($calculation, $computed);
 

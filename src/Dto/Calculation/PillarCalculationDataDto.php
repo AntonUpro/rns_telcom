@@ -65,6 +65,9 @@ class PillarCalculationDataDto
                 inspectionDate: $formData['totalData']['inspectionDate'] ?? null,
                 latitude: isset($formData['totalData']['latitude']) ? (float) $formData['totalData']['latitude'] : null,
                 longitude: isset($formData['totalData']['longitude']) ? (float) $formData['totalData']['longitude'] : null,
+                surveyPerformed: isset($formData['totalData']['surveyPerformed'])
+                    ? filter_var($formData['totalData']['surveyPerformed'], FILTER_VALIDATE_BOOLEAN)
+                    : false,
             ),
             climateData: new ClimateDataDto(
                 windRegion: $formData['climateData']['windRegion'] ?? null,

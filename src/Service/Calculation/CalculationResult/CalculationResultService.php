@@ -12,7 +12,9 @@ use App\Enum\Calculation\LoadTypeEnum;
 use App\Enum\Calculation\ResultTableTypeEnum;
 use App\Enum\Calculation\SchemeNumberEnum;
 use App\Enum\Pillar\ElementTypeEnum;
+use App\Enum\Pillar\PillarEnum;
 use App\Repository\CalculationResultTableRepository;
+use App\Service\Calculation\PillarByHeight\SimpleCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class CalculationResultService
@@ -112,14 +114,13 @@ final class CalculationResultService
 
     private function addDefaultData(Calculation $calculation, array &$result): array
     {
-        $pillarEnum = $calculation->getCalculationData()->getConcretePillarSpecificData()->toEnumPillar();
+        $specificData = $calculation->getCalculationData()->getConcretePillarSpecificData();
+        $pillarEnum = $specificData->toEnumPillar();
 
         if (empty($result[ResultTableTypeEnum::PILLAR_FORCES->value])) {
             $result[ResultTableTypeEnum::PILLAR_FORCES->value] = [
                 'enabled' => true,
-                'rows'    => [
-                    ['mark' => 0, 'pillarType' => $pillarEnum->value, 'mAllowable' => $pillarEnum->getAllowableMomentByStrength()],
-                ],
+                'rows'    => $this->buildDefaultPillarForcesRows($pillarEnum, $specificData->pillarHeight),
             ];
         }
 
@@ -167,6 +168,40 @@ final class CalculationResultService
                     ];
                 }
             }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Строит строки таблицы «Максимальные усилия в стволе опоры» — по одной
+     * на каждую метровую отметку от 0 (земля) до последней перед вершиной столба.
+     * Если высота столба ещё не введена, возвращает одну строку на отметке 0.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildDefaultPillarForcesRows(PillarEnum $pillarEnum, ?float $pillarHeight): array
+    {
+        $mAllowable = $pillarEnum->getAllowableMomentByStrength();
+        $lastMark = $pillarHeight !== null ? SimpleCalculator::lastMarkAboveGround($pillarHeight) : -1;
+
+        if ($lastMark < 0) {
+            return [
+                ['mark' => 0, 'pillarType' => $pillarEnum->value, 'mAllowable' => $mAllowable],
+            ];
+        }
+
+        $rows = [];
+        for ($mark = 0; $mark <= $lastMark; $mark++) {
+            $rows[] = [
+                'mark' => $mark,
+                'pillarType' => $pillarEnum->value,
+                'mCalc' => null,
+                'mAllowable' => $mAllowable,
+                'kMax' => null,
+                'mAllowableManual' => false,
+                'sectionDataAvailable' => true,
+            ];
         }
 
         return $rows;

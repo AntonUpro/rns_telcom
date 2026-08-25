@@ -1,5 +1,6 @@
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, watch, nextTick} from 'vue';
+import {useUnsavedChanges} from '../shared/useUnsavedChanges.js';
 
 const props = defineProps({
     calculationId: {
@@ -13,6 +14,8 @@ const rows = ref(['']);           // массив строк-названий д
 const isLoading = ref(false);
 const isSaving = ref(false);
 const message = ref(null);       // { type: 'success'|'error', text: string }
+
+const {markDirty, markClean} = useUnsavedChanges('software-calc');
 
 // ─── Загрузка ─────────────────────────────────────────────────────────────────
 async function fetchDocuments() {
@@ -74,14 +77,24 @@ async function saveDocuments() {
             : [''];
 
         message.value = {type: 'success', text: 'Документы успешно сохранены'};
+
+        await nextTick();
+        markClean();
+        return true;
     } catch (err) {
         message.value = {type: 'error', text: err.message};
+        return false;
     } finally {
         isSaving.value = false;
     }
 }
 
-onMounted(fetchDocuments);
+onMounted(async () => {
+    await fetchDocuments();
+    watch(rows, () => markDirty(), {deep: true});
+});
+
+defineExpose({save: saveDocuments});
 </script>
 
 <template>

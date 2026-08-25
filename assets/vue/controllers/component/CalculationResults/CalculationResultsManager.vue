@@ -1,5 +1,6 @@
 <script setup>
-import {ref, computed, onMounted} from 'vue';
+import {ref, computed, onMounted, watch, nextTick} from 'vue';
+import {useUnsavedChanges} from '../shared/useUnsavedChanges.js';
 import ResultsTablePillar from './ResultsTablePillar.vue';
 import ResultsTableCrack from './ResultsTableСrack.vue';
 import ResultsTableStress from './ResultsTableStress.vue';
@@ -20,6 +21,8 @@ const loading = ref(false);
 const calculating = ref(false);
 const error = ref(null);
 const message = ref(null);   // { type: 'success'|'error', text: string }
+
+const {markDirty, markClean} = useUnsavedChanges('calc-results');
 
 // ─── Справочники (приходят с бэкенда) ─────────────────────────────────────────
 const enums = ref({
@@ -255,18 +258,34 @@ const calculate = async () => {
         if (data.data.foundation?.rows) foundationRows.value = data.data.foundation.rows;
 
         message.value = {type: 'success', text: data.data.message ?? 'Данные сохранены.'};
+
+        await nextTick();
+        markClean();
+        return true;
     } catch (err) {
         message.value = {type: 'error', text: err.message};
         console.error('Ошибка расчёта результатов:', err);
+        return false;
     } finally {
         calculating.value = false;
     }
 };
 
 // Экспортируем calculate для вызова из родителя ConcretePillarCalc через template ref
-defineExpose({calculate});
+// save — алиас для единообразного вызова из карты tabKey -> ref в родителе
+defineExpose({calculate, save: calculate});
 
-onMounted(fetchInitData);
+onMounted(async () => {
+    await fetchInitData();
+    watch(
+        [
+            pillarForcesRows, crackOpeningRows, braceStressRows, superstructureStressRows,
+            platformForcesRows, baseForcesRows, deformationRows, foundationRows, optionalTables,
+        ],
+        () => markDirty(),
+        {deep: true},
+    );
+});
 </script>
 
 <template>

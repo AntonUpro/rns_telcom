@@ -1,5 +1,6 @@
 <script setup>
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
+import {useUnsavedChanges} from "../shared/useUnsavedChanges.js";
 
 const props = defineProps({
     calculationId: {
@@ -34,7 +35,9 @@ const defaultValues = reactive({
         panelAntenna: 0,
         radioBlocks: 0,
         cableTray: 0,
-        otherEquipment: 0
+        otherEquipment: 0,
+        cableChannel: 0,
+        ladder: 0
     }
 });
 
@@ -50,6 +53,7 @@ const formData = reactive({
     inspectionDate: new Date().toISOString().split('T')[0],
     latitude: 0,
     longitude: 0,
+    surveyPerformed: false,
 
     // Климатические условия
     windRegion: 'I',
@@ -87,7 +91,9 @@ const formData = reactive({
         panelAntenna: 0,
         radioBlocks: 0,
         cableTray: 0,
-        otherEquipment: 0
+        otherEquipment: 0,
+        cableChannel: 0,
+        ladder: 0
     },
 
     // Материалы
@@ -102,6 +108,8 @@ const formData = reactive({
 const isLoading = ref(false);
 const isSaving = ref(false);
 const savedCalculations = ref([]);
+
+const {markDirty, markClean} = useUnsavedChanges('initial');
 
 // Dynamic data from API
 const customers = ref([]);
@@ -154,6 +162,7 @@ const fetchGeneralData = async () => {
         formData.inspectionDate = data.data.totalData?.inspectionDate || '';
         formData.latitude = data.data.totalData?.latitude || '';
         formData.longitude = data.data.totalData?.longitude || '';
+        formData.surveyPerformed = data.data.totalData?.surveyPerformed || false;
 
         formData.windRegion = data.data.climateData?.windRegion || '';
         formData.terrainType = data.data.climateData?.terrainType || '';
@@ -187,7 +196,9 @@ const fetchGeneralData = async () => {
             panelAntenna: data.data.defaultValues?.shadingCoefficients?.panelAntenna || defaultValues.shadingCoefficients?.panelAntenna,
             radioBlocks: data.data.defaultValues?.shadingCoefficients?.radioBlocks || defaultValues.shadingCoefficients?.radioBlocks,
             cableTray: data.data.defaultValues?.shadingCoefficients?.cableTray || defaultValues.shadingCoefficients?.cableTray,
-            otherEquipment: data.data.defaultValues?.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment
+            otherEquipment: data.data.defaultValues?.shadingCoefficients?.otherEquipment || defaultValues.shadingCoefficients?.otherEquipment,
+            cableChannel: data.data.defaultValues?.shadingCoefficients?.cableChannel || defaultValues.shadingCoefficients?.cableChannel,
+            ladder: data.data.defaultValues?.shadingCoefficients?.ladder || defaultValues.shadingCoefficients?.ladder
         };
 
     } catch (error) {
@@ -263,6 +274,8 @@ const fetchPillarTotalInfo = async () => {
         defaultValues.shadingCoefficients.radioBlocks = data.data.defaultValues.shadingCoefficients.radioBlocks;
         defaultValues.shadingCoefficients.cableTray = data.data.defaultValues.shadingCoefficients.cableTray;
         defaultValues.shadingCoefficients.otherEquipment = data.data.defaultValues.shadingCoefficients.otherEquipment;
+        defaultValues.shadingCoefficients.cableChannel = data.data.defaultValues.shadingCoefficients.cableChannel;
+        defaultValues.shadingCoefficients.ladder = data.data.defaultValues.shadingCoefficients.ladder;
     } catch (error) {
         console.error('Ошибка загрузки справочных данных:', error);
         alert('Не удалось загрузить справочные данные');
@@ -334,6 +347,7 @@ const saveGeneralData = async () => {
                     inspectionDate: formData.inspectionDate,
                     latitude: formData.latitude,
                     longitude: formData.longitude,
+                    surveyPerformed: formData.surveyPerformed,
                 },
                 climateData: {
                     windRegion: formData.windRegion,
@@ -344,7 +358,7 @@ const saveGeneralData = async () => {
                 pillarData: {
                     pillarStamp: formData.pillarStamp,
                     pillarHeight: formData.pillarHeight,
-                    markBottom: formData.markBottom,
+                    // markBottom: formData.markBottom,
                     strengtheningExist: formData.strengtheningExist,
                     strengtheningGeometry: formData.strengtheningGeometry || null,
                     strengtheningWidth: formData.strengtheningWidth || null,
@@ -370,9 +384,12 @@ const saveGeneralData = async () => {
         }
 
         alert('Общие данные сохранены');
+        markClean();
+        return true;
     } catch (error) {
         console.error('Ошибка сохранения:', error);
         alert('Не удалось сохранить данные');
+        return false;
     } finally {
         isSaving.value = false;
     }
@@ -389,7 +406,10 @@ onMounted(async () => {
     await fetchPillarTotalInfo();
     await fetchGeneralData();
     // loadSavedCalculations();
+    watch(formData, () => markDirty(), {deep: true});
 });
+
+defineExpose({save: saveGeneralData});
 </script>
 
 <template>
@@ -416,6 +436,7 @@ onMounted(async () => {
                             v-model="formData.objectCode"
                             class="form-calculation-control compact-input"
                             placeholder="Введите шифр объекта"
+                            disabled
                         />
                     </div>
                 </div>
@@ -438,16 +459,16 @@ onMounted(async () => {
                     />
                 </div>
                 <div class="form-group compact-group">
-                    <label>Населённый пункт:</label>
+                    <label>Город или поселок, улица, № дома:</label>
                     <input
                         type="text"
                         v-model="formData.locality"
                         class="form-calculation-control compact-input"
-                        placeholder="Введите населенный пункт"
+                        placeholder="Введите адрес"
                     />
                 </div>
                 <div class="form-group compact-group">
-                    <label>Заказчик:</label>
+                    <label>Выберите заказчика из выпадающего списка:</label>
                     <select v-model="formData.customer" class="form-calculation-control compact-input">
                         <option :value="null">— Выберите заказчика —</option>
                         <option v-for="c in customers" :key="c.id" :value="c.id">
@@ -462,6 +483,7 @@ onMounted(async () => {
                         v-model="formData.amsType"
                         class="form-calculation-control compact-input"
                         placeholder="Введите тип АМС"
+                        disabled
                     />
                 </div>
                 <div class="form-group compact-group">
@@ -478,11 +500,45 @@ onMounted(async () => {
                     </div>
                 </div>
                 <div class="form-group compact-group">
+                    <label>Широта:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.latitude"
+                            class="form-calculation-control compact-input"
+                            step="0.000001"
+                        />
+                        <span class="unit">°</span>
+                    </div>
+                </div>
+                <div class="form-group compact-group">
+                    <label>Долгота:</label>
+                    <div class="input-with-unit">
+                        <input
+                            type="number"
+                            v-model.number="formData.longitude"
+                            class="form-calculation-control compact-input"
+                            step="0.000001"
+                        />
+                        <span class="unit">°</span>
+                    </div>
+                </div>
+                <div class="form-group compact-group">
+                    <label for="surveyPerformed">Проводилось обследование:</label>
+                    <input
+                        type="checkbox"
+                        v-model.bool="formData.surveyPerformed"
+                        id="surveyPerformed"
+                        class="strengthening-checkbox"
+                    />
+                </div>
+                <div class="form-group compact-group">
                     <label>Дата обследования:</label>
                     <input
                         type="date"
                         v-model="formData.inspectionDate"
                         class="form-calculation-control compact-input"
+                        :disabled="!formData.surveyPerformed"
                     />
                 </div>
             </div>
@@ -519,7 +575,7 @@ onMounted(async () => {
                 </div>
                 <div class="form-group compact-group">
                     <label>Снеговой район:</label>
-                    <select v-model="formData.snowRegion" class="form-calculation-control compact-input">
+                    <select v-model="formData.snowRegion" class="form-calculation-control compact-input" disabled>
                         <option v-for="region in snowRegions" :key="region.value" :value="region.value">
                             {{ region.label }}
                         </option>
@@ -527,7 +583,7 @@ onMounted(async () => {
                 </div>
                 <div class="form-group compact-group">
                     <label>Гололедный район:</label>
-                    <select v-model="formData.iceRegion" class="form-calculation-control compact-input">
+                    <select v-model="formData.iceRegion" class="form-calculation-control compact-input" disabled>
                         <option v-for="region in icingRegions" :key="region.value" :value="region.value">
                             {{ region.label }}
                         </option>
@@ -557,19 +613,19 @@ onMounted(async () => {
                         </option>
                     </select>
                 </div>
-                <div class="form-group compact-group">
-                    <label>Отметка низа столба:</label>
-                    <div class="input-with-unit">
-                        <input
-                            type="number"
-                            v-model.number="formData.markBottom"
-                            class="form-calculation-control compact-input"
-                            step="0.01"
-                            min="-3"
-                        />
-                        <span class="unit">м</span>
-                    </div>
-                </div>
+<!--                <div class="form-group compact-group">-->
+<!--                    <label>Отметка низа столба:</label>-->
+<!--                    <div class="input-with-unit">-->
+<!--                        <input-->
+<!--                            type="number"-->
+<!--                            v-model.number="formData.markBottom"-->
+<!--                            class="form-calculation-control compact-input"-->
+<!--                            step="0.01"-->
+<!--                            min="-3"-->
+<!--                        />-->
+<!--                        <span class="unit">м</span>-->
+<!--                    </div>-->
+<!--                </div>-->
                 <div class="form-group compact-group">
                     <label>Высота бетонного ствола опоры:</label>
                     <div class="input-with-unit">
@@ -851,6 +907,28 @@ onMounted(async () => {
                             max="1"
                         />
                     </div>
+                    <div class="form-group compact-group">
+                        <label>Кабельрост:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.cableChannel"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
+                    <div class="form-group compact-group">
+                        <label>Лестница:</label>
+                        <input
+                            type="number"
+                            v-model.number="formData.shadingCoefficients.ladder"
+                            class="form-calculation-control compact-input"
+                            step="0.01"
+                            min="0.1"
+                            max="1"
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -892,6 +970,20 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+/* Неактивные (disabled) поля — мягкий серый цвет, чтобы визуально показать, что поле сейчас не работает */
+.form-calculation-control:disabled,
+.form-calculation-control[readonly] {
+    background-color: #dee2e6;
+    border-color: #ced4da;
+    color: #5f6368;
+    cursor: not-allowed;
+}
+
+select.form-calculation-control:disabled {
+    background-color: #dee2e6;
+    color: #5f6368;
+}
+
 /* Стили для значений по умолчанию */
 .default-values-row {
     margin-bottom: 1rem;

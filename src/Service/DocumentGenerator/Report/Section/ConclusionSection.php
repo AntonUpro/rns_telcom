@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service\DocumentGenerator\Report\Section;
 
+use App\Enum\Calculation\ResultTableTypeEnum;
+use App\Service\Calculation\PillarByHeight\SimpleCalculator;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
 use App\Service\DocumentGenerator\Report\SectionBuilderInterface;
@@ -61,6 +63,7 @@ final class ConclusionSection implements SectionBuilderInterface
 
         if ($structureFails || $deformationFails) {
             $resultTableTypes = $context->getNegativeCalculations();
+            $topReinforcementMark = $this->findTopReinforcementMark($context);
 
             $textRunModern = $section->addTextRun($para);
             $textRunModern->addText('Модернизация антенно-фидерного оборудования ', $body);
@@ -68,7 +71,8 @@ final class ConclusionSection implements SectionBuilderInterface
             $textRunModern->addText(' без проведения компенсирующих мероприятий.', $body);
             $textRunModern->addText(' Метод и объем усиления определить проектом на усиление, разработанным специализированной организацией, имеющей соответствующую Лицензию:', $body);
             foreach ($resultTableTypes as $type) {
-                $section->addText('– ' . $type->constructFormulation() . ';', $body, $para);
+                $mark = $type === ResultTableTypeEnum::PILLAR_FORCES ? $topReinforcementMark : null;
+                $section->addText('– ' . $type->constructFormulation($mark) . ';', $body, $para);
             }
         } else {
             $section->addText(
@@ -83,6 +87,22 @@ final class ConclusionSection implements SectionBuilderInterface
         $this->buildSignatureBlock($section, $context);
     }
 
+    /**
+     * Самая верхняя отметка (м) в расчёте несущей способности ствола опоры,
+     * на которой коэффициент использования Кисп ещё ≥ 1 (считаем снизу вверх).
+     */
+    private function findTopReinforcementMark(ReportContext $context): ?float
+    {
+        $topMark = null;
+        foreach ((new SimpleCalculator())->calculate($context) as $row) {
+            if ($row->k >= 1) {
+                $topMark = $row->mark;
+            }
+        }
+
+        return $topMark;
+    }
+
     private function buildSignatureBlock(Section $section, ReportContext $context): void
     {
         $fStyle = [
@@ -95,9 +115,9 @@ final class ConclusionSection implements SectionBuilderInterface
         $table = $section->addTable(['indent' => new TblWidthType(Converter::cmToTwip(1), TblWidth::TWIP)]);
 
         // Строка 1: Главный инженер проекта
-        $table->addRow(Converter::cmToTwip(2.5));
+        $table->addRow(Converter::cmToTwip(2.5), ['cantSplit' => true]);
         $c1 = $table->addCell(Converter::cmToTwip(7), $cellStyle);
-        $c1->addText('Главный инженер проекта:', $fStyle, ['alignment' => Jc::LEFT]);
+        $c1->addText('Главный инженер проекта:', $fStyle, ['alignment' => Jc::LEFT, 'keepNext' => true]);
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);
         if ($context->chiefEngineerSignaturePath !== null) {
             $c2->addImage($context->chiefEngineerSignaturePath, [
@@ -108,10 +128,10 @@ final class ConclusionSection implements SectionBuilderInterface
             ]);
         }
         $c3 = $table->addCell(Converter::cmToTwip(5.5), $cellStyle);
-        $c3->addText('Лобанов Д. А.', $fStyle, ['alignment' => Jc::LEFT]);
+        $c3->addText('Лобанов Д. А.', $fStyle, ['alignment' => Jc::LEFT, 'keepNext' => true]);
 
         // Строка 2: Инженер-проектировщик
-        $table->addRow(Converter::cmToTwip(2.5));
+        $table->addRow(Converter::cmToTwip(2.5), ['cantSplit' => true]);
         $c1 = $table->addCell(Converter::cmToTwip(7), $cellStyle);
         $c1->addText('Инженер-проектировщик:', $fStyle, ['alignment' => Jc::LEFT]);
         $c2 = $table->addCell(Converter::cmToTwip(5), $cellStyle);

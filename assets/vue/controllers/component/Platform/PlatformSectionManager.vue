@@ -1,6 +1,7 @@
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, computed, watch, onMounted} from 'vue';
 import SectionItem2 from "./SectionItem.vue";
+import {useUnsavedChanges} from '../shared/useUnsavedChanges.js';
 
 const props = defineProps({
     calculationId: {
@@ -15,9 +16,9 @@ const elementTypes = ref([]);
 const sectionTypes = ref([]);
 const strut = ref({
     id: null,
-    height: 2.5,
-    widthBottom: 0.5,
-    widthTop: 2,
+    height: 1500,
+    widthBottom: 500,
+    widthTop: 2000,
     elements: [{}, {}]
 });
 
@@ -26,6 +27,17 @@ const totalData = ref({
     mountHeightPlatform: 23000,
     facetsCount: 4,
 });
+
+const {markDirty, markClean} = useUnsavedChanges('wind-platform');
+
+// Высота подкосов всегда равна разнице отметок установки площадки и подкосов
+const strutHeight = computed(() => (totalData.value.mountHeightPlatform ?? 0) - (totalData.value.mountHeightStrut ?? 0));
+
+watch(strutHeight, (value) => {
+    if (strut.value && strut.value.height !== undefined) {
+        strut.value.height = value;
+    }
+}, {immediate: true});
 
 // Инициализация пустой секции
 const createEmptySection = () => ({
@@ -62,7 +74,8 @@ const createEmptyElement = () => ({
 
 // Загрузка данных при монтировании
 onMounted(async () => {
-    fetchPlatformData(props.calculationId)
+    await fetchPlatformData();
+    watch([sections, strut, totalData], () => markDirty(), {deep: true});
 });
 
 // Добавление секций
@@ -74,7 +87,7 @@ const insertSectionAfter = (index) => sections.value.splice(index + 1, 0, create
 const addStrut = () => {
     strut.value = {
         id: null,
-        height: 2.5,
+        height: strutHeight.value,
         widthBottom: 0.5,
         widthTop: 2,
         elements: [{}, {}]
@@ -90,7 +103,7 @@ const removeSection = (index) => {
 
 // Удаление подкосов
 const removeStrut = () => {
-    strut.value = {};
+    strut.value = null;
 };
 
 // Работа с элементами
@@ -134,7 +147,7 @@ function validateAllData() {
     if (!(Number(totalData.value.mountHeightPlatform) > 0)) return false;
     if (!(Number(totalData.value.facetsCount) > 0)) return false;
 
-    if (strut.value.height !== undefined) {
+    if (strut.value && strut.value.height !== undefined) {
         if (!validateSection(strut.value)) return false;
     }
 
@@ -150,7 +163,7 @@ const savePlatformData = async () => {
 
     if (!validateAllData()) {
         alert('Пожалуйста, заполните все обязательные поля. Значения не могут быть пустыми или равными 0.');
-        return;
+        return false;
     }
 
     try {
@@ -172,9 +185,12 @@ const savePlatformData = async () => {
         }
 
         showErrors.value = false;
+        markClean();
+        return true;
     } catch (error) {
         console.error('Error get equipment:', error);
         alert('Ошибка получения данных по оборудованию');
+        return false;
     }
 };
 
@@ -193,9 +209,7 @@ const fetchPlatformData = async () => {
         if (responseData.data.sections) {
             sections.value = responseData.data.sections;
         }
-        if (responseData.data.strut) {
-            strut.value = responseData.data.strut;
-        }
+        strut.value = responseData.data.strut || null;
         if (responseData.data.totalData) {
             totalData.value = responseData.data.totalData;
         }
@@ -206,6 +220,8 @@ const fetchPlatformData = async () => {
         alert('Ошибка получения данных по площадке');
     }
 };
+
+defineExpose({save: savePlatformData});
 
 </script>
 
@@ -225,7 +241,7 @@ const fetchPlatformData = async () => {
                             min="0"
                             max="100000"
                         />
-                        <span class="unit">м</span>
+                        <span class="unit">мм</span>
                     </div>
                 </div>
                 <div class="form-group compact-group">
@@ -239,7 +255,7 @@ const fetchPlatformData = async () => {
                             min="0"
                             max="100000"
                         />
-                        <span class="unit">м</span>
+                        <span class="unit">мм</span>
                     </div>
                 </div>
                 <div class="form-group compact-group">
@@ -262,7 +278,7 @@ const fetchPlatformData = async () => {
         <div class="sections">
             <div class="sections-toolbar">
                 <button class="btn-add-section" @click="addSectionAtStart">+ Добавить секцию в начало</button>
-                <button class="btn-add-section" @click="addStrut">+ Добавить подкосы</button>
+                <button class="btn-add-section" @click="addStrut" v-if="!strut">+ Добавить подкосы</button>
             </div>
             <table>
                 <thead>
@@ -277,6 +293,7 @@ const fetchPlatformData = async () => {
                 </thead>
                 <tbody>
                 <SectionItem2
+                    v-if="strut"
                     :key="0"
                     :section="strut"
                     :index="0"

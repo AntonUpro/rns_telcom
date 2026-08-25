@@ -55,16 +55,16 @@ final readonly class PillarCalculationService
                 ? $this->customerRepository->find($calculationDataDto->totalData->customer)
                 : null;
 
-            $calculationData->setObjectCode($calculationDataDto->totalData->objectCode);
             $calculationData->setBaseStationNumber($calculationDataDto->totalData->stationNumber);
             $calculationData->setRegion($calculationDataDto->totalData->region);
             $calculationData->setLocality($calculationDataDto->totalData->locality);
             $calculationData->setCustomer($customer);
-            $calculationData->setAmsType($calculationDataDto->totalData->amsType);
+//            $calculationData->setAmsType($calculationDataDto->totalData->amsType);
             $calculationData->setAmsHeight((string)$calculationDataDto->totalData->amsHeight);
             $calculationData->setSurveyDate($calculationDataDto->totalData->inspectionDate
                 ? new DateTime($calculationDataDto->totalData->inspectionDate)
                 : null);
+            $calculationData->setSurveyPerformed($calculationDataDto->totalData->surveyPerformed);
             $calculationData->setLatitude((string)$calculationDataDto->totalData->latitude);
             $calculationData->setLongitude((string)$calculationDataDto->totalData->longitude);
 
@@ -117,7 +117,7 @@ final readonly class PillarCalculationService
         return new PillarCalculationDataDto(
             calculationId: $calculationId,
             totalData: new TotalDataDto(
-                objectCode: $calculation->getCalculationData()->getObjectCode(),
+                objectCode: $calculation->getObjectCode(),
                 stationNumber: $calculation->getCalculationData()->getBaseStationNumber(),
                 region: $calculation->getCalculationData()->getRegion(),
                 locality: $calculation->getCalculationData()->getLocality(),
@@ -127,6 +127,7 @@ final readonly class PillarCalculationService
                 inspectionDate: $calculation->getCalculationData()->getSurveyDate()?->format('Y-m-d'),
                 latitude: (float)$calculation->getCalculationData()->getLatitude(),
                 longitude: (float)$calculation->getCalculationData()->getLongitude(),
+                surveyPerformed: $calculation->getCalculationData()->isSurveyPerformed(),
             ),
             pillarData: new PillarDataDto(
                 pillarStamp: $calculation->getCalculationData()->getConcretePillarSpecificData()?->pillarStamp,
@@ -144,7 +145,7 @@ final readonly class PillarCalculationService
                 snowRegion: $calculation->getCalculationData()->getSnowRegion()?->value,
                 iceRegion: $calculation->getCalculationData()->getIcingRegion()?->value,
             ),
-            defaultValues: $calculation->getCalculationData()->getConcretePillarSpecificData()?->defaultValues->toArray(),
+            defaultValues: $calculation->getCalculationData()->getConcretePillarSpecificData()?->defaultValues?->toArray(),
         );
     }
 }

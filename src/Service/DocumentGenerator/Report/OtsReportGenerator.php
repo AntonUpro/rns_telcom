@@ -211,7 +211,13 @@ final readonly class OtsReportGenerator
         (new SymbolsClassificationAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
-        $this->addAppendix($mainSection, $appendixNum, 'ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ');
+        $this->addAppendix(
+            $mainSection,
+            $appendixNum,
+            $context->getData()?->isSurveyPerformed()
+                ? 'ПРОГРАММА ПРОВЕДЕНИЯ ОБСЛЕДОВАНИЯ И РАСЧЁТА'
+                : 'ПРОГРАММА ПРОВЕДЕНИЯ РАСЧЁТА',
+        );
         (new InspectionProgramAppendix())->build($mainSection, $context, $tableNum);
         $mainSection->addPageBreak();
 
@@ -445,7 +451,7 @@ final readonly class OtsReportGenerator
         $stamp->addCell(Converter::cmToTwip(1.5))->addText('', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(1.0))->addText('', $fStyle, $pStyle);
         $stamp->addCell(Converter::cmToTwip(11.0), ['vMerge' => 'restart', 'valign' => 'center'])->addText(
-            $context->calculation?->getCalculationData()->getObjectCode(),
+            $context->calculation?->getObjectCode(),
             array_merge($fStyle, ['size' => 12]),
             array_merge($pStyle, ['valign' => 'center']),
         );

@@ -39,7 +39,12 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $imageSchemePC = $context->getCalculationImageByType(CalculationImage::TYPE_SCHEME_PC);
         $imageMosaicSections = $context->getCalculationImageByType(CalculationImage::TYPE_SECTIONS);
 
-        if (file_exists($imageSchemePC->getFilePath()) && file_exists($imageMosaicSections->getFilePath())) {
+        if (
+            $imageSchemePC
+            && $imageMosaicSections
+            && file_exists($imageSchemePC->getFilePath())
+            && file_exists($imageMosaicSections->getFilePath())
+        ) {
             $textRun = $section->addTextRun($center);
 
             $textRun->addImage($imageSchemePC->getFilePath(), [
@@ -63,7 +68,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $center,
         );
         $imageMosaicN = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_N);
-        if (file_exists($imageMosaicN->getFilePath())) {
+        if ($imageMosaicN && file_exists($imageMosaicN->getFilePath())) {
             $section->addImage($imageMosaicN->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
                 'height' => Converter::cmToPoint(23),
@@ -79,7 +84,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $center,
         );
         $imageMosaicM = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_M);
-        if (file_exists($imageMosaicM->getFilePath())) {
+        if ($imageMosaicM && file_exists($imageMosaicM->getFilePath())) {
             $section->addImage($imageMosaicM->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
                 'height' => Converter::cmToPoint(23),
@@ -96,7 +101,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $center,
         );
         $imageMosaicDis = $context->getCalculationImageByType(CalculationImage::TYPE_MOSAIC_DISPLACEMENT);
-        if (file_exists($imageMosaicDis->getFilePath())) {
+        if ($imageMosaicDis && file_exists($imageMosaicDis->getFilePath())) {
             $section->addImage($imageMosaicDis->getFilePath(), [
                 'width' => Converter::cmToPoint(8),
                 'height' => Converter::cmToPoint(23),
@@ -132,7 +137,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $section->addText(
                 'Исходные данные сечений стойки',
                 $body,
-                $left,
+                DocStyleRegistry::paragraphIndentWithKeepNext(),
             );
 
             $calculationResult = (new SimpleCalculator())->calculate($context);
@@ -143,7 +148,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $section->addText(
                 'Проверка сечений железобетонной стойки',
                 $body,
-                $left,
+                DocStyleRegistry::paragraphIndentWithKeepNext(),
             );
 
             $this->buildTableResult($section, $calculationResult);
@@ -165,18 +170,20 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $w = [700, 450, 650, 450, 650, 700, 550, 550, 850, 650, 550, 650, 650, 850, 700, 650];
 
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
+        $centerKeep = array_merge($center, ['keepNext' => true]);
+        $last = count($calculationResult) - 1;
 
         // ─── Строка 1: групповые заголовки ───────────────────────────────────
-        $tbl->addRow(400);
+        $tbl->addRow(400, ['cantSplit' => true]);
         // «Отметка» — одна ячейка, будет дублироваться в строке 2
-        $tbl->addCell($w[0], $hCell)->addText('', $italic, $center);
+        $tbl->addCell($w[0], $hCell)->addText('', $italic, $centerKeep);
         // Группа «Напрягаемая арм»
-        $tbl->addCell($w[1] + $w[2], array_merge($hCell, ['gridSpan' => 2]))->addText('Напрягаемая арм', $italic, $center);
+        $tbl->addCell($w[1] + $w[2], array_merge($hCell, ['gridSpan' => 2]))->addText('Напрягаемая арм', $italic, $centerKeep);
         // Группа «Ненапрягаемая арм»
-        $tbl->addCell($w[3] + $w[4], array_merge($hCell, ['gridSpan' => 2]))->addText('Ненапряг арм', $italic, $center);
+        $tbl->addCell($w[3] + $w[4], array_merge($hCell, ['gridSpan' => 2]))->addText('Ненапряг арм', $italic, $centerKeep);
         // Остальные одиночные заголовки
         foreach (array_slice($w, 5) as $width) {
-            $tbl->addCell($width, $hCell)->addText('', $italic, $center);
+            $tbl->addCell($width, $hCell)->addText('', $italic, $centerKeep);
         }
 
         // ─── Строка 2: подзаголовки ───────────────────────────────────────────
@@ -186,15 +193,17 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             'Rsp, МПа', 'Rs, МПа', 'Rsc, МПа', 'Rb, МПа', 'Eb, МПа',
             'As,tot см²', 'А, м²',
         ];
-        $tbl->addRow(400);
+        $tbl->addRow(400, ['cantSplit' => true]);
+        $subHeaderPara = $last >= 0 ? $centerKeep : $center;
         foreach ($headers as $i => $header) {
-            $tbl->addCell($w[$i], $hCell)->addText($header, $italic, $center);
+            $tbl->addCell($w[$i], $hCell)->addText($header, $italic, $subHeaderPara);
         }
 
         // ─── Строки данных ────────────────────────────────────────────────────
-        foreach ($calculationResult as $row){
+        foreach ($calculationResult as $i => $row){
 
-            $tbl->addRow(300);
+            $tbl->addRow(300, ['cantSplit' => true]);
+            $rowPara = $i < $last ? $centerKeep : $center;
             $vals = [
                 number_format($row->mark, 1, ',', ''),
                 (string)$row->countPrestressingReinforcement,
@@ -214,8 +223,8 @@ final class ProgramCalculationSection implements SectionBuilderInterface
                 number_format($row->APillar, 3, ',', ''),
             ];
 
-            foreach ($vals as $i => $val) {
-                $tbl->addCell($w[$i], $dCell)->addText($val, $italic, $center);
+            foreach ($vals as $j => $val) {
+                $tbl->addCell($w[$j], $dCell)->addText($val, $italic, $rowPara);
             }
         }
 
@@ -229,13 +238,19 @@ final class ProgramCalculationSection implements SectionBuilderInterface
     {
         $italic = DocStyleRegistry::italicCenter();
         $italic['size'] = 8;
+        $italicExceed = array_merge($italic, ['bold' => true, 'underline' => 'single']);
         $center = DocStyleRegistry::paragraphCenter();
         $hCell = DocStyleRegistry::headerCell();
         $dCell = DocStyleRegistry::dataCell();
 
         $w = [700, 450, 650, 450, 650, 700, 550, 550, 850, 650, 550, 650, 650, 850, 700, 650];
+        $kispColumnIndex = count($w) - 1;
 
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
+        $centerKeep = array_merge($center, ['keepNext' => true]);
+        $last = count($calculationResult) - 1;
+
+        $lastExceedIdx = self::lastReinforcementIndex($calculationResult);
 
         $headers = [
             'Отметка, м', 'rm, м', 'rs, rsp м', 'σbp МПа', 'δsp', 'δs',
@@ -243,13 +258,15 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             'Мдоп, тс*м', 'Мфакт, Нм', 'Мфакт, тм', 'Кисп',
         ];
 
-        $tbl->addRow(400);
+        $tbl->addRow(400, ['cantSplit' => true]);
+        $headerPara = $last >= 0 ? $centerKeep : $center;
         foreach ($headers as $i => $header) {
-            $tbl->addCell($w[$i], $hCell)->addText($header, $italic, $center);
+            $tbl->addCell($w[$i], $hCell)->addText($header, $italic, $headerPara);
         }
 
-        foreach ($calculationResult as $row) {
-            $tbl->addRow(300);
+        foreach ($calculationResult as $i => $row) {
+            $tbl->addRow(300, ['cantSplit' => true]);
+            $rowPara = $i < $last ? $centerKeep : $center;
             $vals = [
                 number_format($row->mark, 1, ',', ''),
                 number_format($row->rm, 3, ',', ''),
@@ -268,11 +285,32 @@ final class ProgramCalculationSection implements SectionBuilderInterface
                 number_format($row->MFactKg, 2, ',', ''),
                 number_format($row->k, 2, ',', ''),
             ];
-            foreach ($vals as $i => $val) {
-                $tbl->addCell($w[$i], $dCell)->addText($val, $italic, $center);
+            foreach ($vals as $j => $val) {
+                $cellStyle = ($j === $kispColumnIndex && $i <= $lastExceedIdx) ? $italicExceed : $italic;
+                $tbl->addCell($w[$j], $dCell)->addText($val, $cellStyle, $rowPara);
             }
         }
 
         $section->addTextBreak(1);
+    }
+
+    /**
+     * Самый верхний индекс (считая от основания опоры, index 0 = низ), где
+     * Кисп ещё ≥ 1. Все строки от основания и до него включительно нужно
+     * подсвечивать жирным и подчёркиванием — даже если между ними встречаются
+     * отметки с Кисп < 1 (учёт вернулся выше единицы).
+     *
+     * @param SimpleResultDto[] $calculationResult
+     */
+    private static function lastReinforcementIndex(array $calculationResult): int
+    {
+        $lastExceedIdx = -1;
+        foreach ($calculationResult as $i => $row) {
+            if ($row->k >= 1) {
+                $lastExceedIdx = $i;
+            }
+        }
+
+        return $lastExceedIdx;
     }
 }

@@ -55,51 +55,51 @@ final class ClimateSection implements SectionBuilderInterface
         );
 
         // Гололёдный район
-        $icingRegion = $data?->getIcingRegion();
-        if ($icingRegion !== null) {
-            $thickness = $icingRegion->thicknessMm();
-            $section->addText(
-                sprintf(
-                    '• гололёдный район %s (%s), толщина стенки гололёда не менее %d мм;',
-                    $icingRegion->value,
-                    $icingRegion->description(),
-                    $thickness['min'],
-                ),
-                $body,
-                $para,
-            );
-        } else {
-            $section->addText('• гололёдный район —;', $body, $para);
-        }
-
-        $section->addText(
-            '• коэффициент надёжности для гололёдной нагрузки 1,8;',
-            $body,
-            $para,
-        );
+//        $icingRegion = $data?->getIcingRegion();
+//        if ($icingRegion !== null) {
+//            $thickness = $icingRegion->thicknessMm();
+//            $section->addText(
+//                sprintf(
+//                    '• гололёдный район %s (%s), толщина стенки гололёда не менее %d мм;',
+//                    $icingRegion->value,
+//                    $icingRegion->description(),
+//                    $thickness['min'],
+//                ),
+//                $body,
+//                $para,
+//            );
+//        } else {
+//            $section->addText('• гололёдный район —;', $body, $para);
+//        }
+//
+//        $section->addText(
+//            '• коэффициент надёжности для гололёдной нагрузки 1,8;',
+//            $body,
+//            $para,
+//        );
 
         // Снеговой район
-        $snowRegion = $data?->getSnowRegion();
-        if ($snowRegion !== null) {
-            $snowKgm2 = (int) round($snowRegion->snowLoad() * 100);
-            $section->addText(
-                sprintf(
-                    '• снеговой район %s, нормативный вес снегового покрова %d кгс/м²;',
-                    $snowRegion->value,
-                    $snowKgm2,
-                ),
-                $body,
-                $para,
-            );
-        } else {
-            $section->addText('• снеговой район —;', $body, $para);
-        }
-
-        $section->addText(
-            '• коэффициент надёжности для снеговой нагрузки 1,4.',
-            $body,
-            $para,
-        );
+//        $snowRegion = $data?->getSnowRegion();
+//        if ($snowRegion !== null) {
+//            $snowKgm2 = (int) round($snowRegion->snowLoad() * 100);
+//            $section->addText(
+//                sprintf(
+//                    '• снеговой район %s, нормативный вес снегового покрова %d кгс/м²;',
+//                    $snowRegion->value,
+//                    $snowKgm2,
+//                ),
+//                $body,
+//                $para,
+//            );
+//        } else {
+//            $section->addText('• снеговой район —;', $body, $para);
+//        }
+//
+//        $section->addText(
+//            '• коэффициент надёжности для снеговой нагрузки 1,4.',
+//            $body,
+//            $para,
+//        );
 
         $section->addTextBreak(1);
     }

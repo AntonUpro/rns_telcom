@@ -30,13 +30,15 @@ class CableChanelCalculator
             return null;
         }
 
+        $shadingCoefficient = $this->defaultValues->shadingCoefficients['cableChannel'] ?? DefaultConstant::SHADING_COEFFICIENT_CABLE_CHANNEL;
+
         $height = $this->sectionDto->height;
         if ($this->sectionDto->topMark < $cableTrayBottom) {
             $height = 0;
         } elseif ($this->sectionDto->topMark > $cableTrayBottom && $this->sectionDto->buttonMark() < $cableTrayBottom) {
             $height = $this->sectionDto->topMark - $cableTrayBottom;
         }
-        $area = $cableTrayArea * $height / 1000;
+        $area = $cableTrayArea * $height / 1000 * $shadingCoefficient;
 
         $press = $this->windRegionEnum->pressureKgPerM()
             * $this->terrainTypeEnum->roughnessCoefficient(height: $this->sectionDto->middleMark() / 1000)

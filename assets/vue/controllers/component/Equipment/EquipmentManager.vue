@@ -1,7 +1,8 @@
 <script setup>
-import {reactive, toRaw, ref, onMounted} from 'vue';
+import {reactive, toRaw, ref, onMounted, watch, nextTick} from 'vue';
 import EquipmentTable from './EquipmentTable.vue';
 import AddEquipmentPopup from './AddEquipmentPopup.vue';
+import {useUnsavedChanges} from '../shared/useUnsavedChanges.js';
 
 const props = defineProps({
     calculationId: {
@@ -34,6 +35,8 @@ const allEquipment = reactive({
 
 const showAddEquipmentPopup = ref(false);
 const showErrors = ref(false);
+
+const {markDirty, markClean} = useUnsavedChanges('wind-equipment');
 
 function validateAllEquipment() {
     const groups = {
@@ -89,7 +92,7 @@ const saveEquipment  = async () =>{
 
     if (!validateAllEquipment()) {
         alert('Пожалуйста, заполните все обязательные поля (обозначение, габариты, масса, количество, отметка подвеса, высотная группа). Значения не могут быть пустыми или равными 0.');
-        return;
+        return false;
     }
 
     try {
@@ -112,9 +115,14 @@ const saveEquipment  = async () =>{
         allEquipment.existEquipment = ensureGroup(responseData.data.existEquipment);
         allEquipment.plainEquipment = ensureGroup(responseData.data.plainEquipment);
         allEquipment.dismantledEquipment = ensureGroup(responseData.data.dismantledEquipment);
+
+        await nextTick();
+        markClean();
+        return true;
     } catch (error) {
         console.error('Error saving equipment:', error);
         alert('Ошибка при сохранении оборудования: ', error);
+        return false;
     }
 };
 
@@ -163,13 +171,22 @@ const calculateWithWindowResult  = async () =>{
     }
 };
 
-onMounted(() => {
-    fetchEquipmentData(props.calculationId);
+onMounted(async () => {
+    await fetchEquipmentData();
+    watch(allEquipment, () => markDirty(), {deep: true});
 });
+
+defineExpose({save: saveEquipment});
 </script>
 
 <template>
     <div class="equipment-table-container">
+        <div class="table-header">
+            <div class="header-actions">
+                <button class="btn-save-table" @click="saveEquipment">Сохранить</button>
+            </div>
+        </div>
+
         <EquipmentTable
             v-model="allEquipment.existEquipment"
             :editable="editable"
@@ -214,6 +231,20 @@ onMounted(() => {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     margin-bottom: 2rem;
+}
+
+/* Шапка таблицы */
+.table-header {
+    padding: 0.5rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 /* Футер таблицы */
@@ -271,6 +302,7 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+    .header-actions,
     .footer-actions {
         flex-direction: column;
         gap: 0.5rem;

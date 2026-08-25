@@ -52,16 +52,36 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Максимальные усилия в стволе опоры от расчётных нагрузок:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $w = [400, 1600, 2100, 2000, 2000, 1900];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
-        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true);
+        $rows = $table->getRows();
 
-        foreach ($table->getRows() as $i => $row) {
+        $specificData = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData();
+        $strengtheningHeight = ($specificData?->strengtheningExist ?? false)
+            ? $specificData->strengthening?->strengtheningHeight
+            : null;
+
+        if ($strengtheningHeight !== null && $strengtheningHeight > 0) {
+            $pillarHeight = (float)($specificData?->pillarHeight ?? 0);
+            $this->buildPillarForcesWithStrengthening($section, $tbl, $w, $rows, $strengtheningHeight, $pillarHeight);
+            $section->addTextBreak(1);
+
+            return;
+        }
+
+        $last = count($rows) - 1;
+
+        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true, $last >= 0);
+
+        foreach ($rows as $i => $row) {
+            if ($i !== 0) {
+                continue;
+            }
             $this->addRow($tbl, $w, [
                 (string)($i + 1),
                 $this->fmt($row['mark'] ?? null),
@@ -69,7 +89,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $this->fmt($row['mCalc'] ?? null, 3),
                 $this->fmt($row['mAllowable'] ?? null, 3),
                 $this->fmt($row['kMax'] ?? null, 3),
-            ]);
+            ], false, $i < $last);
         }
 
         $maxRow = $this->findMaxKRow($table, 'kMax');
@@ -93,6 +113,86 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addTextBreak(1);
     }
 
+    /**
+     * При усилении ж/б столба таблица «Максимальные усилия в стволе опоры»
+     * содержит 2 строки: Кисп в пределах усиления (от 0 до высоты усиления)
+     * и Кисп выше усиления (от высоты усиления до верха опоры), каждая —
+     * со своим абзацем-выводом под таблицей.
+     */
+    private function buildPillarForcesWithStrengthening(
+        Section $section,
+        Table $tbl,
+        array $w,
+        array $rows,
+        float $strengtheningHeight,
+        float $pillarHeight,
+    ): void {
+        $reinforcedRows = array_values(array_filter(
+            $rows,
+            static fn(array $row): bool => ((float)($row['mark'] ?? 0)) <= $strengtheningHeight,
+        ));
+        $aboveRows = array_values(array_filter(
+            $rows,
+            static fn(array $row): bool => ((float)($row['mark'] ?? 0)) > $strengtheningHeight,
+        ));
+
+        $groups = [
+            [$reinforcedRows, 0.0, $strengtheningHeight],
+            [$aboveRows, $strengtheningHeight, $pillarHeight],
+        ];
+
+        $last = count($groups) - 1;
+        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Mрасч, тс·м', 'Мдоп, тс·м', 'Кисп'], true, $last >= 0);
+
+        foreach ($groups as $i => [$groupRows, $fromMark, $toMark]) {
+            $maxRow = $this->findMaxKRowFromRows($groupRows, 'kMax');
+            if ($maxRow === null) {
+                continue;
+            }
+
+            $this->addRow($tbl, $w, [
+                (string)($i + 1),
+                $this->fmt($maxRow['mark'] ?? null),
+                (string)($maxRow['pillarType'] ?? '—'),
+                $this->fmt($maxRow['mCalc'] ?? null, 3),
+                $this->fmt($maxRow['mAllowable'] ?? null, 3),
+                $this->fmt($maxRow['kMax'] ?? null, 3),
+            ], false, $i < $last);
+
+            $comply = ((float)($maxRow['kMax'] ?? 0)) <= 1.0;
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+
+            $textRun = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+            $textRun->addText(
+                sprintf(
+                    'Максимальное усилие в стволе опоры от %s до %s м составляет ',
+                    self::formatMark($fromMark),
+                    self::formatMark($toMark),
+                ),
+                DocStyleRegistry::bodyText(),
+            );
+            $textRun->addText(sprintf('%.2f', (float)($maxRow['mCalc'] ?? 0)), $style);
+            $textRun->addText(' тс·м при допустимом ', DocStyleRegistry::bodyText());
+            $textRun->addText(sprintf('%.2f', (float)($maxRow['mAllowable'] ?? 0)), $style);
+            $textRun->addText(' тс·м, ', DocStyleRegistry::bodyText());
+            $textRun->addText(sprintf('Кисп=%d%%', (int)round((float)($maxRow['kMax'] ?? 0) * 100)), $style);
+            $textRun->addText(', что ', DocStyleRegistry::bodyText());
+            $textRun->addText($comply ? 'удовлетворяет' : 'не удовлетворяет', $style);
+            $textRun->addText(' требованиям СП 63.13330.2018;', DocStyleRegistry::bodyText());
+        }
+    }
+
+    private static function formatMark(float $mark): string
+    {
+        $formatted = number_format(abs($mark), 3, ',', '');
+
+        return match (true) {
+            $mark > 0 => '+' . $formatted,
+            $mark < 0 => '-' . $formatted,
+            default => $formatted,
+        };
+    }
+
     // ─── Раскрытие трещин ────────────────────────────────────────────────────
 
     private function buildCrackOpening(Section $section, ReportContext $context): void
@@ -106,16 +206,19 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Максимальное раскрытие трещин в стволе опоры от нормативных нагрузок:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $w = [400, 1300, 1600, 2100, 2300, 1700];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
-        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Расч. ширина трещин, мм', 'Пред. доп. ширина, мм', 'k(max)'], true);
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
 
-        foreach ($table->getRows() as $i => $row) {
+        $this->addRow($tbl, $w, ['№', 'Отметка, м', 'Тип опоры', 'Расч. ширина трещин, мм', 'Пред. доп. ширина, мм', 'k(max)'], true, $last >= 0);
+
+        foreach ($rows as $i => $row) {
             $this->addRow($tbl, $w, [
                 (string)($i + 1),
                 $this->fmt($row['mark'] ?? null),
@@ -123,7 +226,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $this->fmt($row['crackWidthCalc'] ?? null, 4),
                 $this->fmt($row['crackWidthAllowable'] ?? null, 4),
                 $this->fmt($row['kMax'] ?? null, 3),
-            ]);
+            ], false, $i < $last);
         }
 
         $maxRow = $this->findMaxKRow($table, 'kMax');
@@ -165,20 +268,23 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Максимальные ' . $description . ':',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $w = [1200, 1200, 1200, 1000, 900, 900, 900, 900, 900, 900];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
+
         $this->addRow($tbl, $w, [
             'Отм., м', 'Элемент', 'Сечение',
             'A, см²', 'Wy, см³', 'N, тс', 'M, тс·м',
             'Ry, Н/мм²', 'σ, Н/мм²', 'Кисп',
-        ], true);
+        ], true, $last >= 0);
 
-        foreach ($table->getRows() as $row) {
+        foreach ($rows as $i => $row) {
             $this->addRow($tbl, $w, [
                 $this->fmt($row['mark'] ?? null, 3),
                 (string)($row['element'] ?? '—'),
@@ -191,7 +297,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $this->fmt($row['sigma'] ?? null, 0),
                 $this->fmt($row['ry'] ?? null, 0),
                 $this->fmt($row['kUse'] ?? null, 2),
-            ]);
+            ], false, $i < $last);
         }
 
         $maxRow = $this->findMaxKRow($table, 'kUse');
@@ -228,19 +334,22 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Деформации опоры от воздействия ветровых нагрузок:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $w = [400, 1600, 2000, 2000, 2000, 2000];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
+
         $this->addRow($tbl, $w, [
             '№', 'Отметка, м', 'Перемещение, мм',
             'Верт. угол (max), град.', 'Допустимый вертикальный угол, град.', 'Кисп',
-        ], true);
+        ], true, $last >= 0);
 
-        foreach ($table->getRows() as $i => $row) {
+        foreach ($rows as $i => $row) {
             $this->addRow($tbl, $w, [
                 (string)($i + 1),
                 $this->fmt($row['mark'] ?? null),
@@ -248,7 +357,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $this->fmt($row['angleMax'] ?? null, 2),
                 $this->fmt($row['angleAllowable'] ?? null, 2),
                 $this->fmt($row['kUse'] ?? null, 2),
-            ]);
+            ], false, $i < $last);
         }
 
         $maxRow = $this->findMaxKRow($table, 'kUse');
@@ -282,22 +391,25 @@ final class CalculationResultsSection implements SectionBuilderInterface
         }
 
         $num = $this->nextTableNum();
-        $section->addText('Расчетные нагрузки, возникающие в уровне заделки стойки:', DocStyleRegistry::titleTableTextUnderline(), DocStyleRegistry::paragraphIndent());
+        $section->addText('Расчетные нагрузки, возникающие в уровне заделки стойки:', DocStyleRegistry::titleTableTextUnderline(), DocStyleRegistry::paragraphIndentWithKeepNext());
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
         $w = [400, 3600, 2000, 2000, 2000];
         $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
 
-        $this->addRow($tbl, $w, ['№', 'Тип нагрузки', 'N, тс', 'Q, тс', 'М, тс·м'], true);
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
 
-        foreach ($table->getRows() as $i => $row) {
+        $this->addRow($tbl, $w, ['№', 'Тип нагрузки', 'N, тс', 'Q, тс', 'М, тс·м'], true, $last >= 0);
+
+        foreach ($rows as $i => $row) {
             $this->addRow($tbl, $w, [
                 (string)($i + 1),
                 (string)($row['loadType'] ?? '—'),
                 $this->fmt($row['n'] ?? null, 1),
                 $this->fmt($row['q'] ?? null, 1),
                 $this->fmt($row['m'] ?? null, 1),
-            ]);
+            ], false, $i < $last);
         }
 
         $section->addTextBreak(1);
@@ -316,7 +428,7 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $section->addText(
             'Результаты расчёта основания опоры:',
             DocStyleRegistry::titleTableTextUnderline(),
-            DocStyleRegistry::paragraphIndent(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
         );
         $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
 
@@ -329,34 +441,40 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $h = DocStyleRegistry::headerCell();
         $italic = DocStyleRegistry::italicCenter();
         $center = DocStyleRegistry::paragraphCenter();
+        $centerKeep = array_merge($center, ['keepNext' => true]);
+
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
 
         // Row 1: group headers
-        $tbl->addRow(500);
-        $tbl->addCell($wStab[0] + $wStab[1], array_merge($h, ['gridSpan' => 2]))->addText('Устойчивость', $italic, $center);
-        $tbl->addCell($wDef[0] + $wDef[1], array_merge($h, ['gridSpan' => 2]))->addText('Деформации', $italic, $center);
-        $tbl->addCell($wKuse[0] + $wKuse[1], array_merge($h, ['gridSpan' => 2]))->addText('Коэффициент использования', $italic, $center);
+        $tbl->addRow(500, ['cantSplit' => true]);
+        $tbl->addCell($wStab[0] + $wStab[1], array_merge($h, ['gridSpan' => 2]))->addText('Устойчивость', $italic, $centerKeep);
+        $tbl->addCell($wDef[0] + $wDef[1], array_merge($h, ['gridSpan' => 2]))->addText('Деформации', $italic, $centerKeep);
+        $tbl->addCell($wKuse[0] + $wKuse[1], array_merge($h, ['gridSpan' => 2]))->addText('Коэффициент использования', $italic, $centerKeep);
 
         // Row 2: sub-headers
-        $tbl->addRow(500);
-        $tbl->addCell($wStab[0], $h)->addText('Q, тс', $italic, $center);
-        $tbl->addCell($wStab[1], $h)->addText('Qu, тс', $italic, $center);
-        $tbl->addCell($wDef[0], $h)->addText('β, рад.', $italic, $center);
-        $tbl->addCell($wDef[1], $h)->addText('βu, рад.', $italic, $center);
-        $tbl->addCell($wKuse[0], $h)->addText('Расч. на устойч.', $italic, $center);
-        $tbl->addCell($wKuse[1], $h)->addText('Расч. по деф.', $italic, $center);
+        $tbl->addRow(500, ['cantSplit' => true]);
+        $subHeaderPara = $last >= 0 ? $centerKeep : $center;
+        $tbl->addCell($wStab[0], $h)->addText('Q, тс', $italic, $subHeaderPara);
+        $tbl->addCell($wStab[1], $h)->addText('Qu, тс', $italic, $subHeaderPara);
+        $tbl->addCell($wDef[0], $h)->addText('β, рад.', $italic, $subHeaderPara);
+        $tbl->addCell($wDef[1], $h)->addText('βu, рад.', $italic, $subHeaderPara);
+        $tbl->addCell($wKuse[0], $h)->addText('Расч. на устойч.', $italic, $subHeaderPara);
+        $tbl->addCell($wKuse[1], $h)->addText('Расч. по деф.', $italic, $subHeaderPara);
 
         // Data rows
         $dc = DocStyleRegistry::dataCell();
         $c = DocStyleRegistry::center();
 
-        foreach ($table->getRows() as $row) {
-            $tbl->addRow(400);
-            $tbl->addCell($wStab[0], $dc)->addText($this->fmt($row['q'] ?? null, 3), $c, $center);
-            $tbl->addCell($wStab[1], $dc)->addText($this->fmt($row['qU'] ?? null, 3), $c, $center);
-            $tbl->addCell($wDef[0], $dc)->addText($this->fmt($row['beta'] ?? null, 4), $c, $center);
-            $tbl->addCell($wDef[1], $dc)->addText($this->fmt($row['betaU'] ?? null, 4), $c, $center);
-            $tbl->addCell($wKuse[0], $dc)->addText($this->fmt($row['kUseStability'] ?? null, 3), $c, $center);
-            $tbl->addCell($wKuse[1], $dc)->addText($this->fmt($row['kUseDeformation'] ?? null, 3), $c, $center);
+        foreach ($rows as $i => $row) {
+            $rowPara = $i < $last ? $centerKeep : $center;
+            $tbl->addRow(400, ['cantSplit' => true]);
+            $tbl->addCell($wStab[0], $dc)->addText($this->fmt($row['q'] ?? null, 3), $c, $rowPara);
+            $tbl->addCell($wStab[1], $dc)->addText($this->fmt($row['qU'] ?? null, 3), $c, $rowPara);
+            $tbl->addCell($wDef[0], $dc)->addText($this->fmt($row['beta'] ?? null, 4), $c, $rowPara);
+            $tbl->addCell($wDef[1], $dc)->addText($this->fmt($row['betaU'] ?? null, 4), $c, $rowPara);
+            $tbl->addCell($wKuse[0], $dc)->addText($this->fmt($row['kUseStability'] ?? null, 3), $c, $rowPara);
+            $tbl->addCell($wKuse[1], $dc)->addText($this->fmt($row['kUseDeformation'] ?? null, 3), $c, $rowPara);
         }
 
         // Summary per row type
@@ -437,19 +555,25 @@ final class CalculationResultsSection implements SectionBuilderInterface
 
         $maxKUse = max($pillarKuse, $foundKuse);
 
+        $fmtPercent = fn(?float $k): string => $k !== null ? $this->fmt($k * 100, 0) : '—';
+
         $rows = [
-            ['Коэффициент использования конструкций (по наиболее нагруженному элементу)', $this->fmt($pillarKuse, 2)],
-            ['Коэффициент использования фундаментов', $this->fmt($foundKuse, 2)],
-            ['Площадь оборудования на момент расчета', $this->fmt($areaEquipment, 2)],
+            ['Коэффициент использования конструкций (по наиболее нагруженному элементу), %', $fmtPercent($pillarKuse)],
+            ['Коэффициент использования фундаментов, %', $fmtPercent($foundKuse)],
+            ['Площадь оборудования на момент расчета, м²', $this->fmt($areaEquipment, 2)],
             ['Вес оборудования на момент расчета, кг', $this->fmt($weightEquipment, 2)],
-            ['Максимально допустимая площадь оборудования (ориентировочно относительно отметок подвеса существующего оборудования)', $this->fmt($areaEquipment / $maxKUse, 2)],
+            ['Максимально допустимая площадь оборудования (ориентировочно относительно отметок подвеса существующего оборудования), м²', $this->fmt($areaEquipment / $maxKUse, 2)],
             ['Максимально допустимый вес оборудования на АМС, кг', $this->fmt($weightEquipment / $maxKUse, 2)],
         ];
 
-        foreach ($rows as [$label, $value]) {
-            $tbl->addRow(400);
-            $tbl->addCell($w[0], $dc)->addText($label, $italic, $left);
-            $tbl->addCell($w[1], $dc)->addText($value, $italic, $center);
+        $last = count($rows) - 1;
+        $leftKeep = array_merge($left, ['keepNext' => true]);
+        $centerKeep = array_merge($center, ['keepNext' => true]);
+
+        foreach ($rows as $i => [$label, $value]) {
+            $tbl->addRow(400, ['cantSplit' => true]);
+            $tbl->addCell($w[0], $dc)->addText($label, $italic, $i < $last ? $leftKeep : $left);
+            $tbl->addCell($w[1], $dc)->addText($value, $italic, $i < $last ? $centerKeep : $center);
         }
     }
 
@@ -460,12 +584,15 @@ final class CalculationResultsSection implements SectionBuilderInterface
         return ++$this->tableCounter;
     }
 
-    private function addRow(Table $table, array $widths, array $values, bool $isHeader = false): void
+    private function addRow(Table $table, array $widths, array $values, bool $isHeader = false, bool $keepWithNext = true): void
     {
-        $table->addRow($isHeader ? 500 : 400);
+        $table->addRow($isHeader ? 500 : 400, ['cantSplit' => true]);
         $style = $isHeader ? DocStyleRegistry::headerCell() : DocStyleRegistry::dataCell();
         $font = $isHeader ? DocStyleRegistry::italicCenter() : DocStyleRegistry::center();
         $para = DocStyleRegistry::paragraphCenter();
+        if ($keepWithNext) {
+            $para['keepNext'] = true;
+        }
 
         foreach ($values as $i => $value) {
             $table->addCell($widths[$i] ?? 1000, $style)->addText($value, $font, $para);
@@ -474,9 +601,14 @@ final class CalculationResultsSection implements SectionBuilderInterface
 
     private function findMaxKRow(CalculationResultTable $table, string $field): ?array
     {
+        return $this->findMaxKRowFromRows($table->getRows(), $field);
+    }
+
+    private function findMaxKRowFromRows(array $rows, string $field): ?array
+    {
         $maxRow = null;
         $maxK = null;
-        foreach ($table->getRows() as $row) {
+        foreach ($rows as $row) {
             $k = isset($row[$field]) ? (float)$row[$field] : null;
             if ($k !== null && ($maxK === null || $k > $maxK)) {
                 $maxK = $k;
