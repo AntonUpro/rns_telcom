@@ -30,4 +30,6 @@ final readonly class DefaultConstant
     public const SHADING_COEFFICIENT_CABLE_CHANNEL = 0.4;
     public const SHADING_COEFFICIENT_LADDER = 0.7;
 
+
+    public const MODULES_ELASTICITY_H_MM = 206000;
 }

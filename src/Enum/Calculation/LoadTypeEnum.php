@@ -24,4 +24,9 @@ enum LoadTypeEnum: string
             self::cases()
         );
     }
+
+    public function isCompress(): bool
+    {
+        return $this === self::COMPRESSED;
+    }
 }
