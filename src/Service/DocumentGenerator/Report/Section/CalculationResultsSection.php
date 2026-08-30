@@ -31,6 +31,8 @@ final class CalculationResultsSection implements SectionBuilderInterface
         $this->buildStressTable($section, $context, ResultTableTypeEnum::BRACE_STRESS, 'напряжения в элементах подкосов', 'СП 16.13330.2017 «Стальные конструкции»');
         $this->buildStressTable($section, $context, ResultTableTypeEnum::PLATFORM_FORCES, 'напряжения в элементах площадки', 'СП 16.13330.2017 «Стальные конструкции»');
         $this->buildStressTable($section, $context, ResultTableTypeEnum::SUPERSTRUCTURE_STRESS, 'напряжения в элементах поясов надстройки', 'СП 16.13330.2017 «Стальные конструкции»');
+        $this->buildStabilityTable($section, $context, ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT, 'напряжения в поясах надстройки (устойчивость)');
+        $this->buildStabilityTable($section, $context, ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE, 'напряжения в элементах раскосов надстройки (устойчивость)');
         $this->buildDeformation($section, $context);
         $this->buildBaseForces($section, $context);
         $this->buildFoundation($section, $context);
@@ -294,6 +296,80 @@ final class CalculationResultsSection implements SectionBuilderInterface
                 $this->fmt($row['momentResistance'] ?? null, 2),
                 $this->fmt($row['nCalc'] ?? null, 2),
                 $this->fmt($row['mCalc'] ?? null, 2),
+                $this->fmt($row['sigma'] ?? null, 0),
+                $this->fmt($row['ry'] ?? null, 0),
+                $this->fmt($row['kUse'] ?? null, 2),
+            ], false, $i < $last);
+        }
+
+        $maxRow = $this->findMaxKRow($table, 'kUse');
+        if ($maxRow !== null) {
+            $comply = ((float)($maxRow['kUse'] ?? 0)) <= 1.0;
+
+            $style = $comply ? DocStyleRegistry::titleTableTextUnderline() : DocStyleRegistry::titleTableTextUnderlineBold();
+            $text = $section->addTextRun(DocStyleRegistry::paragraphIndent());
+
+            $text->addText('Максимальное ' . $description . ' составляет ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('%.0f Н/мм²', (float)($maxRow['sigma'] ?? 0)), $style);
+            $text->addText(' при допустимом ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('%.0f Н/мм²', (float)($maxRow['ry'] ?? 0)), DocStyleRegistry::titleTableTextUnderline());
+            $text->addText(', ', DocStyleRegistry::bodyText());
+            $text->addText(sprintf('Kисп=%.0f', (float)($maxRow['kUse'] ?? 0) * 100) . '%', $style);
+            $text->addText(', что ', DocStyleRegistry::bodyText());
+            $text->addText($comply ? 'удовлетворяет' : 'не удовлетворяет', $style);
+            $text->addText(' требованиям СП 16.13330.2017 «Стальные конструкции»;', DocStyleRegistry::bodyText());
+        }
+
+        $section->addTextBreak(1);
+    }
+
+    // ─── Таблица устойчивости элементов надстройки (пояса / раскосы) ─────────
+
+    private function buildStabilityTable(
+        Section $section,
+        ReportContext $context,
+        ResultTableTypeEnum $type,
+        string $description,
+    ): void {
+        $table = $context->getResultTable($type);
+        if ($table === null || ! $table->isEnabled()) {
+            return;
+        }
+
+        $num = $this->nextTableNum();
+        $section->addText(
+            'Максимальные ' . $description . ':',
+            DocStyleRegistry::titleTableTextUnderline(),
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
+        );
+        $section->addText('Таблица ' . $num, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
+
+        $w = [700, 1000, 1000, 900, 900, 700, 700, 700, 700, 700, 700, 700, 500];
+        $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
+
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
+
+        $this->addRow($tbl, $w, [
+            'Номер секции', 'Отметка верха, м', 'Сечение',
+            'Момент инерции I, см⁴', 'Радиус инерции i, см', 'λ', 'Lef, см', 'ϕ',
+            'N, тс', 'Nmax, тс', 'σ, Н/мм²', 'Ry, Н/мм²', 'Кисп',
+        ], true, $last >= 0);
+
+        foreach ($rows as $i => $row) {
+            $this->addRow($tbl, $w, [
+                $this->fmt($row['sectionNumber'] ?? null, 0),
+                $this->fmt($row['mark'] ?? null, 3),
+                $row['profileType']
+                    ? GaugeProfileTypeEnum::from($row['profileType'])->icon() . ($row['sectionDesignation'] ?? '—')
+                    : '—',
+                $this->fmt($row['momentInertia'] ?? null, 2),
+                $this->fmt($row['radiusInertia'] ?? null, 2),
+                $this->fmt($row['lambda'] ?? null, 2),
+                $this->fmt($row['elementLength'] ?? null, 1),
+                $this->fmt($row['fi'] ?? null, 3),
+                $this->fmt($row['nCalc'] ?? null, 2),
+                $this->fmt($row['nMax'] ?? null, 2),
                 $this->fmt($row['sigma'] ?? null, 0),
                 $this->fmt($row['ry'] ?? null, 0),
                 $this->fmt($row['kUse'] ?? null, 2),

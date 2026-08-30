@@ -131,17 +131,24 @@ final class CalculationResultService
 //            ],
 //        ];
 
-        if (empty($result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY->value])) {
-            $result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY->value] = [
+        if (empty($result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT->value])) {
+            $result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT->value] = [
                 'enabled' => false,
-                'rows'    => $this->addDefaultDataSuperstructureStability($calculation),
+                'rows'    => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BELT),
+            ];
+        }
+
+        if (empty($result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE->value])) {
+            $result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE->value] = [
+                'enabled' => false,
+                'rows'    => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BRACE),
             ];
         }
 
         return $result;
     }
 
-    private function addDefaultDataSuperstructureStability(Calculation $calculation): array
+    private function buildDefaultStabilityRows(Calculation $calculation, ElementTypeEnum $onlyType): array
     {
         $rows = [];
 
@@ -151,22 +158,24 @@ final class CalculationResultService
             }
 
             foreach ($section->getElementsDto() as $element) {
-                if (in_array($element->elementType->value, [ElementTypeEnum::BELT->value, ElementTypeEnum::BRACE->value])) {
-                    $rows[] = [
-                        'mark' => $section->getMountHeightTopM(),
-                        'element' => $element->elementType,
-                        'profileType' => $element->sectionConstructType->toGaugeProfile()->value,
-                        'elementLength' => $element->getLengthCm(),
-                        'loadType' => LoadTypeEnum::COMPRESSED->value,
-                        'connectionType' => BraceConnectionTypeEnum::SINGLE_BOLT_OR_GUSSET->value,
-                        'schemeNumber' => SchemeNumberEnum::A->value,
-                        'flexibility' => $element->elementType->value === ElementTypeEnum::BELT->value
-                            ? FlexibilityTypeEnum::ONE_A->value
-                            : FlexibilityTypeEnum::TWO_A->value,
-//                        'ry' => $calculation->getCalculationData()->getConcretePillarSpecificData()->defaultValues->cableDiameterValues,
-                        'ry' => 240,
-                    ];
+                if ($element->elementType->value !== $onlyType->value) {
+                    continue;
                 }
+
+                $rows[] = [
+                    'sectionNumber' => $section->getNumberSection(),
+                    'mark' => $section->getMountHeightTopM(),
+                    'element' => $element->elementType->value,
+                    'profileType' => $element->sectionConstructType->toGaugeProfile()->value,
+                    'elementLength' => $element->getLengthCm(),
+                    'loadType' => LoadTypeEnum::COMPRESSED->value,
+                    'connectionType' => BraceConnectionTypeEnum::SINGLE_BOLT_OR_GUSSET->value,
+                    'schemeNumber' => SchemeNumberEnum::A->value,
+                    'flexibility' => $onlyType->value === ElementTypeEnum::BELT->value
+                        ? FlexibilityTypeEnum::ONE_A->value
+                        : FlexibilityTypeEnum::TWO_A->value,
+                    'ry' => 240,
+                ];
             }
         }
 

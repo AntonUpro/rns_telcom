@@ -164,6 +164,26 @@ final class ReportContext
         return $this->getMaxKUse($table->getRows());
     }
 
+    public function getSuperstructureStabilityBeltMaxKuse(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+
+        return $this->getMaxKUse($table->getRows());
+    }
+
+    public function getSuperstructureStabilityBraceMaxKuse(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+
+        return $this->getMaxKUse($table->getRows());
+    }
+
     public function getFoundationMaxKuse(): ?float
     {
         $table = $this->getResultTable(ResultTableTypeEnum::FOUNDATION);
@@ -192,6 +212,8 @@ final class ReportContext
             ResultTableTypeEnum::PILLAR_FORCES->value => $this->getPillarForcesMaxKuse(),
             ResultTableTypeEnum::PLATFORM_FORCES->value => $this->getPlatformForcesMaxKuse(),
             ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $this->getSuperstructureStressMaxKuse(),
+            ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT->value => $this->getSuperstructureStabilityBeltMaxKuse(),
+            ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE->value => $this->getSuperstructureStabilityBraceMaxKuse(),
             ResultTableTypeEnum::BRACE_STRESS->value => $this->getBraceStressMaxKuse(),
             ResultTableTypeEnum::FOUNDATION->value => $this->getFoundationMaxKuse(),
         ];
@@ -214,6 +236,8 @@ final class ReportContext
             ResultTableTypeEnum::PILLAR_FORCES->value => $this->getPillarForcesMaxKuse(),
             ResultTableTypeEnum::PLATFORM_FORCES->value => $this->getPlatformForcesMaxKuse(),
             ResultTableTypeEnum::SUPERSTRUCTURE_STRESS->value => $this->getSuperstructureStressMaxKuse(),
+            ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT->value => $this->getSuperstructureStabilityBeltMaxKuse(),
+            ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE->value => $this->getSuperstructureStabilityBraceMaxKuse(),
             ResultTableTypeEnum::BRACE_STRESS->value => $this->getBraceStressMaxKuse(),
             ResultTableTypeEnum::FOUNDATION->value => $this->getFoundationMaxKuse(),
         ];

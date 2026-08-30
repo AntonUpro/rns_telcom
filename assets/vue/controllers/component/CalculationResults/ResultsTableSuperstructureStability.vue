@@ -23,6 +23,7 @@ const props = defineProps({
     profileTypes:            { type: Array,   default: () => [] },
     elementOptions:          { type: Array,   default: () => [] },
     defaultElement:          { type: String,  default: '' },
+    showElementColumn:       { type: Boolean, default: true },
     loadTypes:               { type: Array,   default: () => [] },
     connectionTypes:         { type: Array,   default: () => [] },
     schemeNumbers:           { type: Array,   default: () => [] },
@@ -36,6 +37,7 @@ const emit = defineEmits(['update:rows']);
 
 const makeRow = () => ({
     element: props.defaultElement,
+    sectionNumber: null,
     mark: null,
     profileType: '',
     sectionDesignation: '',
@@ -53,8 +55,8 @@ const makeRow = () => ({
 });
 
 // ─── Признак «элемент — пояс» ─────────────────────────────────────────────────
-
-const isBelt = (row) => row.element === 'Пояс';
+// Таблица поясов рендерится без колонки «Элемент»; таблица раскосов поясом не бывает.
+const isBelt = (row) => !props.showElementColumn;
 
 // ─── Row mutations ────────────────────────────────────────────────────────────
 
@@ -295,8 +297,9 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                 <thead>
                     <tr>
                         <th class="col-n">№</th>
+                        <th class="col-mark">Номер<br>секции</th>
                         <th class="col-mark">Отметка,<br>м</th>
-                        <th class="col-elem">Элемент</th>
+                        <th v-if="showElementColumn" class="col-elem">Элемент</th>
                         <th class="col-ptype">Тип<br>сечения</th>
                         <th class="col-sec">Сечение</th>
                         <th class="col-len">Длина<br>элемента, см</th>
@@ -325,6 +328,16 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                     <tr v-for="(row, idx) in rows" :key="idx">
                         <td class="td-center">{{ idx + 1 }}</td>
 
+                        <!-- Номер секции -->
+                        <td>
+                            <input
+                                type="number" step="1" class="rt-input rt-input--xs"
+                                :value="row.sectionNumber"
+                                @change="updateCell(idx, 'sectionNumber', $event.target.valueAsNumber)"
+                                placeholder="—"
+                            />
+                        </td>
+
                         <!-- Отметка -->
                         <td>
                             <input
@@ -336,7 +349,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                         </td>
 
                         <!-- Тип элемента -->
-                        <td>
+                        <td v-if="showElementColumn">
                             <select
                                 class="rt-select rt-select--elem"
                                 :value="row.element"
@@ -526,7 +539,7 @@ const fmt = (v, d = 2) => (v != null && v !== '') ? Number(v).toFixed(d) : '—'
                         </td>
                     </tr>
                     <tr v-if="rows.length === 0">
-                        <td colspan="17" class="td-empty">
+                        <td :colspan="showElementColumn ? 18 : 17" class="td-empty">
                             Нет строк — нажмите «+ строка»
                         </td>
                     </tr>

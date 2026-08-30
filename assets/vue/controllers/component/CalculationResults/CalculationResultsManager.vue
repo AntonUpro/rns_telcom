@@ -40,7 +40,8 @@ const enums = ref({
 const optionalTables = ref({
     brace_stress: false,
     superstructure_stress: false,
-    superstructure_stability: false,
+    superstructure_stability_belt: false,
+    superstructure_stability_brace: false,
     platform_forces: false,
     base_forces: false,
     deformation: false,
@@ -51,11 +52,17 @@ const OPTIONAL_TABLE_META = [
     {key: 'brace_stress', label: 'Напряжения в подкосах'},
     {key: 'platform_forces', label: 'Усилия в площадке и стойке'},
     {key: 'superstructure_stress', label: 'Напряжения в поясах надстройки (прочность)'},
-    {key: 'superstructure_stability', label: 'Напряжения в надстройке (устойчивость)'},
+    {key: 'superstructure_stability_belt', label: 'Напряжения в поясах надстройки (устойчивость)'},
+    {key: 'superstructure_stability_brace', label: 'Напряжения в раскосах надстройки (устойчивость)'},
     {key: 'base_forces', label: 'Усилия в основании опоры'},
     {key: 'deformation', label: 'Деформации опоры'},
     {key: 'foundation', label: 'Расчёт основания'},
 ];
+
+// Варианты «Элемент» для таблицы раскосов — все, кроме поясов
+const braceElementOptions = computed(
+    () => (enums.value.elementTypes ?? []).filter((o) => o.value !== 'belt'),
+);
 
 // ─── Фабрики строк ────────────────────────────────────────────────────────────
 const makePillarForcesRow = () => ({
@@ -81,8 +88,21 @@ const makeStressRow = () => ({
     kUse: null,   // computed
 });
 
-const makeSuperstructureStabilityRow = () => ({
-    element: '', mark: null,
+const makeStabilityBeltRow = () => ({
+    element: 'belt', sectionNumber: null, mark: null,
+    profileType: '', sectionDesignation: '',
+    elementLength: null,
+    loadType: 'compressed', connectionType: 'welded_or_bolts',
+    schemeNumber: 'a', flexibility: null,
+    area: null,           // TODO: auto-fill from backend by sectionDesignation
+    momentInertia: null,  // TODO: auto-fill from backend by sectionDesignation
+    nCalc: null, ry: 240,
+    sigma: null,  // computed
+    kUse: null,   // computed
+});
+
+const makeStabilityBraceRow = () => ({
+    element: '', sectionNumber: null, mark: null,
     profileType: '', sectionDesignation: '',
     elementLength: null,
     loadType: 'compressed', connectionType: 'welded_or_bolts',
@@ -120,7 +140,8 @@ const pillarForcesRows = ref([makePillarForcesRow()]);
 const crackOpeningRows = ref([makeCrackOpeningRow()]);
 const braceStressRows = ref([]);
 const superstructureStressRows = ref([]);
-const superstructureStabilityRows = ref([]);
+const stabilityBeltRows = ref([]);
+const stabilityBraceRows = ref([]);
 const platformForcesRows = ref([]);
 const baseForcesRows = ref([]);
 const deformationRows = ref([]);
@@ -130,7 +151,8 @@ const foundationRows = ref([]);
 const TABLE_ROWS_MAP = {
     brace_stress: {rows: braceStressRows, make: makeStressRow},
     superstructure_stress: {rows: superstructureStressRows, make: makeStressRow},
-    superstructure_stability: {rows: superstructureStabilityRows, make: makeSuperstructureStabilityRow},
+    superstructure_stability_belt: {rows: stabilityBeltRows, make: makeStabilityBeltRow},
+    superstructure_stability_brace: {rows: stabilityBraceRows, make: makeStabilityBraceRow},
     platform_forces: {rows: platformForcesRows, make: makeStressRow},
     base_forces: {rows: baseForcesRows, make: makeBaseForcesRow},
     deformation: {rows: deformationRows, make: makeDeformationRow},
@@ -172,7 +194,8 @@ const restoreSavedData = (savedData) => {
     restore('crack_opening', crackOpeningRows, makeCrackOpeningRow);
     restore('brace_stress', braceStressRows, makeStressRow);
     restore('superstructure_stress', superstructureStressRows, makeStressRow);
-    restore('superstructure_stability', superstructureStabilityRows, makeSuperstructureStabilityRow);
+    restore('superstructure_stability_belt', stabilityBeltRows, makeStabilityBeltRow);
+    restore('superstructure_stability_brace', stabilityBraceRows, makeStabilityBraceRow);
     restore('platform_forces', platformForcesRows, makeStressRow);
     restore('base_forces', baseForcesRows, makeBaseForcesRow);
     restore('deformation', deformationRows, makeDeformationRow);
@@ -222,9 +245,13 @@ const calculate = async () => {
                 enabled: optionalTables.value.superstructure_stress,
                 rows: superstructureStressRows.value
             },
-            superstructure_stability: {
-                enabled: optionalTables.value.superstructure_stability,
-                rows: superstructureStabilityRows.value
+            superstructure_stability_belt: {
+                enabled: optionalTables.value.superstructure_stability_belt,
+                rows: stabilityBeltRows.value
+            },
+            superstructure_stability_brace: {
+                enabled: optionalTables.value.superstructure_stability_brace,
+                rows: stabilityBraceRows.value
             },
             platform_forces: {enabled: optionalTables.value.platform_forces, rows: platformForcesRows.value},
             base_forces: {enabled: optionalTables.value.base_forces, rows: baseForcesRows.value},
@@ -251,7 +278,8 @@ const calculate = async () => {
         if (data.data.crack_opening?.rows) crackOpeningRows.value = data.data.crack_opening.rows;
         if (data.data.brace_stress?.rows) braceStressRows.value = data.data.brace_stress.rows;
         if (data.data.superstructure_stress?.rows) superstructureStressRows.value = data.data.superstructure_stress.rows;
-        if (data.data.superstructure_stability?.rows) superstructureStabilityRows.value = data.data.superstructure_stability.rows;
+        if (data.data.superstructure_stability_belt?.rows) stabilityBeltRows.value = data.data.superstructure_stability_belt.rows;
+        if (data.data.superstructure_stability_brace?.rows) stabilityBraceRows.value = data.data.superstructure_stability_brace.rows;
         if (data.data.platform_forces?.rows) platformForcesRows.value = data.data.platform_forces.rows;
         if (data.data.base_forces?.rows) baseForcesRows.value = data.data.base_forces.rows;
         if (data.data.deformation?.rows) deformationRows.value = data.data.deformation.rows;
@@ -280,6 +308,7 @@ onMounted(async () => {
     watch(
         [
             pillarForcesRows, crackOpeningRows, braceStressRows, superstructureStressRows,
+            stabilityBeltRows, stabilityBraceRows,
             platformForcesRows, baseForcesRows, deformationRows, foundationRows, optionalTables,
         ],
         () => markDirty(),
@@ -375,19 +404,38 @@ onMounted(async () => {
 
             <!-- Напряжения в поясах надстройки (устойчивость) -->
             <ResultsTableSuperstructureStability
-                v-if="optionalTables.superstructure_stability"
-                :table-number="tableNumbers.superstructure_stability"
-                table-name="Максимальные напряжения в элементах надстройки (устойчивость)"
+                v-if="optionalTables.superstructure_stability_belt"
+                :table-number="tableNumbers.superstructure_stability_belt"
+                table-name="Максимальные напряжения в поясах надстройки (устойчивость)"
                 subtitle="Проверка устойчивости по СП 16.13330.2017"
-                :rows="superstructureStabilityRows"
+                :show-element-column="false"
+                default-element="belt"
+                :rows="stabilityBeltRows"
                 :profile-types="enums.profileTypes"
-                :element-options="enums.elementTypes"
                 :load-types="enums.loadTypes"
                 :connection-types="enums.connectionTypes"
                 :scheme-numbers="enums.schemeNumbers"
                 :flexibility-belt-options="enums.flexibilityBeltOptions"
                 :flexibility-other-options="enums.flexibilityOtherOptions"
-                @update:rows="superstructureStabilityRows = $event"
+                @update:rows="stabilityBeltRows = $event"
+            />
+
+            <!-- Напряжения в элементах раскосов надстройки (устойчивость) -->
+            <ResultsTableSuperstructureStability
+                v-if="optionalTables.superstructure_stability_brace"
+                :table-number="tableNumbers.superstructure_stability_brace"
+                table-name="Максимальные напряжения в элементах раскосов надстройки (устойчивость)"
+                subtitle="Проверка устойчивости по СП 16.13330.2017"
+                :show-element-column="true"
+                :rows="stabilityBraceRows"
+                :profile-types="enums.profileTypes"
+                :element-options="braceElementOptions"
+                :load-types="enums.loadTypes"
+                :connection-types="enums.connectionTypes"
+                :scheme-numbers="enums.schemeNumbers"
+                :flexibility-belt-options="enums.flexibilityBeltOptions"
+                :flexibility-other-options="enums.flexibilityOtherOptions"
+                @update:rows="stabilityBraceRows = $event"
             />
 
 

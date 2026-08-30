@@ -59,7 +59,9 @@ final class DocStyleRegistry
 
     public static function paragraphRight(): array
     {
-        return ['alignment' => Jc::END, 'keepNext' => true];
+        return ['alignment' => Jc::END, 'keepNext' => true, 'indentation' => [
+            'right' => (int)Converter::cmToTwip(0.5),
+        ],];
     }
 
     public static function paragraphLineSpacing(): array

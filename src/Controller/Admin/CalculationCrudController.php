@@ -39,7 +39,7 @@ class CalculationCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Расчёт')
             ->setEntityLabelInPlural('Расчёты')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['name'])
+            ->setSearchFields(['objectCode'])
             ->setPaginatorUseOutputWalkers(true)
             ->setPaginatorFetchJoinCollection(true)
             ->showEntityActionsInlined();
@@ -79,7 +79,7 @@ class CalculationCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
-        yield TextField::new('name', 'Название');
+        yield TextField::new('objectCode', 'Шифр проекта');
         yield AssociationField::new('user', 'Пользователь');
         yield ChoiceField::new('type', 'Тип')
             ->setChoices(array_combine(

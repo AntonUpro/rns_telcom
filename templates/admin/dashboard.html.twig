@@ -69,7 +69,7 @@
                         {% for calc in recentCalculations %}
                         <tr>
                             <td class="text-muted">{{ calc.id }}</td>
-                            <td>{{ calc.name }}</td>
+                            <td>{{ calc.objectCode }}</td>
                             <td>{{ calc.user ? calc.user.fullName : '—' }}</td>
                             <td>
                                 <span class="badge text-bg-{{ calc.status.color() }}">

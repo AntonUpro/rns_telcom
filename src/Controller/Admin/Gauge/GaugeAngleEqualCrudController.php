@@ -32,17 +32,17 @@ class GaugeAngleEqualCrudController extends AbstractCrudController
     {
         yield AssociationField::new('profile', 'Профиль')
             ->setFormTypeOptions(['required' => true]);
-        yield TextField::new('profile.name', 'Наименование')->hideOnForm();
-        yield TextField::new('profile.designation', 'Обозначение')->hideOnForm();
-        yield NumberField::new('flangeWidth', 'b, мм (полка)')->setNumDecimals(2);
-        yield NumberField::new('flangeThickness', 't, мм (толщина)')->setNumDecimals(2);
+//        yield TextField::new('profile.name', 'Наименование')->hideOnForm();
+//        yield TextField::new('profile.designation', 'Обозначение')->hideOnForm();
+//        yield NumberField::new('flangeWidth', 'b, мм (полка)')->setNumDecimals(2);
+//        yield NumberField::new('flangeThickness', 't, мм (толщина)')->setNumDecimals(2);
         yield NumberField::new('area', 'A, см²')->setNumDecimals(3);
-        yield NumberField::new('massPerMeter', 'Масса, кг/м')->setNumDecimals(3)->hideOnIndex();
+        yield NumberField::new('massPerMeter', 'Масса, кг/м')->setNumDecimals(3)->hideOnForm();
         yield NumberField::new('centroidDistanceX', 'z₀x, см')->setNumDecimals(2)->hideOnIndex();
         yield NumberField::new('centroidDistanceY', 'z₀y, см')->setNumDecimals(2)->hideOnIndex();
-        yield NumberField::new('momentInertiaX', 'Ix, см⁴')->setNumDecimals(2)->hideOnIndex();
-        yield NumberField::new('momentInertiaY', 'Iy, см⁴')->setNumDecimals(2)->hideOnIndex();
-        yield NumberField::new('momentInertiaMin', 'Imin, см⁴')->setNumDecimals(2)->hideOnIndex();
+        yield NumberField::new('momentInertiaX', 'Ix, см⁴')->setNumDecimals(2)->hideOnForm();
+        yield NumberField::new('momentInertiaY', 'Iy, см⁴')->setNumDecimals(2)->hideOnForm();
+        yield NumberField::new('momentInertiaMin', 'Imin, см⁴')->setNumDecimals(2)->hideOnForm();
         yield NumberField::new('radiusInertiaX', 'ix, см')->setNumDecimals(2)->hideOnIndex();
         yield NumberField::new('radiusInertiaY', 'iy, см')->setNumDecimals(2)->hideOnIndex();
         yield NumberField::new('radiusInertiaMin', 'imin, см')->setNumDecimals(2)->hideOnIndex();

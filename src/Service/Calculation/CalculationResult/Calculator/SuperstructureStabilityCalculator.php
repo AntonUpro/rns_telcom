@@ -45,7 +45,9 @@ final class SuperstructureStabilityCalculator implements TableCalculatorInterfac
                     $ryKgCm = $rawDto->ry * 100 / 9.81;
                     $moduleElasticityKgCm = DefaultConstant::MODULES_ELASTICITY_H_MM * 100 / 9.81;
 
-                    $lambda = $elementLength / (sqrt($momentInertia / $areaCm));
+                    $radiusInertia = sqrt($momentInertia / $areaCm);
+
+                    $lambda = $elementLength / $radiusInertia;
                     $lambda_ = $lambda * sqrt($ryKgCm / $moduleElasticityKgCm);
 
                     $fiCalc = $this->calcFi($profileType, $loadType, $lambda_);
@@ -65,7 +67,7 @@ final class SuperstructureStabilityCalculator implements TableCalculatorInterfac
 
                     $sigma = $rawDto->ry * $kUse;
 
-                    $rawDto = $rawDto->withComputed($sigma, $kUse);
+                    $rawDto = $rawDto->withComputed($sigma, $kUse, $radiusInertia, $lambda, $fiCalc, $nMaxT);
                     return $rawDto->toArray();
                 } catch (\Throwable $exception) {
                     return $raw;

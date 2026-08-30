@@ -8,6 +8,7 @@ final readonly class SuperstructureStabilityRowDto
 {
     public function __construct(
         public string $element,
+        public ?int $sectionNumber,
         public ?float $mark,
         public string $profileType,
         public string $sectionDesignation,
@@ -22,6 +23,10 @@ final readonly class SuperstructureStabilityRowDto
         public ?float $ry,
         public ?float $sigma = null,
         public ?float $kUse = null,
+        public ?float $radiusInertia = null, // i, см
+        public ?float $lambda = null, // λ
+        public ?float $fi = null, // ϕ
+        public ?float $nMax = null, // Nmax, тс
     ) {
     }
 
@@ -29,6 +34,7 @@ final readonly class SuperstructureStabilityRowDto
     {
         return new self(
             element: (string)($data['element'] ?? ''),
+            sectionNumber: isset($data['sectionNumber']) ? (int)$data['sectionNumber'] : null,
             mark: isset($data['mark']) ? (float)$data['mark'] : null,
             profileType: (string)($data['profileType'] ?? ''),
             sectionDesignation: (string)($data['sectionDesignation'] ?? ''),
@@ -43,13 +49,24 @@ final readonly class SuperstructureStabilityRowDto
             ry: isset($data['ry']) ? (float)$data['ry'] : null,
             sigma: isset($data['sigma']) ? (float)$data['sigma'] : null,
             kUse: isset($data['kUse']) ? (float)$data['kUse'] : null,
+            radiusInertia: isset($data['radiusInertia']) ? (float)$data['radiusInertia'] : null,
+            lambda: isset($data['lambda']) ? (float)$data['lambda'] : null,
+            fi: isset($data['fi']) ? (float)$data['fi'] : null,
+            nMax: isset($data['nMax']) ? (float)$data['nMax'] : null,
         );
     }
 
-    public function withComputed(?float $sigma, ?float $kUse): self
-    {
+    public function withComputed(
+        ?float $sigma,
+        ?float $kUse,
+        ?float $radiusInertia,
+        ?float $lambda,
+        ?float $fi,
+        ?float $nMax,
+    ): self {
         return new self(
             element: $this->element,
+            sectionNumber: $this->sectionNumber,
             mark: $this->mark,
             profileType: $this->profileType,
             sectionDesignation: $this->sectionDesignation,
@@ -64,6 +81,10 @@ final readonly class SuperstructureStabilityRowDto
             ry: $this->ry,
             sigma: $sigma,
             kUse: $kUse,
+            radiusInertia: $radiusInertia,
+            lambda: $lambda,
+            fi: $fi,
+            nMax: $nMax,
         );
     }
 
@@ -71,6 +92,7 @@ final readonly class SuperstructureStabilityRowDto
     {
         return [
             'element' => $this->element,
+            'sectionNumber' => $this->sectionNumber,
             'mark' => $this->mark,
             'profileType' => $this->profileType,
             'sectionDesignation' => $this->sectionDesignation,
@@ -85,6 +107,10 @@ final readonly class SuperstructureStabilityRowDto
             'ry' => $this->ry,
             'sigma' => $this->sigma,
             'kUse' => $this->kUse,
+            'radiusInertia' => $this->radiusInertia,
+            'lambda' => $this->lambda,
+            'fi' => $this->fi,
+            'nMax' => $this->nMax,
         ];
     }
 }
