@@ -8,6 +8,7 @@ import ResultsTableSuperstructureStability from './ResultsTableSuperstructureSta
 import ResultsTableMaximumForcesBase from './ResultsTableMaximumForcesBase.vue';
 import ResultsTableDeformation from './ResultsTableDeformation.vue';
 import ResultsTableBase from './ResultsTableBase.vue';
+import ResultsTableNaturalFrequencies from './ResultsTableNaturalFrequencies.vue';
 
 const props = defineProps({
     calculationId: {
@@ -21,6 +22,8 @@ const loading = ref(false);
 const calculating = ref(false);
 const error = ref(null);
 const message = ref(null);   // { type: 'success'|'error', text: string }
+const isNbk = ref(false);    // заказчик «Сервис-Телеком» (NBK)
+const freqErrors = ref(new Set());  // ключи "idx.field" незаполненных обязательных ячеек таблицы частот
 
 const {markDirty, markClean} = useUnsavedChanges('calc-results');
 
@@ -46,6 +49,7 @@ const optionalTables = ref({
     base_forces: false,
     deformation: false,
     foundation: false,
+    natural_frequencies: false,
 });
 
 const OPTIONAL_TABLE_META = [
@@ -58,6 +62,11 @@ const OPTIONAL_TABLE_META = [
     {key: 'deformation', label: 'Деформации опоры'},
     {key: 'foundation', label: 'Расчёт основания'},
 ];
+
+// Таблица «Частоты собственных колебаний» доступна только заказчику NBK
+const optionalTableMeta = computed(() => isNbk.value
+    ? [...OPTIONAL_TABLE_META, {key: 'natural_frequencies', label: 'Частоты собственных колебаний'}]
+    : OPTIONAL_TABLE_META);
 
 // Варианты «Элемент» для таблицы раскосов — все, кроме поясов
 const braceElementOptions = computed(
@@ -135,6 +144,15 @@ const makeFoundationRow = () => ({
     kUseDeformation: null,   // computed
 });
 
+// Частоты собственных колебаний (только NBK) — значения не вычисляются
+const makeNaturalFrequencyRow = () => ({
+    loadCase: 3,       // № загружения — ввод, дефолт 3
+    eigenvalue: null,  // собств. значения — ввод
+    angularFreq: null, // круговая частота, рад/с — ввод
+    frequencyHz: null, // частота, Гц — ввод
+    period: null,      // период, с — ввод
+});
+
 // ─── Данные таблиц ────────────────────────────────────────────────────────────
 const pillarForcesRows = ref([makePillarForcesRow()]);
 const crackOpeningRows = ref([makeCrackOpeningRow()]);
@@ -146,6 +164,7 @@ const platformForcesRows = ref([]);
 const baseForcesRows = ref([]);
 const deformationRows = ref([]);
 const foundationRows = ref([]);
+const naturalFrequencyRows = ref([]);
 
 // Маппинг ключа таблицы → ref строк и фабрика строки
 const TABLE_ROWS_MAP = {
@@ -157,6 +176,7 @@ const TABLE_ROWS_MAP = {
     base_forces: {rows: baseForcesRows, make: makeBaseForcesRow},
     deformation: {rows: deformationRows, make: makeDeformationRow},
     foundation: {rows: foundationRows, make: makeFoundationRow},
+    natural_frequencies: {rows: naturalFrequencyRows, make: makeNaturalFrequencyRow, initialCount: 5},
 };
 
 // ─── Динамическая нумерация таблиц на странице ────────────────────────────────
@@ -176,7 +196,8 @@ const toggleOptional = (key) => {
     optionalTables.value[key] = !optionalTables.value[key];
     const entry = TABLE_ROWS_MAP[key];
     if (optionalTables.value[key] && entry && entry.rows.value.length === 0) {
-        entry.rows.value = [entry.make()];
+        const count = entry.initialCount ?? 1;
+        entry.rows.value = Array.from({length: count}, () => entry.make());
     }
 };
 
@@ -201,6 +222,14 @@ const restoreSavedData = (savedData) => {
     restore('deformation', deformationRows, makeDeformationRow);
     restore('foundation', foundationRows, makeFoundationRow);
 
+    // Частоты собственных колебаний: дефолт — 5 строк
+    const savedFreq = savedData['natural_frequencies'];
+    if (savedFreq) {
+        naturalFrequencyRows.value = savedFreq.rows?.length
+            ? savedFreq.rows
+            : Array.from({length: 5}, () => makeNaturalFrequencyRow());
+    }
+
     // Включаем опциональные таблицы, которые были сохранены с enabled=true
     for (const key of Object.keys(optionalTables.value)) {
         if (savedData[key]?.enabled) {
@@ -222,6 +251,7 @@ const fetchInitData = async () => {
         }
 
         enums.value = data.data.enums;
+        isNbk.value = data.data.isNbk === true;
         restoreSavedData(data.data.savedData);
     } catch (err) {
         error.value = err.message;
@@ -232,9 +262,37 @@ const fetchInitData = async () => {
 };
 
 // ─── Расчёт (вызывается локально и из родителя через $ref) ────────────────────
+// Обязательные числовые поля таблицы частот собственных колебаний
+const FREQ_REQUIRED_FIELDS = ['eigenvalue', 'angularFreq', 'frequencyHz', 'period'];
+
+const validateNaturalFrequencies = () => {
+    const errs = new Set();
+    if (optionalTables.value.natural_frequencies) {
+        naturalFrequencyRows.value.forEach((row, idx) => {
+            FREQ_REQUIRED_FIELDS.forEach((field) => {
+                const v = row[field];
+                if (v === null || v === undefined || v === '') {
+                    errs.add(`${idx}.${field}`);
+                }
+            });
+        });
+    }
+    freqErrors.value = errs;
+    return errs.size === 0;
+};
+
 const calculate = async () => {
     calculating.value = true;
     message.value = null;
+
+    if (!validateNaturalFrequencies()) {
+        calculating.value = false;
+        message.value = {
+            type: 'error',
+            text: 'Заполните все обязательные поля в таблице «Расчёт значений частот собственных колебаний».',
+        };
+        return false;
+    }
 
     try {
         const payload = {
@@ -257,6 +315,10 @@ const calculate = async () => {
             base_forces: {enabled: optionalTables.value.base_forces, rows: baseForcesRows.value},
             deformation: {enabled: optionalTables.value.deformation, rows: deformationRows.value},
             foundation: {enabled: optionalTables.value.foundation, rows: foundationRows.value},
+            natural_frequencies: {
+                enabled: optionalTables.value.natural_frequencies,
+                rows: naturalFrequencyRows.value
+            },
         };
 
         const response = await fetch(
@@ -284,6 +346,7 @@ const calculate = async () => {
         if (data.data.base_forces?.rows) baseForcesRows.value = data.data.base_forces.rows;
         if (data.data.deformation?.rows) deformationRows.value = data.data.deformation.rows;
         if (data.data.foundation?.rows) foundationRows.value = data.data.foundation.rows;
+        if (data.data.natural_frequencies?.rows) naturalFrequencyRows.value = data.data.natural_frequencies.rows;
 
         message.value = {type: 'success', text: data.data.message ?? 'Данные сохранены.'};
 
@@ -308,7 +371,7 @@ onMounted(async () => {
     watch(
         [
             pillarForcesRows, crackOpeningRows, braceStressRows, superstructureStressRows,
-            stabilityBeltRows, stabilityBraceRows,
+            stabilityBeltRows, stabilityBraceRows, naturalFrequencyRows,
             platformForcesRows, baseForcesRows, deformationRows, foundationRows, optionalTables,
         ],
         () => markDirty(),
@@ -334,7 +397,7 @@ onMounted(async () => {
                     <span class="crm-optional-label">Дополнительные таблицы</span>
                     <div class="crm-optional-toggles">
                         <label
-                            v-for="meta in OPTIONAL_TABLE_META"
+                            v-for="meta in optionalTableMeta"
                             :key="meta.key"
                             class="crm-toggle"
                             :class="{ 'crm-toggle--on': optionalTables[meta.key] }"
@@ -461,6 +524,15 @@ onMounted(async () => {
                 :table-number="tableNumbers.foundation"
                 :rows="foundationRows"
                 @update:rows="foundationRows = $event"
+            />
+
+            <!-- Частоты собственных колебаний (только заказчик NBK) — всегда последняя -->
+            <ResultsTableNaturalFrequencies
+                v-if="isNbk && optionalTables.natural_frequencies"
+                :table-number="tableNumbers.natural_frequencies"
+                :rows="naturalFrequencyRows"
+                :errors="freqErrors"
+                @update:rows="naturalFrequencyRows = $event"
             />
 
             <!-- ── Статус ─────────────────────────────────────────────────────── -->

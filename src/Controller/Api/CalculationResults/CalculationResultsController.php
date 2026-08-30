@@ -82,6 +82,7 @@ class CalculationResultsController extends AbstractApiController
                     'flexibilityBeltOptions' => FlexibilityTypeEnum::optionsForBelt(),
                     'flexibilityOtherOptions' => FlexibilityTypeEnum::optionsForOther(),
                 ],
+                'isNbk' => $calculation->getCalculationData()?->getCustomer()?->getCode() === 'NBK',
                 'savedData' => $savedData ?: null,
             ]);
         } catch (Throwable $e) {

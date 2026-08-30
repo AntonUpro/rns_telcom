@@ -6,6 +6,7 @@ namespace App\Service\DocumentGenerator\Report\Section;
 
 use App\Dto\Calculation\PillarByHeight\SimpleResultDto;
 use App\Entity\CalculationImage;
+use App\Enum\Calculation\ResultTableTypeEnum;
 use App\Service\Calculation\PillarByHeight\SimpleCalculator;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
@@ -112,47 +113,194 @@ final class ProgramCalculationSection implements SectionBuilderInterface
 
         $section->addPageBreak(1);
 
-        if ($context->calculation->getCalculationData()?->getCustomer()?->getCode() !== 'NBK') {
-            $section->addTitle(sprintf(
-                '%d.1 %s %s',
-                $this->sectionNum,
-                'РАСЧЕТ ЖЕЛЕЗОБЕТОННОЙ СТОЙКИ',
-                $context->calculation->getCalculationData()?->getConcretePillarSpecificData()?->pillarStamp,
-            ), 2);
+        // Для заказчика NBK перед расчётом стойки идёт подраздел «Расчёт значений
+        // частот собственных колебаний» (11.1); тогда расчёт стойки становится 11.2.
+        $isNbk = $context->calculation->getCalculationData()?->getCustomer()?->getCode() === 'NBK';
+        $pillarSubNum = ($isNbk && $this->buildNaturalFrequencies($section, $context, $tableNum)) ? 2 : 1;
 
-            $section->addText(
-                'Расчет выполнен согласно Пособию по проектированию предварительно напряженных железобетонных конструкций из тяжелых и легких бетонов, п. 3.43.',
-                $body,
-                $left,
-            );
+        $section->addPageBreak();
 
-            $section->addText(
-                'В расчете предварительно напряженных элементов учитываем потери '
-                . 'предварительного напряжения арматуры при механическом способе натяжения на '
-                . 'упоры. Потери предварительного напряжения арматуры определены по табл.4 Пособия.',
-                $body,
-                $left,
-            );
+        $section->addTitle(sprintf(
+            '%d.%d %s %s',
+            $this->sectionNum,
+            $pillarSubNum,
+            'РАСЧЕТ ЖЕЛЕЗОБЕТОННОЙ СТОЙКИ',
+            $context->calculation->getCalculationData()?->getConcretePillarSpecificData()?->pillarStamp,
+        ), 2);
 
-            $section->addText(
-                'Исходные данные сечений стойки',
-                $body,
-                DocStyleRegistry::paragraphIndentWithKeepNext(),
-            );
+        $section->addText(
+            'Расчет выполнен согласно Пособию по проектированию предварительно напряженных железобетонных конструкций из тяжелых и легких бетонов, п. 3.43.',
+            $body,
+            $left,
+        );
 
-            $calculationResult = (new SimpleCalculator())->calculate($context);
+        $section->addText(
+            'В расчете предварительно напряженных элементов учитываем потери '
+            . 'предварительного напряжения арматуры при механическом способе натяжения на '
+            . 'упоры. Потери предварительного напряжения арматуры определены по табл.4 Пособия.',
+            $body,
+            $left,
+        );
 
-            $this->buildTableInitialData($section, $calculationResult);
-            $section->addPageBreak();
+        $section->addText(
+            'Исходные данные сечений стойки',
+            $body,
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
+        );
 
-            $section->addText(
-                'Проверка сечений железобетонной стойки',
-                $body,
-                DocStyleRegistry::paragraphIndentWithKeepNext(),
-            );
+        $calculationResult = (new SimpleCalculator())->calculate($context);
 
-            $this->buildTableResult($section, $calculationResult);
+        $this->buildTableInitialData($section, $calculationResult);
+        $section->addPageBreak();
+
+        $section->addText(
+            'Проверка сечений железобетонной стойки',
+            $body,
+            DocStyleRegistry::paragraphIndentWithKeepNext(),
+        );
+
+        $this->buildTableResult($section, $calculationResult);
+    }
+
+    /**
+     * Подраздел 11.1 «Расчёт значений частот собственных колебаний» — только для NBK.
+     * Данные вводятся на вкладке «Результаты расчёта» (таблица natural_frequencies),
+     * не вычисляются. Возвращает true, если подраздел был отрисован.
+     */
+    private function buildNaturalFrequencies(Section $section, ReportContext $context, int &$tableNum): bool
+    {
+        $table = $context->getResultTable(ResultTableTypeEnum::NATURAL_FREQUENCIES);
+        if ($table === null || ! $table->isEnabled() || $table->getRows() === []) {
+            return false;
         }
+
+        $section->addTitle(sprintf(
+            '%d.1 %s',
+            $this->sectionNum,
+            'РАСЧЕТ ЗНАЧЕНИЙ ЧАСТОТ СОБСТВЕННЫХ КОЛЕБАНИЙ',
+        ), 2);
+
+        // TODO: текст подраздела 11.1 добавит заказчик
+        $section->addText(
+            'Предельное значение частоты собственных колебаний определим согласно СП 20.13330.2016, п. 11.1.10:',
+            DocStyleRegistry::bodyText(),
+            DocStyleRegistry::paragraphIndent(),
+        );
+
+        $formulaBody = DocStyleRegistry::bodyText();
+        $formulaSub = array_merge($formulaBody, ['subScript' => true]);
+        $formulaPara = DocStyleRegistry::paragraphIndent();
+
+        // TODO: формулу предельной частоты f_lim заказчик добавит отдельно
+
+        $z = 0.8 * $context->calculation->getCalculationData()->getPillarHeightMm() / 1000;
+
+        $whereRun = $section->addTextRun($formulaPara);
+        $whereRun->addText('где' . str_repeat("\u{00A0}", 5), $formulaBody);
+        $whereRun->addText('Z', $formulaBody);
+        $whereRun->addText('эк', $formulaSub);
+        $whereRun->addText(sprintf('=0,8хh=%s м', $z), $formulaBody);
+
+        $tgRun = $section->addTextRun($formulaPara);
+        $tgRun->addText(str_repeat("\u{00A0}", 8), $formulaBody);
+        $tgRun->addText('Т', $formulaBody);
+        $tgRun->addText('g,lim', $formulaSub);
+        $tgRun->addText('=0,023', $formulaBody);
+
+        $flimRun = $section->addTextRun($formulaPara);
+        $flimRun->addText(
+            'Тогда предельное значение частоты собственных колебаний составляет f',
+            $formulaBody,
+        );
+
+        $wo = $context->calculation->getCalculationData()->getWindRegion()->pressure();
+        $kz = $context->calculation->getCalculationData()->getTerrainType()->roughnessCoefficient($z);
+
+        $gc = sqrt($wo * $kz * 1.4) / 940 / 0.023;
+
+        $flimRun->addText('lim', $formulaSub);
+        $flimRun->addText(sprintf('=√(%sх%sх1,4)/940х0,023=%s Гц', $wo, $kz, $this->freqNum($gc, 2)), $formulaBody);
+
+        $tableNum++;
+        $section->addText('Таблица ' . $tableNum, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
+
+        $italic = DocStyleRegistry::italicCenter();
+        $italic['size'] = 8;
+        $center = DocStyleRegistry::paragraphCenter();
+        $centerKeep = array_merge($center, ['keepNext' => true]);
+        $hCell = DocStyleRegistry::headerCell();
+        $dCell = DocStyleRegistry::dataCell();
+
+        // № загружения | № формы | Собств. значения | Круг. частота, рад/с | Частота, Гц | Период, с
+        $w = [1200, 1200, 1900, 1900, 1900, 1900];
+
+        $tbl = $section->addTable(DocStyleRegistry::tableStyleReport());
+
+        $rows = $table->getRows();
+        $last = count($rows) - 1;
+        $headerPara = $last >= 0 ? $centerKeep : $center;
+
+        // ─── Строка 1: групповые заголовки ──────────────────────────────────
+        $tbl->addRow(400, ['cantSplit' => true]);
+        $tbl->addCell($w[0], array_merge($hCell, ['vMerge' => 'restart']))->addText('№ загружения', $italic, $headerPara);
+        $tbl->addCell($w[1], array_merge($hCell, ['vMerge' => 'restart']))->addText('№ формы', $italic, $headerPara);
+        $tbl->addCell($w[2], array_merge($hCell, ['vMerge' => 'restart']))->addText('Собств. значения', $italic, $headerPara);
+        $tbl->addCell($w[3] + $w[4] + $w[5], array_merge($hCell, ['gridSpan' => 3]))->addText('Частоты', $italic, $headerPara);
+
+        // ─── Строка 2: подзаголовки группы «Частоты» ────────────────────────
+        $tbl->addRow(400, ['cantSplit' => true]);
+        $tbl->addCell($w[0], array_merge($hCell, ['vMerge' => 'continue']))->addText('', $italic, $headerPara);
+        $tbl->addCell($w[1], array_merge($hCell, ['vMerge' => 'continue']))->addText('', $italic, $headerPara);
+        $tbl->addCell($w[2], array_merge($hCell, ['vMerge' => 'continue']))->addText('', $italic, $headerPara);
+        $tbl->addCell($w[3], $hCell)->addText('Круг. частота, рад/с', $italic, $headerPara);
+        $tbl->addCell($w[4], $hCell)->addText('Частота, Гц', $italic, $headerPara);
+        $tbl->addCell($w[5], $hCell)->addText('Период, с', $italic, $headerPara);
+
+        $numberHz = 0;
+        $maxHz = 0;
+
+        // ─── Строки данных ─────────────────────────────────────────────────
+        foreach ($rows as $i => $row) {
+            $tbl->addRow(300, ['cantSplit' => true]);
+            $rowPara = $i < $last ? $centerKeep : $center;
+            if ($numberHz === 0 && (float)$row['frequencyHz'] > $gc) {
+                $numberHz = ($i + 1);
+                $maxHz = $row['frequencyHz'];
+            }
+
+
+            $vals = [
+                self::freqNum($row['loadCase'] ?? 3, 0),
+                (string)($i + 1),
+                self::freqNum($row['eigenvalue'] ?? null, 4),
+                self::freqNum($row['angularFreq'] ?? null, 3),
+                self::freqNum($row['frequencyHz'] ?? null, 3),
+                self::freqNum($row['period'] ?? null, 4),
+            ];
+            foreach ($vals as $j => $val) {
+                $tbl->addCell($w[$j], $dCell)->addText($val, $italic, $rowPara);
+            }
+        }
+
+        $section->addText(sprintf(
+            'Так как частота %d формы колебаний %s > %s Гц, то в динамическом расчете учитывались первые две формы колебаний.',
+            $numberHz,
+            $maxHz,
+            $gc,
+        ));
+
+        $section->addTextBreak(1);
+
+        return true;
+    }
+
+    private static function freqNum(mixed $value, int $decimals): string
+    {
+        if ($value === null || $value === '') {
+            return '—';
+        }
+
+        return number_format((float)$value, $decimals, ',', '');
     }
 
     /**

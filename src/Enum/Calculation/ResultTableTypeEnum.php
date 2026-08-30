@@ -16,6 +16,7 @@ enum ResultTableTypeEnum: string
     case BASE_PILLAR_FORCES = 'base_forces';
     case DEFORMATION = 'deformation';
     case FOUNDATION = 'foundation';
+    case NATURAL_FREQUENCIES = 'natural_frequencies';
 
     public function isOptional(): bool
     {
@@ -38,6 +39,7 @@ enum ResultTableTypeEnum: string
             self::BASE_PILLAR_FORCES => 'Максимальные усилия в основании опоры',
             self::DEFORMATION => 'Деформации опоры',
             self::FOUNDATION => 'Результаты расчёта основания опоры',
+            self::NATURAL_FREQUENCIES => 'Расчёт значений частот собственных колебаний',
         };
     }
 
@@ -64,6 +66,7 @@ enum ResultTableTypeEnum: string
             self::BASE_PILLAR_FORCES => 'выполнить усиление основания опоры',
             self::DEFORMATION => 'выполнить усиление ствола опоры',
             self::FOUNDATION => 'выполнить усиление фундамента опоры',
+            self::NATURAL_FREQUENCIES => 'выполнить усиление надстройки опоры',
         };
     }
 
