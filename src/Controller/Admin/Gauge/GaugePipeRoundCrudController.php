@@ -5,35 +5,33 @@ declare(strict_types=1);
 namespace App\Controller\Admin\Gauge;
 
 use App\Entity\Gauge\GaugePipeRound;
+use App\Enum\Gauge\GaugeProfileTypeEnum;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
-use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class GaugePipeRoundCrudController extends AbstractCrudController
+class GaugePipeRoundCrudController extends AbstractGaugeCrudController
 {
     public static function getEntityFqcn(): string
     {
         return GaugePipeRound::class;
     }
 
+    protected function profileTypeCode(): GaugeProfileTypeEnum
+    {
+        return GaugeProfileTypeEnum::PIPE_ROUND;
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
-        return $crud
+        return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Труба круглая')
-            ->setEntityLabelInPlural('Труба круглая')
-            ->setDefaultSort(['profile' => 'ASC'])
-            ->setPaginatorUseOutputWalkers(true)
-            ->setSearchFields(['profile.name', 'profile.designation']);
+            ->setEntityLabelInPlural('Труба круглая');
     }
 
     public function configureFields(string $pageName): iterable
     {
-        yield AssociationField::new('profile', 'Профиль')
-            ->setFormTypeOptions(['required' => true]);
-        yield TextField::new('profile.name', 'Наименование')->hideOnForm();
-        yield TextField::new('profile.designation', 'Обозначение')->hideOnForm();
+        yield from $this->profileFields();
+
         yield NumberField::new('outerDiameter', 'D, мм (нар.)')->setNumDecimals(2);
         yield NumberField::new('wallThickness', 't, мм (стенка)')->setNumDecimals(2);
         yield NumberField::new('area', 'A, см²')->setNumDecimals(3);

@@ -165,8 +165,13 @@ class GaugeProfile
         return $this->updatedAt;
     }
 
+    /**
+     * Строковое представление — числовой id.
+     * EasyAdmin использует его как идентификатор записи в URL дочерних
+     * сортаментов (profile_id одновременно PK и FK), поэтому здесь не имя.
+     */
     public function __toString(): string
     {
-        return $this->name;
+        return (string) ($this->id ?? '');
     }
 }
