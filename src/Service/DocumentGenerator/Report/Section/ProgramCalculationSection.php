@@ -193,6 +193,25 @@ final class ProgramCalculationSection implements SectionBuilderInterface
 
         // TODO: формулу предельной частоты f_lim заказчик добавит отдельно
 
+        $formula = $section->addTextRun($formulaPara);
+        $formula->addText(
+            'f',
+            $formulaBody,
+        );
+        $formula->addText('lim', $formulaSub);
+        $formula->addText(
+            '=√(w',
+            $formulaBody,
+        );
+        $formula->addText('0', $formulaSub);
+        $formula->addText('k(Z', $formulaBody);
+        $formula->addText('эк', $formulaSub);
+        $formula->addText(')γ', $formulaBody);
+        $formula->addText('f', $formulaSub);
+        $formula->addText(')/(940 x Т', $formulaBody);
+        $formula->addText('g,lim', $formulaSub);
+        $formula->addText(')', $formulaBody);
+
         $z = 0.8 * $context->calculation->getCalculationData()->getPillarHeightMm() / 1000;
 
         $whereRun = $section->addTextRun($formulaPara);
@@ -219,7 +238,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
         $gc = sqrt($wo * $kz * 1.4) / 940 / 0.023;
 
         $flimRun->addText('lim', $formulaSub);
-        $flimRun->addText(sprintf('=√(%sх%sх1,4)/940х0,023=%s Гц', $wo, $kz, $this->freqNum($gc, 2)), $formulaBody);
+        $flimRun->addText(sprintf('=√(%sх%sх1,4)/(940х0,023)=%s Гц', $wo, $kz, $this->freqNum($gc, 2)), $formulaBody);
 
         $tableNum++;
         $section->addText('Таблица ' . $tableNum, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphRight());
@@ -287,7 +306,7 @@ final class ProgramCalculationSection implements SectionBuilderInterface
             $numberHz,
             $maxHz,
             $gc,
-        ));
+        ), $formulaBody, $formulaPara);
 
         $section->addTextBreak(1);
 
