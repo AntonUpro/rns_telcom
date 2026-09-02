@@ -39,7 +39,7 @@ final class PillarForcesCalculator implements TableCalculatorInterface
             }
 
             $sectionDataAvailable = $this->isSectionDataAvailable($pillar);
-            $markKey = $row->mark !== null ? (int)$row->mark : null;
+            $markKey = $row->mark !== null ? (int)$row->mark * 1000 : null;
 
             $mAllowable = ($sectionDataAvailable && $markKey !== null && isset($momentsByMark[$markKey]))
                 ? $momentsByMark[$markKey]
@@ -65,20 +65,7 @@ final class PillarForcesCalculator implements TableCalculatorInterface
             }
         }
 
-        $specificData = $calculation?->getCalculationData()?->getConcretePillarSpecificData();
-        $pillarHeightM = $specificData?->pillarHeight;
-
-        if ($specificData === null || $pillarHeightM === null || $pillarHeightM <= 0) {
-            return [];
-        }
-
-        try {
-            $pillar = $specificData->toEnumPillar();
-        } catch (InvalidArgumentException) {
-            return [];
-        }
-
-        return (new SimpleCalculator())->calculateAllowableMomentsByHeight($pillar, $pillarHeightM, $moments);
+        return (new SimpleCalculator())->calculateAllowableMomentsByHeight($calculation, $moments);
     }
 
     private function isSectionDataAvailable(PillarEnum $pillar): bool

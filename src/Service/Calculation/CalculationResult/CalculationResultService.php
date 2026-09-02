@@ -43,13 +43,13 @@ final class CalculationResultService
         foreach (ResultTableTypeEnum::cases() as $type) {
             $key = $type->value;
 
-            if (!array_key_exists($key, $payload)) {
+            if (! array_key_exists($key, $payload)) {
                 continue;
             }
 
-            $data    = $payload[$key];
-            $rows    = $data['rows'] ?? [];
-            $enabled = $type->isOptional() ? (bool) ($data['enabled'] ?? false) : true;
+            $data = $payload[$key];
+            $rows = $data['rows'] ?? [];
+            $enabled = $type->isOptional() ? (bool)($data['enabled'] ?? false) : true;
 
             $entity = $existing[$key] ?? null;
 
@@ -79,7 +79,7 @@ final class CalculationResultService
         foreach ($entities as $key => $entity) {
             $result[$key] = [
                 'enabled' => $entity->isEnabled(),
-                'rows'    => $entity->getRows(),
+                'rows' => $entity->getRows(),
             ];
         }
 
@@ -120,7 +120,7 @@ final class CalculationResultService
         if (empty($result[ResultTableTypeEnum::PILLAR_FORCES->value])) {
             $result[ResultTableTypeEnum::PILLAR_FORCES->value] = [
                 'enabled' => true,
-                'rows'    => $this->buildDefaultPillarForcesRows($pillarEnum, $specificData->pillarHeight),
+                'rows' => $this->buildDefaultPillarForcesRows($calculation),
             ];
         }
 
@@ -134,14 +134,14 @@ final class CalculationResultService
         if (empty($result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT->value])) {
             $result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BELT->value] = [
                 'enabled' => false,
-                'rows'    => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BELT),
+                'rows' => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BELT),
             ];
         }
 
         if (empty($result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE->value])) {
             $result[ResultTableTypeEnum::SUPERSTRUCTURE_STABILITY_BRACE->value] = [
                 'enabled' => false,
-                'rows'    => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BRACE),
+                'rows' => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BRACE),
             ];
         }
 
@@ -189,8 +189,12 @@ final class CalculationResultService
      *
      * @return array<int, array<string, mixed>>
      */
-    private function buildDefaultPillarForcesRows(PillarEnum $pillarEnum, ?float $pillarHeight): array
+    private function buildDefaultPillarForcesRows(Calculation $calculation): array
     {
+        $specificData = $calculation->getCalculationData()->getConcretePillarSpecificData();
+        $pillarEnum = $specificData->toEnumPillar();
+        $pillarHeight = $specificData->pillarHeight;
+
         $mAllowable = $pillarEnum->getAllowableMomentByStrength();
         $lastMark = $pillarHeight !== null ? SimpleCalculator::lastMarkAboveGround($pillarHeight) : -1;
 
@@ -199,6 +203,8 @@ final class CalculationResultService
                 ['mark' => 0, 'pillarType' => $pillarEnum->value, 'mAllowable' => $mAllowable],
             ];
         }
+
+        $strengthening = $specificData->strengthening;
 
         $rows = [];
         for ($mark = 0; $mark <= $lastMark; $mark++) {
@@ -211,6 +217,22 @@ final class CalculationResultService
                 'mAllowableManual' => false,
                 'sectionDataAvailable' => true,
             ];
+
+            if ($strengthening) {
+                $strengtheningHeight = $strengthening->strengtheningHeight;
+                $diffHeight = $strengtheningHeight - $mark;
+                if ($diffHeight > 0 && $diffHeight < 1) {
+                    $rows[] = [
+                        'mark' => $strengtheningHeight,
+                        'pillarType' => $pillarEnum->value,
+                        'mCalc' => null,
+                        'mAllowable' => $mAllowable,
+                        'kMax' => null,
+                        'mAllowableManual' => false,
+                        'sectionDataAvailable' => true,
+                    ];
+                }
+            }
         }
 
         return $rows;

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service\Calculation\PillarByHeight;
 
 use App\Dto\Calculation\PillarByHeight\SimpleResultDto;
+use App\Entity\Calculation;
+use App\Entity\JsonData\Dto\Strengthening;
 use App\Enum\Calculation\ResultTableTypeEnum;
 use App\Enum\Pillar\PillarEnum;
 use App\Service\DocumentGenerator\Report\Data\PillarSectionTableData;
@@ -42,7 +44,7 @@ final readonly class SimpleCalculator
 
         foreach ($momentsByMarkMm as $mark => $moment) {
             $markM = $mark/1000;
-            $result[] = $this->calculateSimpleResultDto($pillar, $pillarHeightM, $markM, $moment);
+            $result[] = $this->calculateSimpleResultDto($pillar, $pillarHeightM, $markM, $moment, $specificData->strengthening);
         }
 
         return $result;
@@ -84,17 +86,27 @@ final readonly class SimpleCalculator
      * @return array{int: float}
      *
      */
-    public function calculateAllowableMomentsByHeight(PillarEnum $pillar, float $pillarHeightM, array $momentByMark): array
+    public function calculateAllowableMomentsByHeight(Calculation $calculation, array $momentByMark): array
     {
-        if ($pillarHeightM <= 0 || count($momentByMark) === 0) {
+        $specificData = $calculation->getCalculationData()?->getConcretePillarSpecificData();
+        $pillarHeightM = $specificData?->pillarHeight;
+
+        try {
+            $pillar = $specificData->toEnumPillar();
+        } catch (InvalidArgumentException) {
+            return [];
+        }
+
+        if ($specificData === null || $pillarHeightM === null || $pillarHeightM <= 0 || count($momentByMark) === 0) {
             return [];
         }
 
         $result = [];
 
         foreach ($momentByMark as $mark => $moment) {
-            $mark = $mark / 1000;
-            $simpleResultDto = $this->calculateSimpleResultDto($pillar, $pillarHeightM, $mark, $moment);
+            $markM = $mark / 1000;
+
+            $simpleResultDto = $this->calculateSimpleResultDto($pillar, $pillarHeightM, $markM, $moment, $specificData->strengthening);
 
             $result[$mark] = $simpleResultDto->MAdditional;
         }
@@ -102,7 +114,7 @@ final readonly class SimpleCalculator
         return $result;
     }
 
-    private function calculateSimpleResultDto(PillarEnum $pillar, float $pillarHeightM, float $markM, float $momentFact): ?SimpleResultDto
+    private function calculateSimpleResultDto(PillarEnum $pillar, float $pillarHeightM, float $markM, float $momentFact, ?Strengthening $strengthening): ?SimpleResultDto
     {
         try {
             $rows = PillarSectionTableData::getRows($pillar);
@@ -114,6 +126,12 @@ final readonly class SimpleCalculator
         } catch (InvalidArgumentException) {
             return null;
         }
+
+        $strengtheningMoment = 0;
+        if ($strengthening && $strengthening->strengtheningHeight > $markM) {
+            $strengtheningMoment = $strengthening->allowedMoment;
+        }
+
         $moment = $momentFact ?: ($maxMomentDefault - ($maxMomentDefault * $markM / $pillarHeightM));
 
         $fullPillarLengthM = $pillar->getHeight() / 1000;
@@ -183,6 +201,7 @@ final readonly class SimpleCalculator
         $fiSp = $Wp * (1 - $deltaSP * $Ecir);
         $fiS = $Ws * (1 - $deltaSP * $Ecir);
         $MAdditional = (($Rb * $A * 1000000 * $rm * 1000 + $Rsc * $AsTot * 100 * $zsZsp) * sin(M_PI * $Ecir) / M_PI + $Rs * $AsTot * 100 * $fiS * $zsZsp) / ($nu * 9.81 * 1000000);
+        $MAdditional += $strengtheningMoment;
 
         return new SimpleResultDto(
             mark: $markM,
