@@ -152,7 +152,7 @@ final class CalculationResultService
     {
         $rows = [];
 
-        foreach ($calculation->getPillarPlatform()?->getSortSectionsByNumber() ?? [] as $section) {
+        foreach ($calculation->getPlatform()?->getSortSectionsByNumber() ?? [] as $section) {
             if ($section->isStrut()) {
                 continue;
             }

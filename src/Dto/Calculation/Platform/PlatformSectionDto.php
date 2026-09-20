@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Calculation\PillarPlatform;
+namespace App\Dto\Calculation\Platform;
 
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 
-final readonly class PillarPlatformSectionDto
+final readonly class PlatformSectionDto
 {
     public function __construct(
         public int $numberSection,

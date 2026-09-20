@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Controller\Api\PillarCalculation;
+namespace App\Controller\Api\Platform;
 
 use App\Controller\Api\AbstractApiController;
-use App\Dto\Calculation\Pillar\Platform\PlatformSaveDataDto;
+use App\Dto\Calculation\Platform\PlatformSaveDataDto;
 use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\SectionConstructTypeEnum;
-use App\Service\Calculation\PillarPlatform\GetPlatformDataService;
-use App\Service\Calculation\PillarPlatform\SavePlatformDataService;
+use App\Service\Calculation\Platform\GetPlatformDataService;
+use App\Service\Calculation\Platform\SavePlatformDataService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

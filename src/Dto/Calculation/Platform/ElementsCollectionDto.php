@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Calculation\PillarPlatform;
+namespace App\Dto\Calculation\Platform;
 
 final readonly class ElementsCollectionDto
 {

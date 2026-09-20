@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Calculation\Pillar\Platform;
+namespace App\Dto\Calculation\Platform;
 
 class PlatformSection
 {

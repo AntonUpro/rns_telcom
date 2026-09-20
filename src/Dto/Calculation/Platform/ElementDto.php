@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Calculation\PillarPlatform;
+namespace App\Dto\Calculation\Platform;
 
 use App\Dto\DefaultConstant;
 use App\Enum\Pillar\ElementTypeEnum;

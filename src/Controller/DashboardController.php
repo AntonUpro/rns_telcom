@@ -51,7 +51,10 @@ final class DashboardController extends AbstractController
 
                 $this->addFlash('success', 'Расчет успешно создан');
 
-                return $this->redirectToRoute('app_concrete_pillar_calc', ['id' => $calculation->getId()]);
+                return $this->redirectToRoute(
+                    $calculation->getType() === CalculationTypeEnum::TOWER ? 'app_tower_calc' : 'app_concrete_pillar_calc',
+                    ['id' => $calculation->getId()]
+                );
             } else {
                 $this->addFlash('error', 'Заполните все обязательные поля');
             }

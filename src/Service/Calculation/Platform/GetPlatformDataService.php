@@ -2,24 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Calculation\PillarPlatform;
+namespace App\Service\Calculation\Platform;
 
-use App\Dto\Calculation\Pillar\Platform\Element;
-use App\Dto\Calculation\Pillar\Platform\PlatformSaveDataDto;
-use App\Dto\Calculation\Pillar\Platform\PlatformSection;
-use App\Dto\Calculation\Pillar\Platform\TotalDataPlatform;
+use App\Dto\Calculation\Platform\Element;
+use App\Dto\Calculation\Platform\PlatformSaveDataDto;
+use App\Dto\Calculation\Platform\PlatformSection;
+use App\Dto\Calculation\Platform\TotalDataPlatform;
 use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Enum\Pillar\SectionConstructTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
-use App\Repository\PillarPlatformSectionsRepository;
+use App\Repository\PlatformSectionsRepository;
 
 class GetPlatformDataService
 {
     public function __construct(
         private readonly CalculationRepository $calculationRepository,
-        private readonly PillarPlatformSectionsRepository $pillarPlatformSectionsRepository,
+        private readonly PlatformSectionsRepository $platformSectionsRepository,
     ) {
     }
 
@@ -31,7 +31,7 @@ class GetPlatformDataService
             throw new NotFoundException(sprintf('Calculation with id %s not found', $calculationId));
         }
 
-        $platformData = $calculation->getPillarPlatform();
+        $platformData = $calculation->getPlatform();
         if (! $platformData) {
             $mountHeightPlatform = ($calculation->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?: 23) * 1000;
             $mountHeightStrut = $mountHeightPlatform - 1500;
@@ -49,7 +49,7 @@ class GetPlatformDataService
 
         $sections = [];
         $strut = null;
-        foreach ($this->pillarPlatformSectionsRepository->getPlatformSectionsByPillarPlatformId($platformData) as $platformDataSection) {
+        foreach ($this->platformSectionsRepository->getSectionsByPlatformId($platformData) as $platformDataSection) {
             if ($platformDataSection->isStrut()) {
                 $strut = new PlatformSection(
                     id: $platformDataSection->getId(),

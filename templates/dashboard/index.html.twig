@@ -117,7 +117,7 @@
                             <td>{{ calculation.createdAt|date('d.m.Y H:i') }}</td>
                             <td>
                                 <div class="actions">
-                                    <a href="{{ path('app_concrete_pillar_calc', {id: calculation.id}) }}"
+                                    <a href="{{ path(calculation.type.value == 'tower' ? 'app_tower_calc' : 'app_concrete_pillar_calc', {id: calculation.id}) }}"
                                        class="btn btn-small btn-edit">
                                         Редактировать
                                     </a>

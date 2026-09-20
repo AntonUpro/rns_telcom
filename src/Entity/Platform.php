@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\Pillar\PlatformSectionTypeEnum;
-use App\Repository\PillarPlatformRepository;
+use App\Repository\PlatformRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PillarPlatformRepository::class)]
-#[ORM\Table(name: 'pillar_platform')]
-class PillarPlatform
+#[ORM\Entity(repositoryClass: PlatformRepository::class)]
+#[ORM\Table(name: 'platform')]
+class Platform
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -39,7 +39,7 @@ class PillarPlatform
     #[ORM\Column(type: 'datetime_immutable', nullable: true)]
     private ?DateTimeImmutable $updatedAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'pillarPlatform', targetEntity: PillarPlatformSection::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'platform', targetEntity: PlatformSection::class, cascade: ['persist', 'remove'])]
     private Collection $sections;
 
     public function __construct()
@@ -119,7 +119,7 @@ class PillarPlatform
     }
 
     /**
-     * @return PillarPlatformSection[]
+     * @return PlatformSection[]
      */
     public function getSections(): array
     {
@@ -129,15 +129,15 @@ class PillarPlatform
     public function getSortSectionsByNumber(): array
     {
         $sections = $this->getSections();
-        usort($sections, fn(PillarPlatformSection $a, PillarPlatformSection $b) => $a->getNumberSection() <=> $b->getNumberSection());
+        usort($sections, fn(PlatformSection $a, PlatformSection $b) => $a->getNumberSection() <=> $b->getNumberSection());
         return $sections;
     }
 
-    public function addSection(PillarPlatformSection $section): static
+    public function addSection(PlatformSection $section): static
     {
         if (!$this->sections->contains($section)) {
             $this->sections[] = $section;
-            $section->setPillarPlatform($this);
+            $section->setPlatform($this);
         }
 
         return $this;
@@ -154,13 +154,13 @@ class PillarPlatform
         return false;
     }
 
-    public function removeSection(PillarPlatformSection $section): static
+    public function removeSection(PlatformSection $section): static
     {
         if ($this->sections->contains($section)) {
             $this->sections->removeElement($section);
             // Set the owning side to null (unless already changed)
-            if ($section->getPillarPlatform() === $this) {
-                $section->setPillarPlatform(null);
+            if ($section->getPlatform() === $this) {
+                $section->setPlatform(null);
             }
         }
 

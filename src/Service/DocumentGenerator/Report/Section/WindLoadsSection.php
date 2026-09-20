@@ -7,7 +7,7 @@ namespace App\Service\DocumentGenerator\Report\Section;
 use App\Exception\NotFoundException;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
 use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
-use App\Service\Calculation\PillarPlatform\PillarPlatformCalculationService;
+use App\Service\Calculation\Platform\PlatformCalculationService;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use App\Service\DocumentGenerator\Report\ReportContext;
 use App\Service\DocumentGenerator\Report\SectionBuilderInterface;
@@ -27,7 +27,7 @@ final class WindLoadsSection implements SectionBuilderInterface
     public function __construct(
         private readonly PillarWindLoadCalculationService $pillarWindService,
         private readonly CalculationWindEquipmentService $equipmentWindService,
-        private readonly PillarPlatformCalculationService $platformService,
+        private readonly PlatformCalculationService $platformService,
         private readonly PillarSectionsTableBuilder $pillarBuilder,
         private readonly EquipmentWindPressureTableBuilder $equipmentBuilder,
         private readonly PlatformSectionsTableBuilder $platformBuilder,
@@ -67,7 +67,7 @@ final class WindLoadsSection implements SectionBuilderInterface
         $section->addTextBreak(1);
 
         try {
-            $platformData = $this->platformService->calculatePillarPlatform($calculationId);
+            $platformData = $this->platformService->calculatePlatform($calculationId);
             if (! empty($platformData->platformSections)) {
                 $this->platformBuilder->build($section, $platformData, $tableNum);
                 $section->addTextBreak(1);

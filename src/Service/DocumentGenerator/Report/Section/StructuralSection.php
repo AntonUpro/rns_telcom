@@ -22,7 +22,7 @@ final class StructuralSection implements SectionBuilderInterface
         $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? 0;
         $amsType = $data?->getConcretePillarSpecificData()?->pillarStamp ?? '—';
 
-        $existStrut = $context->calculation?->getPillarPlatform()->existStrut() ?? '—';
+        $existStrut = $context->calculation?->getPlatform()->existStrut() ?? '—';
 
         $body = DocStyleRegistry::bodyText();
         $para = DocStyleRegistry::paragraphIndent();

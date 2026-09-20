@@ -6,6 +6,7 @@ namespace App\Entity;
 use App\Entity\Customer;
 use App\Entity\JsonData\AbstractJsonData;
 use App\Entity\JsonData\ConcretePillarSpecificData;
+use App\Entity\JsonData\TowerSpecificData;
 use App\Enum\CalculationData\IcingRegionEnum;
 use App\Enum\CalculationData\SnowRegionEnum;
 use App\Enum\CalculationData\TerrainTypeEnum;
@@ -335,6 +336,11 @@ class CalculationData
         $this->specificData = $specificDataObject?->toArray();
 
         return $this;
+    }
+
+    public function getTowerSpecificData(): ?TowerSpecificData
+    {
+        return TowerSpecificData::fromArray($this->specificData);
     }
 
     public function getCreatedAt(): DateTimeImmutable

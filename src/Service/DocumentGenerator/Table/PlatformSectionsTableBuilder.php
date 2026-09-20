@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service\DocumentGenerator\Table;
 
-use App\Dto\Calculation\PillarPlatform\ElementDto;
-use App\Dto\Calculation\PillarPlatform\PillarPlatformSectionDto;
-use App\Dto\Calculation\PillarPlatform\TotalPillarPlatformCalculationDto;
+use App\Dto\Calculation\Platform\ElementDto;
+use App\Dto\Calculation\Platform\PlatformSectionDto;
+use App\Dto\Calculation\Platform\TotalPlatformCalculationDto;
 use App\Service\DocumentGenerator\DocStyleRegistry;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -75,7 +75,7 @@ final class PlatformSectionsTableBuilder
         'P, кг',
     ];
 
-    public function build(Section $section, TotalPillarPlatformCalculationDto $data, int &$tableNum): void
+    public function build(Section $section, TotalPlatformCalculationDto $data, int &$tableNum): void
     {
         $section->addText('Площадка и подкосы:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndentWithKeepNext());
 
@@ -108,7 +108,7 @@ final class PlatformSectionsTableBuilder
         }
     }
 
-    private function addSectionRows(Table $table, PillarPlatformSectionDto $dto): void
+    private function addSectionRows(Table $table, PlatformSectionDto $dto): void
     {
         $elements   = $dto->elementsCollectionDto->elements;
         $elemCount  = count($elements);
@@ -126,7 +126,7 @@ final class PlatformSectionsTableBuilder
 
     private function addElementRow(
         Table $table,
-        PillarPlatformSectionDto $dto,
+        PlatformSectionDto $dto,
         ElementDto $element,
         bool $isFirst,
         int $totalRows,
@@ -207,7 +207,7 @@ final class PlatformSectionsTableBuilder
     /**
      * Строка-заглушка для секции без элементов.
      */
-    private function addEmptySectionRow(Table $table, PillarPlatformSectionDto $dto): void
+    private function addEmptySectionRow(Table $table, PlatformSectionDto $dto): void
     {
         $c      = self::TEXT_STYLE;
         $center = array_merge(DocStyleRegistry::paragraphCenter(), ['keepNext' => true]);

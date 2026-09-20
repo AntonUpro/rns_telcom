@@ -29,4 +29,14 @@ class CalculationController extends AbstractController
         // Здесь будет обработка AJAX запросов для расчета
         return $this->json(['status' => 'success', 'message' => 'Calculation endpoint']);
     }
+
+    #[Route('/calculation/tower/edit/{id}', name: 'app_tower_calc')]
+    #[IsGranted('ROLE_ENGINEER')]
+    public function tower(Calculation $calculation): Response
+    {
+        return $this->render('calculation/tower.html.twig', [
+            'page_title' => 'Расчет башни на ветровую нагрузку',
+            'calculationId' => $calculation->getId(),
+        ]);
+    }
 }

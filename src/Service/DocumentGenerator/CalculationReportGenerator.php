@@ -7,7 +7,7 @@ namespace App\Service\DocumentGenerator;
 use App\Exception\NotFoundException;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
 use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
-use App\Service\Calculation\PillarPlatform\PillarPlatformCalculationService;
+use App\Service\Calculation\Platform\PlatformCalculationService;
 use App\Service\DocumentGenerator\Table\EquipmentWindPressureTableBuilder;
 use App\Service\DocumentGenerator\Table\PillarSectionsTableBuilder;
 use App\Service\DocumentGenerator\Table\PlatformSectionsTableBuilder;
@@ -28,7 +28,7 @@ final readonly class CalculationReportGenerator
     public function __construct(
         private PillarWindLoadCalculationService  $pillarWindLoadService,
         private CalculationWindEquipmentService   $equipmentWindService,
-        private PillarPlatformCalculationService  $platformService,
+        private PlatformCalculationService  $platformService,
         private PillarSectionsTableBuilder        $pillarSectionsBuilder,
         private EquipmentWindPressureTableBuilder  $equipmentBuilder,
         private PlatformSectionsTableBuilder      $platformBuilder,
@@ -66,7 +66,7 @@ final readonly class CalculationReportGenerator
 
         // ── 3. Площадка и подкосы (опционально) ──────────────────────────────
         try {
-            $platformData = $this->platformService->calculatePillarPlatform($calculationId);
+            $platformData = $this->platformService->calculatePlatform($calculationId);
             if (!empty($platformData->platformSections)) {
                 $this->platformBuilder->build($section, $platformData);
             }

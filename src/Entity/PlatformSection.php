@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Dto\Calculation\PillarPlatform\ElementDto;
+use App\Dto\Calculation\Platform\ElementDto;
 use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Enum\Pillar\SectionConstructTypeEnum;
-use App\Repository\PillarPlatformSectionsRepository;
+use App\Repository\PlatformSectionsRepository;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: PillarPlatformSectionsRepository::class)]
-#[ORM\Table(name: 'pillar_platform_sections')]
-class PillarPlatformSection
+#[ORM\Entity(repositoryClass: PlatformSectionsRepository::class)]
+#[ORM\Table(name: 'platform_sections')]
+class PlatformSection
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: PillarPlatform::class, inversedBy: 'sections')]
-    #[ORM\JoinColumn(name: 'pillar_platform_id', referencedColumnName: 'id', nullable: false)]
-    private ?PillarPlatform $pillarPlatform = null;
+    #[ORM\ManyToOne(targetEntity: Platform::class, inversedBy: 'sections')]
+    #[ORM\JoinColumn(name: 'platform_id', referencedColumnName: 'id', nullable: false)]
+    private ?Platform $platform = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private ?string $typeSection = null;
@@ -66,14 +66,14 @@ class PillarPlatformSection
         return $this->id;
     }
 
-    public function getPillarPlatform(): ?PillarPlatform
+    public function getPlatform(): ?Platform
     {
-        return $this->pillarPlatform;
+        return $this->platform;
     }
 
-    public function setPillarPlatform(?PillarPlatform $pillarPlatform): static
+    public function setPlatform(?Platform $platform): static
     {
-        $this->pillarPlatform = $pillarPlatform;
+        $this->platform = $platform;
 
         return $this;
     }

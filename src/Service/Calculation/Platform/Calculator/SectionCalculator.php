@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Calculation\PillarPlatform\Calculator;
+namespace App\Service\Calculation\Platform\Calculator;
 
-use App\Dto\Calculation\PillarPlatform\ElementDto;
-use App\Dto\Calculation\PillarPlatform\ElementsCollectionDto;
-use App\Dto\Calculation\PillarPlatform\PillarPlatformSectionDto;
+use App\Dto\Calculation\Platform\ElementDto;
+use App\Dto\Calculation\Platform\ElementsCollectionDto;
+use App\Dto\Calculation\Platform\PlatformSectionDto;
 use App\Dto\DefaultConstant;
-use App\Entity\PillarPlatformSection;
+use App\Entity\PlatformSection;
 use App\Enum\CalculationData\TerrainTypeEnum;
 use App\Enum\CalculationData\WindRegionEnum;
 use App\Enum\Pillar\ElementTypeEnum;
@@ -20,11 +20,11 @@ final readonly class SectionCalculator
     public function __construct(
         public WindRegionEnum $windRegion,
         public TerrainTypeEnum $terrainTypeEnum,
-        public PillarPlatformSection $section,
+        public PlatformSection $section,
     ) {
     }
 
-    public function calculate(): PillarPlatformSectionDto
+    public function calculate(): PlatformSectionDto
     {
         $areaContourSection = $this->section->getHeight() / 1000 * ($this->section->getWidthBottom() + $this->section->getWidthTop()) / 2 / 1000;
 
@@ -43,7 +43,7 @@ final readonly class SectionCalculator
         $ct = $cx * (1 + $nu);
 
         $press = $areaContourSection * ($ct * $this->windRegion->pressureKgPerM() * $kze) * DefaultConstant::SECURITY_COEFFICIENT;
-        return new PillarPlatformSectionDto(
+        return new PlatformSectionDto(
             numberSection: $this->section->getNumberSection(),
             type: PlatformSectionTypeEnum::from($this->section->getTypeSection()),
             heightSection: $this->section->getHeight(),

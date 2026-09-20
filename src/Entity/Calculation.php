@@ -55,8 +55,8 @@ class Calculation
     #[ORM\OneToMany(mappedBy: 'calculation', targetEntity: CalculationEquipment::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $calculationEquipments;
 
-    #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: PillarPlatform::class, cascade: ['persist', 'remove'])]
-    private ?PillarPlatform $pillarPlatform = null;
+    #[ORM\OneToOne(mappedBy: 'calculation', targetEntity: Platform::class, cascade: ['persist', 'remove'])]
+    private ?Platform $platform = null;
 
     #[ORM\OneToMany(mappedBy: 'calculation', targetEntity: CalculationResultTable::class, cascade: ['persist', 'remove'])]
     private ?Collection $calculationResultTables = null;
@@ -245,14 +245,14 @@ class Calculation
         return array_values(CalculationStatusEnum::cases());
     }
 
-    public function getPillarPlatform(): ?PillarPlatform
+    public function getPlatform(): ?Platform
     {
-        return $this->pillarPlatform;
+        return $this->platform;
     }
 
-    public function setPillarPlatform(?PillarPlatform $pillarPlatform): void
+    public function setPlatform(?Platform $platform): void
     {
-        $this->pillarPlatform = $pillarPlatform;
+        $this->platform = $platform;
     }
 
     public function toArray(): array

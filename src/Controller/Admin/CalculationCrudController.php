@@ -53,8 +53,8 @@ class CalculationCrudController extends AbstractCrudController
         // as "fetched" and UnitOfWork skips loadOneToOneEntity (which fails for inverse sides).
         $qb->leftJoin('entity.calculationData', 'calculationData')
             ->addSelect('calculationData')
-            ->leftJoin('entity.pillarPlatform', 'pillarPlatform')
-            ->addSelect('pillarPlatform');
+            ->leftJoin('entity.platform', 'platform')
+            ->addSelect('platform');
 
         return $qb;
     }

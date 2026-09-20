@@ -10,13 +10,13 @@ use App\Dto\Calculation\TotalLoad\PlatformSectionTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\TotalLoadResponseDto;
 use App\Dto\DefaultConstant;
 use App\Entity\CalculationData;
-use App\Entity\PillarPlatformSection;
+use App\Entity\PlatformSection;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
 use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
-use App\Service\Calculation\PillarPlatform\PillarPlatformCalculationService;
+use App\Service\Calculation\Platform\PlatformCalculationService;
 
 /**
  * Собирает суммарную нагрузку для таба 5:
@@ -30,7 +30,7 @@ final readonly class TotalLoadService
         private CalculationRepository $calculationRepository,
         private PillarWindLoadCalculationService $pillarWindLoadCalculationService,
         private CalculationWindEquipmentService $calculationWindEquipmentService,
-        private PillarPlatformCalculationService $pillarPlatformCalculationService,
+        private PlatformCalculationService $platformCalculationService,
     ) {
     }
 
@@ -92,13 +92,13 @@ final readonly class TotalLoadService
     // ─────────────────────────────────────────────────────────────────────────
 
     /**
-     * @param PillarPlatformSection[] $platformSections
+     * @param PlatformSection[] $platformSections
      */
     private function fillPlatformSections(
         TotalLoadResponseDto $response,
         int $calculationId,
     ): void {
-        $totalLoad = $this->pillarPlatformCalculationService->calculatePillarPlatform($calculationId);
+        $totalLoad = $this->platformCalculationService->calculatePlatform($calculationId);
 
         foreach ($totalLoad->platformSections as $section) {
             $isStrut = $section->type === PlatformSectionTypeEnum::STRUT;

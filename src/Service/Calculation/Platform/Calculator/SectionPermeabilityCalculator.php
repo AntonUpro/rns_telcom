@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Calculation\PillarPlatform\Calculator;
+namespace App\Service\Calculation\Platform\Calculator;
 
 class SectionPermeabilityCalculator
 {
