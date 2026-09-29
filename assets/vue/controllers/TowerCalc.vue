@@ -3,6 +3,9 @@ import {ref} from 'vue';
 import EquipmentManager from "./component/Equipment/EquipmentManager.vue";
 import TowerTotalDataManager from "./component/TowerTotalData/TowerTotalDataManager.vue";
 import PlatformSectionManager from "./component/Platform/PlatformSectionManager.vue";
+import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
+import SoftwareCalculationManager from "./component/SoftwareCalculation/SoftwareCalculationManager.vue";
+import DocumentsForm from "./component/SoftwareCalculation/DocumentsForm.vue";
 import UnsavedChangesModal from "./component/shared/UnsavedChangesModal.vue";
 import {isTabDirty, clearDirty} from "./component/shared/useUnsavedChanges.js";
 
@@ -67,11 +70,13 @@ const handleModalCancel = () => {
 const totalDataRef = ref(null);
 const equipmentRef = ref(null);
 const platformRef = ref(null);
+const documentsFormRef = ref(null);
 
 const tabRefMap = {
     initial: totalDataRef,
     'wind-equipment': equipmentRef,
     'wind-tower': platformRef,
+    'software-calc': documentsFormRef,
 };
 
 const showUnsavedModal = ref(false);
@@ -108,6 +113,18 @@ const pendingTab = ref(null);
                 >
                     3. Ветер на опору
                 </button>
+                <button
+                    @click="setActiveTab('total-load')"
+                    :class="['tab-btn', { active: activeTab === 'total-load' }]"
+                >
+                    4. Суммарная нагрузка
+                </button>
+                <button
+                    @click="setActiveTab('software-calc')"
+                    :class="['tab-btn', { active: activeTab === 'software-calc' }]"
+                >
+                    5. Программный расчет
+                </button>
             </div>
 
             <!-- Таб 1: Исходные данные -->
@@ -132,6 +149,25 @@ const pendingTab = ref(null);
                 <PlatformSectionManager
                     ref="platformRef"
                     :calculation-id="calculationId"
+                />
+            </div>
+
+            <!-- Таб 4: Суммарная нагрузка -->
+            <div v-if="activeTab === 'total-load'" class="tab-content active">
+                <TotalLoadManager
+                    :calculation-id="calculationId"
+                    is-tower
+                />
+            </div>
+
+            <!-- Таб 5: Программный расчет -->
+            <div v-if="activeTab === 'software-calc'" class="tab-content active">
+                <!-- Форма документов -->
+                <DocumentsForm ref="documentsFormRef" :calculation-id="calculationId" />
+                <!-- Форма скринов из лиры -->
+                <SoftwareCalculationManager
+                    :calculation-id="calculationId"
+                    is-tower
                 />
             </div>
         </div>

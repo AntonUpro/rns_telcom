@@ -44,4 +44,27 @@ class TotalLoadController extends AbstractApiController
             return $this->errorResponse($e->getMessage());
         }
     }
+
+    /**
+     * Возвращает суммарную нагрузку для башни:
+     *   - pillarSections   — нагрузка на каркас башни и коммуникации
+     *   - platformSections — нагрузка на площадки (пока пусто)
+     *   - equipmentHeights — нагрузка на оборудование по высотным отметкам
+     */
+    #[Route('/calculation/tower/total-load/{calculationId}', name: 'api_tower_total_load', methods: ['GET'], requirements: ['calculationId' => '\d+'])]
+    public function getTowerTotalLoad(int $calculationId): JsonResponse
+    {
+        try {
+            $result = $this->totalLoadService->getTowerTotalLoad($calculationId);
+
+            return $this->successResponse($result->toArray());
+        } catch (Throwable $e) {
+            $this->logger->error(
+                sprintf('Ошибка получения суммарной нагрузки башни для расчёта %d: %s', $calculationId, $e->getMessage()),
+                ['trace' => $e->getTraceAsString()],
+            );
+
+            return $this->errorResponse($e->getMessage());
+        }
+    }
 }

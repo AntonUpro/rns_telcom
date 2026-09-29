@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Calculation\TotalLoad;
 
+use App\Dto\Calculation\Pillar\Calculate\SectionDto;
 use App\Dto\Calculation\TotalLoad\EquipmentHeightTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\PillarSectionTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\PlatformSectionTotalLoadDto;
@@ -11,10 +12,14 @@ use App\Dto\Calculation\TotalLoad\TotalLoadResponseDto;
 use App\Dto\DefaultConstant;
 use App\Entity\CalculationData;
 use App\Entity\PlatformSection;
+use App\Enum\Pillar\FormConstructEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
+use App\Service\Calculation\Pillar\Calculator\CableCalculator;
+use App\Service\Calculation\Pillar\Calculator\CableChanelCalculator;
+use App\Service\Calculation\Pillar\Calculator\LadderCalculator;
 use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
 use App\Service\Calculation\Platform\PlatformCalculationService;
 
@@ -56,6 +61,101 @@ final readonly class TotalLoadService
         $this->fillEquipmentHeights($response, $calculationId);
 
         return $response;
+    }
+
+    /**
+     * Суммарная нагрузка для башни:
+     *   - Таблица 1: нагрузка по секциям каркаса + коммуникаций
+     *   - Таблица 2: нагрузка на площадки (пока не собирается)
+     *   - Таблица 3: нагрузка на оборудование
+     *
+     * @throws NotFoundException
+     */
+    public function getTowerTotalLoad(int $calculationId): TotalLoadResponseDto
+    {
+        $calculation = $this->calculationRepository->findById($calculationId);
+        if ($calculation === null) {
+            throw new NotFoundException(sprintf('Расчет с ID %d не найден', $calculationId));
+        }
+
+        $calculationData = $calculation->getCalculationData();
+        if ($calculationData === null) {
+            throw new NotFoundException(sprintf('Данные расчета с ID %d не найдены', $calculationId));
+        }
+
+        $response = new TotalLoadResponseDto();
+
+        $this->fillTowerSections($response, $calculationData);
+        $this->fillEquipmentHeights($response, $calculationId);
+
+        return $response;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Башня, таблица 1: нагрузка по секциям каркаса + коммуникаций
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private function fillTowerSections(TotalLoadResponseDto $response, CalculationData $calculationData): void
+    {
+        $calculation = $calculationData->getCalculation();
+        $platformSections = $this->platformCalculationService->calculatePlatform($calculation->getId());
+
+        $facetsCount = $calculation->getPlatform()->getFacetsCount();
+        $defaultValues = $calculationData->getTowerSpecificData()?->defaultValues;
+        $windRegion = $calculationData->getWindRegion();
+        $terrainType = $calculationData->getTerrainType();
+
+        foreach ($platformSections->platformSections as $section) {
+            if ($section->type !== PlatformSectionTypeEnum::SECTION) {
+                continue;
+            }
+
+            $topHeight = (float)($section->mountingHeightSection + $section->heightSection); // мм
+            $totalLoadKgf = $section->press;
+
+            if ($defaultValues !== null) {
+                $sectionDto = new SectionDto(
+                    number: $section->numberSection,
+                    height: $section->heightSection,
+                    diameterTop: 0,
+                    diameterBottom: 0,
+                    topMark: $topHeight,
+                    formConstruct: FormConstructEnum::SQUARE,
+                );
+
+                $totalLoadKgf += (new CableCalculator(
+                    sectionDto: $sectionDto,
+                    windRegionEnum: $windRegion,
+                    terrainTypeEnum: $terrainType,
+                    equipments: $calculation->getCalculationEquipments()->toArray(),
+                    defaultValues: $defaultValues,
+                ))->calculate()?->press ?? 0;
+
+                $totalLoadKgf += (new LadderCalculator(
+                    sectionDto: $sectionDto,
+                    windRegionEnum: $windRegion,
+                    terrainTypeEnum: $terrainType,
+                    defaultValues: $defaultValues,
+                ))->calculate()?->press ?? 0;
+
+                $totalLoadKgf += (new CableChanelCalculator(
+                    sectionDto: $sectionDto,
+                    windRegionEnum: $windRegion,
+                    terrainTypeEnum: $terrainType,
+                    defaultValues: $defaultValues,
+                ))->calculate()?->press ?? 0;
+            }
+
+            $heightM = $section->heightSection / 1000;
+
+            $response->addPillarSection(new PillarSectionTotalLoadDto(
+                sectionNumber: $section->numberSection,
+                topHeight: $topHeight,
+                sectionHeight: $section->heightSection,
+                totalLoad: $totalLoadKgf,
+                loadPerLinearMeter: $heightM > 0 && $facetsCount > 0 ? $totalLoadKgf / $heightM / $facetsCount : 0,
+            ));
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Enum\CalculationTypeEnum;
 use App\Repository\CalculationImageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,6 +23,10 @@ class CalculationImage
     public const TYPE_MOSAIC_N = 'mosaic_n';
     public const TYPE_MOSAIC_M = 'mosaic_m';
     public const TYPE_MOSAIC_DISPLACEMENT = 'mosaic_displacement';
+    public const TYPE_MOSAIC_N_FACE = 'mosaic_n_face';
+    public const TYPE_MOSAIC_N_EDGE = 'mosaic_n_edge';
+    public const TYPE_MOSAIC_DISPLACEMENT_FACE = 'mosaic_displacement_face';
+    public const TYPE_MOSAIC_DISPLACEMENT_EDGE = 'mosaic_displacement_edge';
     public const TYPE_EQUIPMENT_LIST = 'equipment_list';
     public const TYPE_FOUNDATION_CALC = 'foundation_calc';
 
@@ -32,8 +37,27 @@ class CalculationImage
         self::TYPE_MOSAIC_N,
         self::TYPE_MOSAIC_M,
         self::TYPE_MOSAIC_DISPLACEMENT,
+        self::TYPE_MOSAIC_N_FACE,
+        self::TYPE_MOSAIC_N_EDGE,
+        self::TYPE_MOSAIC_DISPLACEMENT_FACE,
+        self::TYPE_MOSAIC_DISPLACEMENT_EDGE,
         self::TYPE_EQUIPMENT_LIST,
         self::TYPE_FOUNDATION_CALC,
+    ];
+
+    /** Мозаики из ПК, которые загружаются только для столбов */
+    public const PILLAR_MOSAIC_TYPES = [
+        self::TYPE_MOSAIC_N,
+        self::TYPE_MOSAIC_M,
+        self::TYPE_MOSAIC_DISPLACEMENT,
+    ];
+
+    /** Мозаики из ПК, которые загружаются только для башен (отдельно на грань и на ребро) */
+    public const TOWER_MOSAIC_TYPES = [
+        self::TYPE_MOSAIC_N_FACE,
+        self::TYPE_MOSAIC_N_EDGE,
+        self::TYPE_MOSAIC_DISPLACEMENT_FACE,
+        self::TYPE_MOSAIC_DISPLACEMENT_EDGE,
     ];
 
     /** Типы, поддерживающие хранение нескольких изображений одновременно */
@@ -41,6 +65,21 @@ class CalculationImage
         self::TYPE_EQUIPMENT_LIST,
         self::TYPE_FOUNDATION_CALC,
     ];
+
+    /**
+     * Типы изображений, допустимые для расчёта указанного вида:
+     * башня получает мозаики башни, все остальные расчёты — мозаики столба.
+     *
+     * @return string[]
+     */
+    public static function allowedTypesFor(?CalculationTypeEnum $calculationType): array
+    {
+        $excludedTypes = $calculationType === CalculationTypeEnum::TOWER
+            ? self::PILLAR_MOSAIC_TYPES
+            : self::TOWER_MOSAIC_TYPES;
+
+        return array_values(array_diff(self::ALLOWED_TYPES, $excludedTypes));
+    }
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

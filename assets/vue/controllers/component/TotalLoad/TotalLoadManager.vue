@@ -42,6 +42,11 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    // Режим башни: каркас вместо ствола, узлы приложения силы для площадок
+    isTower: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const loading = ref(false);
@@ -58,7 +63,11 @@ const fetchTotalLoad = async () => {
         loading.value = true;
         error.value = null;
 
-        const response = await fetch(`/api/v1/calculation/total-load/${props.calculationId}`, {
+        const url = props.isTower
+            ? `/api/v1/calculation/tower/total-load/${props.calculationId}`
+            : `/api/v1/calculation/total-load/${props.calculationId}`;
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -72,7 +81,9 @@ const fetchTotalLoad = async () => {
         }
 
         pillarSections.value = responseData.data.pillarSections ?? [];
-        platformSections.value = responseData.data.platformSections ?? [];
+        platformSections.value = (responseData.data.platformSections ?? []).map((row) => (
+            props.isTower ? {...row, nodesCount: 1} : row
+        ));
 
         // Инициализируем equipmentHeights, добавляя поле nodesCount для ввода
         equipmentHeights.value = (responseData.data.equipmentHeights ?? []).map((row) => ({
@@ -118,7 +129,9 @@ onMounted(() => {
             ─────────────────────────────────────────────────── -->
             <section class="load-section">
                 <div class="section-header">
-                    <h2 class="section-title">Общая нагрузка на ствол опоры и коммуникации</h2>
+                    <h2 class="section-title">
+                        {{ isTower ? 'Общая нагрузка на каркас башни' : 'Общая нагрузка на ствол опоры и коммуникации' }}
+                    </h2>
                     <p class="section-subtitle">Суммарная ветровая нагрузка по секциям опоры</p>
                 </div>
 
@@ -130,7 +143,8 @@ onMounted(() => {
                                 <th>Высотная отметка<br>верха, мм</th>
                                 <th>Высота<br>секции, мм</th>
                                 <th>Общая нагрузка,<br>кг</th>
-                                <th>Нагрузка на 1<br>пог. метр, кг/м</th>
+                                <th v-if="isTower">Нагрузка на 1<br>пог. метр пояса, кг/м</th>
+                                <th v-else>Нагрузка на 1<br>пог. метр, кг/м</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,8 +168,16 @@ onMounted(() => {
             ─────────────────────────────────────────────────── -->
             <section class="load-section">
                 <div class="section-header">
-                    <h2 class="section-title">Ветровая нагрузка на площадку и надстройку</h2>
-                    <p class="section-subtitle">Распределение ветровой нагрузки по секциям площадки и подкосам</p>
+                    <template v-if="isTower">
+                        <h2 class="section-title">Ветровая нагрузка на площадки</h2>
+                        <p class="section-subtitle">
+                            Укажите количество узлов приложения силы — нагрузка на один узел рассчитывается автоматически
+                        </p>
+                    </template>
+                    <template v-else>
+                        <h2 class="section-title">Ветровая нагрузка на площадку и надстройку</h2>
+                        <p class="section-subtitle">Распределение ветровой нагрузки по секциям площадки и подкосам</p>
+                    </template>
                 </div>
 
                 <div class="table-responsive">
@@ -166,7 +188,11 @@ onMounted(() => {
                                 <th>Отметка<br>верха, мм</th>
                                 <th>Высота,<br>мм</th>
                                 <th>Общая<br>нагрузка, кг</th>
-                                <th>Нагрузка на 1 п.м.<br>1 пояса, кг/м</th>
+                                <template v-if="isTower">
+                                    <th class="col-input">Кол-во узлов<br>приложения силы</th>
+                                    <th>Нагрузка на<br>один узел, кг</th>
+                                </template>
+                                <th v-else>Нагрузка на 1 п.м.<br>1 пояса, кг/м</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -182,10 +208,22 @@ onMounted(() => {
                                 <td>{{ formatNum(row.topHeight) }}</td>
                                 <td>{{ formatNum(row.height) }}</td>
                                 <td class="col-value col-value-plain">{{ formatNum(row.totalLoad) }}</td>
-                                <td class="col-value col-value-plain">{{ formatNum(row.loadPerLinearMeterPerBelt) }}</td>
+                                <template v-if="isTower">
+                                    <td class="col-input">
+                                        <input
+                                            type="number"
+                                            v-model.number="row.nodesCount"
+                                            class="nodes-input"
+                                            min="1"
+                                            step="1"
+                                        />
+                                    </td>
+                                    <td class="col-value col-computed">{{ loadPerNode(row) }}</td>
+                                </template>
+                                <td v-else class="col-value col-value-plain">{{ formatNum(row.loadPerLinearMeterPerBelt) }}</td>
                             </tr>
                             <tr v-if="platformSections.length === 0">
-                                <td colspan="5" class="no-data">Нет данных для отображения</td>
+                                <td :colspan="isTower ? 6 : 5" class="no-data">Нет данных для отображения</td>
                             </tr>
                         </tbody>
                     </table>

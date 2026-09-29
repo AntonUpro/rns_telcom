@@ -7,16 +7,32 @@ const props = defineProps({
         type: Number,
         required: true,
     },
+    // Режим башни: мозаики усилий и перемещений отдельно на грань и на ребро
+    isTower: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 // ─── Описание полей ────────────────────────────────────────────────────────────
+const PILLAR_MOSAIC_FIELDS = [
+    {type: 'mosaic_n', label: 'Мозаика усилий N'},
+    {type: 'mosaic_m', label: 'Мозаика моментов M'},
+    {type: 'mosaic_displacement', label: 'Мозаика перемещений'},
+];
+
+const TOWER_MOSAIC_FIELDS = [
+    {type: 'mosaic_n_face', label: 'Мозаика усилий на грань'},
+    {type: 'mosaic_n_edge', label: 'Мозаика усилий на ребро'},
+    {type: 'mosaic_displacement_face', label: 'Мозаика перемещений на грань'},
+    {type: 'mosaic_displacement_edge', label: 'Мозаика перемещений на ребро'},
+];
+
 const IMAGE_FIELDS = [
     {type: 'scheme', label: 'Схема опоры'},
     {type: 'scheme_pc', label: 'Расчетная схема опоры В ПК'},
     {type: 'sections', label: 'Сечения'},
-    {type: 'mosaic_n', label: 'Мозаика усилий N'},
-    {type: 'mosaic_m', label: 'Мозаика моментов M'},
-    {type: 'mosaic_displacement', label: 'Мозаика перемещений'},
+    ...(props.isTower ? TOWER_MOSAIC_FIELDS : PILLAR_MOSAIC_FIELDS),
 ];
 
 const MULTI_SECTIONS = [

@@ -36,6 +36,14 @@ class CalculationImageService
             throw new InvalidArgumentException(sprintf('Расчет с id=%d не найден', $calculationId));
         }
 
+        if (!in_array($imageType, CalculationImage::allowedTypesFor($calculation->getType()), true)) {
+            throw new InvalidArgumentException(sprintf(
+                'Тип изображения %s недоступен для расчёта вида «%s»',
+                $imageType,
+                $calculation->getType()?->label() ?? 'не указан',
+            ));
+        }
+
         $calcDir = $this->uploadsBaseDir . '/' . $calculationId;
         if (!is_dir($calcDir) && !mkdir($calcDir, 0755, true) && !is_dir($calcDir)) {
             throw new RuntimeException(sprintf('Не удалось создать директорию: %s', $calcDir));
