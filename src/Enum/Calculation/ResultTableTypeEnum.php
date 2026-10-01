@@ -18,6 +18,24 @@ enum ResultTableTypeEnum: string
     case FOUNDATION = 'foundation';
     case NATURAL_FREQUENCIES = 'natural_frequencies';
 
+    // ─── Таблицы башни ───────────────────────────────────────────────────────
+    case TOWER_BELT_STABILITY = 'tower_belt_stability';
+    case TOWER_BRACE_STABILITY = 'tower_brace_stability';
+    case TOWER_SPACER_STABILITY = 'tower_spacer_stability';
+    case TOWER_DEFORMATION = 'tower_deformation';
+    case TOWER_ANCHOR_BOLTS = 'tower_anchor_bolts';
+    case TOWER_FLANGE_BOLTS = 'tower_flange_bolts';
+    case TOWER_FOUNDATION_LOADS = 'tower_foundation_loads';
+    case TOWER_LOAD_COMPARISON = 'tower_load_comparison';
+
+    /** Таблицы башни, включённые по умолчанию для нового расчёта */
+    public const TOWER_ENABLED_BY_DEFAULT = [
+        self::TOWER_BELT_STABILITY,
+        self::TOWER_BRACE_STABILITY,
+        self::TOWER_SPACER_STABILITY,
+        self::TOWER_DEFORMATION,
+    ];
+
     public function isOptional(): bool
     {
         return match ($this) {
@@ -40,6 +58,14 @@ enum ResultTableTypeEnum: string
             self::DEFORMATION => 'Деформации опоры',
             self::FOUNDATION => 'Результаты расчёта основания опоры',
             self::NATURAL_FREQUENCIES => 'Расчёт значений частот собственных колебаний',
+            self::TOWER_BELT_STABILITY => 'Максимальные напряжения в поясах башни',
+            self::TOWER_BRACE_STABILITY => 'Максимальные напряжения в раскосах башни',
+            self::TOWER_SPACER_STABILITY => 'Максимальные напряжения в распорках башни',
+            self::TOWER_DEFORMATION => 'Перемещения верхних узлов опоры от нормативных нагрузок',
+            self::TOWER_ANCHOR_BOLTS => 'Напряжения в анкерных болтах',
+            self::TOWER_FLANGE_BOLTS => 'Напряжения в фланцевых болтах',
+            self::TOWER_FOUNDATION_LOADS => 'Максимальные нагрузки, действующие на фундаменты',
+            self::TOWER_LOAD_COMPARISON => 'Сравнение расчетных нагрузок с проектными',
         };
     }
 
@@ -67,6 +93,14 @@ enum ResultTableTypeEnum: string
             self::DEFORMATION => 'выполнить усиление ствола опоры',
             self::FOUNDATION => 'выполнить усиление фундамента опоры',
             self::NATURAL_FREQUENCIES => 'выполнить усиление надстройки опоры',
+            self::TOWER_BELT_STABILITY => 'выполнить усиление поясов башни',
+            self::TOWER_BRACE_STABILITY => 'выполнить усиление раскосов башни',
+            self::TOWER_SPACER_STABILITY => 'выполнить усиление распорок башни',
+            self::TOWER_DEFORMATION => 'выполнить усиление башни',
+            self::TOWER_ANCHOR_BOLTS => 'выполнить усиление анкерных болтов',
+            self::TOWER_FLANGE_BOLTS => 'выполнить усиление фланцевых соединений',
+            self::TOWER_FOUNDATION_LOADS,
+            self::TOWER_LOAD_COMPARISON => 'выполнить усиление фундаментов башни',
         };
     }
 

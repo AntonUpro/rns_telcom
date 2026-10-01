@@ -13,6 +13,8 @@ use App\Service\Calculation\CalculationResult\Calculator\PillarForcesCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\StressCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\SuperstructureStabilityCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TableCalculatorInterface;
+use App\Service\Calculation\CalculationResult\Calculator\TowerDeformationCalculator;
+use App\Service\Calculation\CalculationResult\Calculator\TowerLoadComparisonCalculator;
 
 final class CalculationResultCalculatorService
 {
@@ -26,6 +28,8 @@ final class CalculationResultCalculatorService
         SuperstructureStabilityCalculator $superstructureStabilityCalculator,
         DeformationCalculator $deformationCalculator,
         FoundationForcesCalculator $basePillarForcesCalculator,
+        TowerDeformationCalculator $towerDeformationCalculator,
+        private readonly TowerLoadComparisonCalculator $towerLoadComparisonCalculator,
     ) {
         $this->calculators = [
             ResultTableTypeEnum::PILLAR_FORCES->value => $pillarForcesCalculator,
@@ -37,6 +41,10 @@ final class CalculationResultCalculatorService
             ResultTableTypeEnum::PLATFORM_FORCES->value => $stressCalculator,
             ResultTableTypeEnum::DEFORMATION->value => $deformationCalculator,
             ResultTableTypeEnum::FOUNDATION->value => $basePillarForcesCalculator,
+            ResultTableTypeEnum::TOWER_BELT_STABILITY->value => $superstructureStabilityCalculator,
+            ResultTableTypeEnum::TOWER_BRACE_STABILITY->value => $superstructureStabilityCalculator,
+            ResultTableTypeEnum::TOWER_SPACER_STABILITY->value => $superstructureStabilityCalculator,
+            ResultTableTypeEnum::TOWER_DEFORMATION->value => $towerDeformationCalculator,
         ];
     }
 
@@ -55,6 +63,15 @@ final class CalculationResultCalculatorService
             }
 
             $payload[$key]['rows'] = $calculator->calculateRows($payload[$key]['rows'], $calculation);
+        }
+
+        // Сравнение с проектными нагрузками строится по таблице нагрузок на фундаменты
+        $comparisonKey = ResultTableTypeEnum::TOWER_LOAD_COMPARISON->value;
+        if (isset($payload[$comparisonKey]['rows'])) {
+            $payload[$comparisonKey]['rows'] = $this->towerLoadComparisonCalculator->calculateRows(
+                $payload[$comparisonKey]['rows'],
+                $payload[ResultTableTypeEnum::TOWER_FOUNDATION_LOADS->value]['rows'] ?? [],
+            );
         }
 
         return $payload;

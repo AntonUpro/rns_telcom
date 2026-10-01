@@ -6,6 +6,7 @@ import PlatformSectionManager from "./component/Platform/PlatformSectionManager.
 import TotalLoadManager from "./component/TotalLoad/TotalLoadManager.vue";
 import SoftwareCalculationManager from "./component/SoftwareCalculation/SoftwareCalculationManager.vue";
 import DocumentsForm from "./component/SoftwareCalculation/DocumentsForm.vue";
+import TowerCalculationResultsManager from "./component/CalculationResults/TowerCalculationResultsManager.vue";
 import UnsavedChangesModal from "./component/shared/UnsavedChangesModal.vue";
 import {isTabDirty, clearDirty} from "./component/shared/useUnsavedChanges.js";
 
@@ -71,12 +72,14 @@ const totalDataRef = ref(null);
 const equipmentRef = ref(null);
 const platformRef = ref(null);
 const documentsFormRef = ref(null);
+const calcResultsRef = ref(null);
 
 const tabRefMap = {
     initial: totalDataRef,
     'wind-equipment': equipmentRef,
     'wind-tower': platformRef,
     'software-calc': documentsFormRef,
+    'calc-results': calcResultsRef,
 };
 
 const showUnsavedModal = ref(false);
@@ -125,6 +128,12 @@ const pendingTab = ref(null);
                 >
                     5. Программный расчет
                 </button>
+                <button
+                    @click="setActiveTab('calc-results')"
+                    :class="['tab-btn', { active: activeTab === 'calc-results' }]"
+                >
+                    6. Результаты расчета
+                </button>
             </div>
 
             <!-- Таб 1: Исходные данные -->
@@ -168,6 +177,14 @@ const pendingTab = ref(null);
                 <SoftwareCalculationManager
                     :calculation-id="calculationId"
                     is-tower
+                />
+            </div>
+
+            <!-- Таб 6: Результаты расчета -->
+            <div v-if="activeTab === 'calc-results'" class="tab-content active">
+                <TowerCalculationResultsManager
+                    ref="calcResultsRef"
+                    :calculation-id="calculationId"
                 />
             </div>
         </div>

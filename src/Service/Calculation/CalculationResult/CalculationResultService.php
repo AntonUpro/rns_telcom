@@ -8,12 +8,16 @@ use App\Entity\Calculation;
 use App\Entity\CalculationResultTable;
 use App\Enum\Calculation\BraceConnectionTypeEnum;
 use App\Enum\Calculation\FlexibilityTypeEnum;
+use App\Enum\Calculation\FoundationLoadKindEnum;
 use App\Enum\Calculation\LoadTypeEnum;
 use App\Enum\Calculation\ResultTableTypeEnum;
 use App\Enum\Calculation\SchemeNumberEnum;
+use App\Enum\Calculation\TowerWindDirectionEnum;
+use App\Enum\CalculationTypeEnum;
 use App\Enum\Pillar\ElementTypeEnum;
 use App\Enum\Pillar\PillarEnum;
 use App\Repository\CalculationResultTableRepository;
+use App\Service\Calculation\CalculationResult\Calculator\TowerDeformationCalculator;
 use App\Service\Calculation\PillarByHeight\SimpleCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -22,6 +26,7 @@ final class CalculationResultService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly CalculationResultTableRepository $calculationResultTableRepository,
+        private readonly TowerDeformationCalculator $towerDeformationCalculator,
     ) {
     }
 
@@ -83,7 +88,9 @@ final class CalculationResultService
             ];
         }
 
-        $result = $this->addDefaultData($calculation, $result);
+        $result = $calculation->getType() === CalculationTypeEnum::TOWER
+            ? $this->addTowerDefaultData($calculation, $result)
+            : $this->addDefaultData($calculation, $result);
 
         return $result;
     }
@@ -146,6 +153,76 @@ final class CalculationResultService
         }
 
         return $result;
+    }
+
+    /**
+     * Значения по умолчанию для таблиц башни: несохранённые таблицы заполняются
+     * строками по секциям/поясам башни и включаются согласно TOWER_ENABLED_BY_DEFAULT.
+     */
+    private function addTowerDefaultData(Calculation $calculation, array $result): array
+    {
+        $defaultRowsBuilders = [
+            ResultTableTypeEnum::TOWER_BELT_STABILITY->value => fn(): array => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BELT),
+            ResultTableTypeEnum::TOWER_BRACE_STABILITY->value => fn(): array => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::BRACE),
+            ResultTableTypeEnum::TOWER_SPACER_STABILITY->value => fn(): array => $this->buildDefaultStabilityRows($calculation, ElementTypeEnum::SPACER),
+            ResultTableTypeEnum::TOWER_DEFORMATION->value => static fn(): array => [
+                ['displacement' => null, 'angleY' => null, 'angleZ' => null],
+            ],
+            ResultTableTypeEnum::TOWER_ANCHOR_BOLTS->value => static fn(): array => [],
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS->value => static fn(): array => [],
+            ResultTableTypeEnum::TOWER_FOUNDATION_LOADS->value => fn(): array => $this->buildDefaultFoundationLoadRows($calculation),
+            ResultTableTypeEnum::TOWER_LOAD_COMPARISON->value => static fn(): array => array_map(
+                static fn(FoundationLoadKindEnum $kind): array => ['loadKind' => $kind->value],
+                FoundationLoadKindEnum::cases(),
+            ),
+        ];
+
+        foreach ($defaultRowsBuilders as $key => $buildRows) {
+            if (! empty($result[$key])) {
+                continue;
+            }
+
+            $result[$key] = [
+                'enabled' => in_array(ResultTableTypeEnum::from($key), ResultTableTypeEnum::TOWER_ENABLED_BY_DEFAULT, true),
+                'rows' => $buildRows(),
+            ];
+        }
+
+        // Высота башни могла измениться после сохранения — пересчитываем допустимое перемещение и КИ
+        $deformationKey = ResultTableTypeEnum::TOWER_DEFORMATION->value;
+        $result[$deformationKey]['rows'] = $this->towerDeformationCalculator->calculateRows(
+            $result[$deformationKey]['rows'],
+            $calculation,
+        );
+
+        return $result;
+    }
+
+    /**
+     * Строки таблицы нагрузок на фундаменты: каждое направление ветра × каждый пояс башни.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildDefaultFoundationLoadRows(Calculation $calculation): array
+    {
+        $beltsCount = $calculation->getPlatform()?->getFacetsCount()
+            ?? $calculation->getCalculationData()?->getTowerSpecificData()?->facetsCount
+            ?? 3;
+
+        $rows = [];
+        foreach (TowerWindDirectionEnum::cases() as $direction) {
+            for ($beltNumber = 1; $beltNumber <= $beltsCount; $beltNumber++) {
+                $rows[] = [
+                    'direction' => $direction->value,
+                    'beltNumber' => $beltNumber,
+                    'rz' => null,
+                    'rx' => null,
+                    'ry' => null,
+                ];
+            }
+        }
+
+        return $rows;
     }
 
     private function buildDefaultStabilityRows(Calculation $calculation, ElementTypeEnum $onlyType): array

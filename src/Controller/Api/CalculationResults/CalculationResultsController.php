@@ -7,8 +7,10 @@ namespace App\Controller\Api\CalculationResults;
 use App\Controller\Api\AbstractApiController;
 use App\Enum\Calculation\BraceConnectionTypeEnum;
 use App\Enum\Calculation\FlexibilityTypeEnum;
+use App\Enum\Calculation\FoundationLoadKindEnum;
 use App\Enum\Calculation\LoadTypeEnum;
 use App\Enum\Calculation\SchemeNumberEnum;
+use App\Enum\Calculation\TowerWindDirectionEnum;
 use App\Enum\Gauge\GaugeProfileTypeEnum;
 use App\Enum\Pillar\ElementTypeEnum;
 use App\Repository\CalculationRepository;
@@ -81,6 +83,8 @@ class CalculationResultsController extends AbstractApiController
                     'schemeNumbers' => SchemeNumberEnum::toOptions(),
                     'flexibilityBeltOptions' => FlexibilityTypeEnum::optionsForBelt(),
                     'flexibilityOtherOptions' => FlexibilityTypeEnum::optionsForOther(),
+                    'towerWindDirections' => TowerWindDirectionEnum::toOptions(),
+                    'foundationLoadKinds' => FoundationLoadKindEnum::toOptions(),
                 ],
                 'isNbk' => $calculation->getCalculationData()?->getCustomer()?->getCode() === 'NBK',
                 'savedData' => $savedData ?: null,
