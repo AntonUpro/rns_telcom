@@ -57,6 +57,7 @@ enum BoltStrengthClassEnum: string
                 'value' => $case->value,
                 'label' => $case->value,
                 'tensionResistance' => $case->tensionResistance(),
+                'shearResistance' => $case->shearResistance(),
             ],
             self::cases(),
         );

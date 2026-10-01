@@ -174,6 +174,7 @@ final class CalculationResultService
                 ['boltCount' => null, 'maxLoad' => null, 'diameter' => null, 'steel' => null, 'k0' => TowerAnchorBoltRowDto::DEFAULT_K0],
             ],
             ResultTableTypeEnum::TOWER_FLANGE_BOLTS->value => fn(): array => $this->buildDefaultFlangeBoltRows($calculation),
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS_SHEAR->value => fn(): array => $this->buildDefaultFlangeBoltRows($calculation),
             ResultTableTypeEnum::TOWER_FOUNDATION_LOADS->value => fn(): array => $this->buildDefaultFoundationLoadRows($calculation),
             ResultTableTypeEnum::TOWER_LOAD_COMPARISON->value => static fn(): array => array_map(
                 static fn(FoundationLoadKindEnum $kind): array => ['loadKind' => $kind->value],

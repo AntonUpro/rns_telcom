@@ -85,6 +85,7 @@ enum BoltDiameterEnum: int
                 'value' => $case->value,
                 'label' => 'М' . $case->value,
                 'netArea' => $case->netArea(),
+                'grossArea' => $case->grossArea(),
                 'rbt' => array_combine(
                     array_map(static fn(AnchorBoltSteelEnum $steel): string => $steel->value, AnchorBoltSteelEnum::cases()),
                     array_map(static fn(AnchorBoltSteelEnum $steel): int => $steel->designResistance($case), AnchorBoltSteelEnum::cases()),

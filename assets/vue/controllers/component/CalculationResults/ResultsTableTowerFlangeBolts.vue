@@ -1,10 +1,10 @@
 <script setup>
 /**
- * Напряжения во фланцевых болтах башни.
+ * Напряжения во фланцевых болтах башни — на растяжение или на срез (проп shear).
  *
  * Строки по умолчанию — стыки по верху секций (кроме верхней), формируются бэкендом.
  * Поля ввода:  номер стыка | отметка, м | количество болтов | максимальная нагрузка, тс | диаметр | класс прочности
- * Из справочника: Abn, см² (по диаметру) | Rbp, Н/мм² (по классу прочности)
+ * Из справочника: растяжение — Abn, см² и Rbp, Н/мм²; срез — Ab (брутто), см² и Rbs, Н/мм²
  * Вычисляемые: σ, Н/мм² | Кисп — заполняются сервером после расчёта.
  */
 import {computed} from 'vue';
@@ -18,25 +18,37 @@ const props = defineProps({
         type: Number,
         required: true,
     },
-    // [{ value, label, netArea }]
+    // [{ value, label, netArea, grossArea }]
     diameters: {
         type: Array,
         default: () => [],
     },
-    // [{ value, label, tensionResistance }]
+    // [{ value, label, tensionResistance, shearResistance }]
     strengthClasses: {
         type: Array,
         default: () => [],
+    },
+    // false — расчёт на растяжение, true — на срез
+    shear: {
+        type: Boolean,
+        default: false,
     },
 });
 
 const emit = defineEmits(['update:rows']);
 
+// Поля строки и справочников, отличающиеся для растяжения и среза
+const mode = computed(() => props.shear
+    ? {area: 'grossArea', resistance: 'rbs', resistanceOption: 'shearResistance',
+        areaLabel: 'Площадь брутто<br>Ab, см²', areaSymbol: 'Ab', resistanceSymbol: 'Rbs', titleSuffix: ' на срез'}
+    : {area: 'netArea', resistance: 'rbp', resistanceOption: 'tensionResistance',
+        areaLabel: 'Площадь нетто<br>Abn, см²', areaSymbol: 'Abn', resistanceSymbol: 'Rbp', titleSuffix: ''});
+
 const makeRow = () => ({
     jointNumber: props.rows.length + 1, mark: null,
     boltCount: null, maxLoad: null,
     diameter: null, strengthClass: null,
-    netArea: null, sigma: null, rbp: null, kUse: null,
+    [mode.value.area]: null, sigma: null, [mode.value.resistance]: null, kUse: null,
 });
 
 const updateRow = (idx, patch) => {
@@ -45,15 +57,21 @@ const updateRow = (idx, patch) => {
 
 const updateCell = (idx, field, value) => updateRow(idx, {[field]: value});
 
-// Abn и Rbp проставляются сразу при выборе, σ и Кисп сбрасываются до пересчёта
+// Площадь и расчётное сопротивление проставляются сразу при выборе, σ и Кисп сбрасываются до пересчёта
 const updateDiameter = (idx, value) => {
     const diameter = props.diameters.find((d) => d.value === value);
-    updateRow(idx, {diameter: value, netArea: diameter?.netArea ?? null, sigma: null, kUse: null});
+    updateRow(idx, {
+        diameter: value, [mode.value.area]: diameter?.[mode.value.area] ?? null, sigma: null, kUse: null,
+    });
 };
 
 const updateStrengthClass = (idx, value) => {
     const strengthClass = props.strengthClasses.find((c) => c.value === value);
-    updateRow(idx, {strengthClass: value, rbp: strengthClass?.tensionResistance ?? null, sigma: null, kUse: null});
+    updateRow(idx, {
+        strengthClass: value,
+        [mode.value.resistance]: strengthClass?.[mode.value.resistanceOption] ?? null,
+        sigma: null, kUse: null,
+    });
 };
 
 const addRow = () => emit('update:rows', [...props.rows, makeRow()]);
@@ -72,8 +90,8 @@ const conclusion = computed(() => {
     const kMax = Math.max(...kUses);
     const kText = kMax.toFixed(2).replace('.', ',');
     return kMax > 1
-        ? `Прочность фланцевых болтов не обеспечена (Кисп ${kText}).`
-        : `Прочность фланцевых болтов обеспечена (Кисп ${kText}).`;
+        ? `Прочность фланцевых болтов не обеспечена${mode.value.titleSuffix} (Кисп ${kText}).`
+        : `Прочность фланцевых болтов обеспечена${mode.value.titleSuffix} (Кисп ${kText}).`;
 });
 </script>
 
@@ -81,8 +99,8 @@ const conclusion = computed(() => {
     <section class="rt-section">
         <div class="rt-section-header">
             <div>
-                <h3 class="rt-title">Таблица {{ tableNumber }}. Напряжения в фланцевых болтах</h3>
-                <p class="rt-subtitle">σ = P / (n · Abn), Кисп = σ / Rbp</p>
+                <h3 class="rt-title">Таблица {{ tableNumber }}. Напряжения в фланцевых болтах{{ mode.titleSuffix }}</h3>
+                <p class="rt-subtitle">σ = P / (n · {{ mode.areaSymbol }}), Кисп = σ / {{ mode.resistanceSymbol }}</p>
             </div>
             <button class="rt-btn-add" @click="addRow">+ строка</button>
         </div>
@@ -97,9 +115,9 @@ const conclusion = computed(() => {
                         <th class="col-val">Максимальная<br>нагрузка, тс</th>
                         <th class="col-val">Диаметр<br>болта, мм</th>
                         <th class="col-val">Класс<br>прочности</th>
-                        <th class="col-val col-comp">Площадь нетто<br>Abn, см²</th>
+                        <th class="col-val col-comp" v-html="mode.areaLabel"></th>
                         <th class="col-val col-comp">σ, Н/мм²</th>
-                        <th class="col-val col-comp">Rbp, Н/мм²</th>
+                        <th class="col-val col-comp">{{ mode.resistanceSymbol }}, Н/мм²</th>
                         <th class="col-val col-comp">Кисп</th>
                         <th class="col-del"></th>
                     </tr>
@@ -157,9 +175,9 @@ const conclusion = computed(() => {
                                 <option v-for="c in strengthClasses" :key="c.value" :value="c.value">{{ c.label }}</option>
                             </select>
                         </td>
-                        <td class="td-computed">{{ fmt(row.netArea, 2) }}</td>
+                        <td class="td-computed">{{ fmt(row[mode.area], 2) }}</td>
                         <td class="td-computed">{{ fmt(row.sigma, 2) }}</td>
-                        <td class="td-computed">{{ fmt(row.rbp, 0) }}</td>
+                        <td class="td-computed">{{ fmt(row[mode.resistance], 0) }}</td>
                         <td
                             class="td-computed"
                             :class="{ 'td-warn': row.kUse !== null && row.kUse > 1 }"

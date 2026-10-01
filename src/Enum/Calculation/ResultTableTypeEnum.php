@@ -25,6 +25,7 @@ enum ResultTableTypeEnum: string
     case TOWER_DEFORMATION = 'tower_deformation';
     case TOWER_ANCHOR_BOLTS = 'tower_anchor_bolts';
     case TOWER_FLANGE_BOLTS = 'tower_flange_bolts';
+    case TOWER_FLANGE_BOLTS_SHEAR = 'tower_flange_bolts_shear';
     case TOWER_FOUNDATION_LOADS = 'tower_foundation_loads';
     case TOWER_LOAD_COMPARISON = 'tower_load_comparison';
 
@@ -64,6 +65,7 @@ enum ResultTableTypeEnum: string
             self::TOWER_DEFORMATION => 'Перемещения верхних узлов опоры от нормативных нагрузок',
             self::TOWER_ANCHOR_BOLTS => 'Напряжения в анкерных болтах',
             self::TOWER_FLANGE_BOLTS => 'Напряжения в фланцевых болтах',
+            self::TOWER_FLANGE_BOLTS_SHEAR => 'Напряжения в фланцевых болтах на срез',
             self::TOWER_FOUNDATION_LOADS => 'Максимальные нагрузки, действующие на фундаменты',
             self::TOWER_LOAD_COMPARISON => 'Сравнение расчетных нагрузок с проектными',
         };
@@ -98,7 +100,8 @@ enum ResultTableTypeEnum: string
             self::TOWER_SPACER_STABILITY => 'выполнить усиление распорок башни',
             self::TOWER_DEFORMATION => 'выполнить усиление башни',
             self::TOWER_ANCHOR_BOLTS => 'выполнить усиление анкерных болтов',
-            self::TOWER_FLANGE_BOLTS => 'выполнить усиление фланцевых соединений',
+            self::TOWER_FLANGE_BOLTS,
+            self::TOWER_FLANGE_BOLTS_SHEAR => 'выполнить усиление фланцевых соединений',
             self::TOWER_FOUNDATION_LOADS,
             self::TOWER_LOAD_COMPARISON => 'выполнить усиление фундаментов башни',
         };

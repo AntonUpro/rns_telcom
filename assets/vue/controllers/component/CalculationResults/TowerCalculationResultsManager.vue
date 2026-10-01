@@ -54,6 +54,7 @@ const TABLES = [
     {key: 'tower_deformation', label: 'Деформации от ветровых нагрузок'},
     {key: 'tower_anchor_bolts', label: 'Напряжения в анкерных болтах'},
     {key: 'tower_flange_bolts', label: 'Напряжения в фланцевых болтах'},
+    {key: 'tower_flange_bolts_shear', label: 'Напряжения в фланцевых болтах на срез'},
     {key: 'tower_foundation_loads', label: 'Нагрузки, действующие на фундаменты'},
     {key: 'tower_load_comparison', label: 'Сравнение расчетных нагрузок с проектными'},
 ];
@@ -299,6 +300,17 @@ onMounted(async () => {
                 :diameters="enums.boltDiameters"
                 :strength-classes="enums.boltStrengthClasses"
                 @update:rows="rows.tower_flange_bolts = $event"
+            />
+
+            <!-- Напряжения в фланцевых болтах на срез -->
+            <ResultsTableTowerFlangeBolts
+                v-if="enabled.tower_flange_bolts_shear"
+                shear
+                :table-number="tableNumbers.tower_flange_bolts_shear"
+                :rows="rows.tower_flange_bolts_shear"
+                :diameters="enums.boltDiameters"
+                :strength-classes="enums.boltStrengthClasses"
+                @update:rows="rows.tower_flange_bolts_shear = $event"
             />
 
             <!-- Нагрузки, действующие на фундаменты -->

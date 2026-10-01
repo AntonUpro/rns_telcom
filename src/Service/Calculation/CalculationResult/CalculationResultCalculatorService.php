@@ -16,6 +16,7 @@ use App\Service\Calculation\CalculationResult\Calculator\TableCalculatorInterfac
 use App\Service\Calculation\CalculationResult\Calculator\TowerAnchorBoltCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TowerDeformationCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TowerFlangeBoltCalculator;
+use App\Service\Calculation\CalculationResult\Calculator\TowerFlangeBoltShearCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TowerLoadComparisonCalculator;
 
 final class CalculationResultCalculatorService
@@ -33,6 +34,7 @@ final class CalculationResultCalculatorService
         TowerDeformationCalculator $towerDeformationCalculator,
         TowerAnchorBoltCalculator $towerAnchorBoltCalculator,
         TowerFlangeBoltCalculator $towerFlangeBoltCalculator,
+        TowerFlangeBoltShearCalculator $towerFlangeBoltShearCalculator,
         private readonly TowerLoadComparisonCalculator $towerLoadComparisonCalculator,
     ) {
         $this->calculators = [
@@ -51,6 +53,7 @@ final class CalculationResultCalculatorService
             ResultTableTypeEnum::TOWER_DEFORMATION->value => $towerDeformationCalculator,
             ResultTableTypeEnum::TOWER_ANCHOR_BOLTS->value => $towerAnchorBoltCalculator,
             ResultTableTypeEnum::TOWER_FLANGE_BOLTS->value => $towerFlangeBoltCalculator,
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS_SHEAR->value => $towerFlangeBoltShearCalculator,
         ];
     }
 
