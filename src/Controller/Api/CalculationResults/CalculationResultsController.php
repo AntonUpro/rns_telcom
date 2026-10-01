@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Api\CalculationResults;
 
 use App\Controller\Api\AbstractApiController;
+use App\Enum\Calculation\BoltDiameterEnum;
+use App\Enum\Calculation\BoltStrengthClassEnum;
+use App\Enum\Calculation\AnchorBoltSteelEnum;
 use App\Enum\Calculation\BraceConnectionTypeEnum;
 use App\Enum\Calculation\FlexibilityTypeEnum;
 use App\Enum\Calculation\FoundationLoadKindEnum;
@@ -85,6 +88,9 @@ class CalculationResultsController extends AbstractApiController
                     'flexibilityOtherOptions' => FlexibilityTypeEnum::optionsForOther(),
                     'towerWindDirections' => TowerWindDirectionEnum::toOptions(),
                     'foundationLoadKinds' => FoundationLoadKindEnum::toOptions(),
+                    'boltDiameters' => BoltDiameterEnum::toOptions(),
+                    'anchorBoltSteels' => AnchorBoltSteelEnum::toOptions(),
+                    'boltStrengthClasses' => BoltStrengthClassEnum::toOptions(),
                 ],
                 'isNbk' => $calculation->getCalculationData()?->getCustomer()?->getCode() === 'NBK',
                 'savedData' => $savedData ?: null,

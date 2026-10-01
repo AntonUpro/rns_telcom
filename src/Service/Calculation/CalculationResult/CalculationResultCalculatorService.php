@@ -13,7 +13,9 @@ use App\Service\Calculation\CalculationResult\Calculator\PillarForcesCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\StressCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\SuperstructureStabilityCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TableCalculatorInterface;
+use App\Service\Calculation\CalculationResult\Calculator\TowerAnchorBoltCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TowerDeformationCalculator;
+use App\Service\Calculation\CalculationResult\Calculator\TowerFlangeBoltCalculator;
 use App\Service\Calculation\CalculationResult\Calculator\TowerLoadComparisonCalculator;
 
 final class CalculationResultCalculatorService
@@ -29,6 +31,8 @@ final class CalculationResultCalculatorService
         DeformationCalculator $deformationCalculator,
         FoundationForcesCalculator $basePillarForcesCalculator,
         TowerDeformationCalculator $towerDeformationCalculator,
+        TowerAnchorBoltCalculator $towerAnchorBoltCalculator,
+        TowerFlangeBoltCalculator $towerFlangeBoltCalculator,
         private readonly TowerLoadComparisonCalculator $towerLoadComparisonCalculator,
     ) {
         $this->calculators = [
@@ -45,6 +49,8 @@ final class CalculationResultCalculatorService
             ResultTableTypeEnum::TOWER_BRACE_STABILITY->value => $superstructureStabilityCalculator,
             ResultTableTypeEnum::TOWER_SPACER_STABILITY->value => $superstructureStabilityCalculator,
             ResultTableTypeEnum::TOWER_DEFORMATION->value => $towerDeformationCalculator,
+            ResultTableTypeEnum::TOWER_ANCHOR_BOLTS->value => $towerAnchorBoltCalculator,
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS->value => $towerFlangeBoltCalculator,
         ];
     }
 

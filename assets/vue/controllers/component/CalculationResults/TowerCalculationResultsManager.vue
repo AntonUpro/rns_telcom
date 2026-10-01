@@ -3,9 +3,10 @@ import {ref, computed, onMounted, watch, nextTick} from 'vue';
 import {useUnsavedChanges} from '../shared/useUnsavedChanges.js';
 import ResultsTableSuperstructureStability from './ResultsTableSuperstructureStability.vue';
 import ResultsTableTowerDeformation from './ResultsTableTowerDeformation.vue';
+import ResultsTableTowerAnchorBolts from './ResultsTableTowerAnchorBolts.vue';
+import ResultsTableTowerFlangeBolts from './ResultsTableTowerFlangeBolts.vue';
 import ResultsTableTowerFoundationLoads from './ResultsTableTowerFoundationLoads.vue';
 import ResultsTableTowerLoadComparison from './ResultsTableTowerLoadComparison.vue';
-import ResultsTablePlaceholder from './ResultsTablePlaceholder.vue';
 
 /**
  * Таб «Результаты расчёта» для башни.
@@ -40,6 +41,9 @@ const enums = ref({
     flexibilityOtherOptions: [],
     towerWindDirections: [],
     foundationLoadKinds: [],
+    boltDiameters: [],
+    anchorBoltSteels: [],
+    boltStrengthClasses: [],
 });
 
 // ─── Таблицы башни в порядке вывода ───────────────────────────────────────────
@@ -277,18 +281,24 @@ onMounted(async () => {
                 @update:rows="rows.tower_deformation = $event"
             />
 
-            <!-- Напряжения в анкерных болтах — заготовка -->
-            <ResultsTablePlaceholder
+            <!-- Напряжения в анкерных болтах -->
+            <ResultsTableTowerAnchorBolts
                 v-if="enabled.tower_anchor_bolts"
                 :table-number="tableNumbers.tower_anchor_bolts"
-                table-name="Напряжения в анкерных болтах"
+                :rows="rows.tower_anchor_bolts"
+                :diameters="enums.boltDiameters"
+                :steels="enums.anchorBoltSteels"
+                @update:rows="rows.tower_anchor_bolts = $event"
             />
 
-            <!-- Напряжения в фланцевых болтах — заготовка -->
-            <ResultsTablePlaceholder
+            <!-- Напряжения в фланцевых болтах -->
+            <ResultsTableTowerFlangeBolts
                 v-if="enabled.tower_flange_bolts"
                 :table-number="tableNumbers.tower_flange_bolts"
-                table-name="Напряжения в фланцевых болтах"
+                :rows="rows.tower_flange_bolts"
+                :diameters="enums.boltDiameters"
+                :strength-classes="enums.boltStrengthClasses"
+                @update:rows="rows.tower_flange_bolts = $event"
             />
 
             <!-- Нагрузки, действующие на фундаменты -->

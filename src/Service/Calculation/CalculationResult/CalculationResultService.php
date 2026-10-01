@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Service\Calculation\CalculationResult;
 
 use App\Entity\Calculation;
+use App\Dto\Calculation\CalculationResult\Row\TowerAnchorBoltRowDto;
 use App\Entity\CalculationResultTable;
+use App\Entity\PlatformSection;
 use App\Enum\Calculation\BraceConnectionTypeEnum;
 use App\Enum\Calculation\FlexibilityTypeEnum;
 use App\Enum\Calculation\FoundationLoadKindEnum;
@@ -168,8 +170,10 @@ final class CalculationResultService
             ResultTableTypeEnum::TOWER_DEFORMATION->value => static fn(): array => [
                 ['displacement' => null, 'angleY' => null, 'angleZ' => null],
             ],
-            ResultTableTypeEnum::TOWER_ANCHOR_BOLTS->value => static fn(): array => [],
-            ResultTableTypeEnum::TOWER_FLANGE_BOLTS->value => static fn(): array => [],
+            ResultTableTypeEnum::TOWER_ANCHOR_BOLTS->value => static fn(): array => [
+                ['boltCount' => null, 'maxLoad' => null, 'diameter' => null, 'steel' => null, 'k0' => TowerAnchorBoltRowDto::DEFAULT_K0],
+            ],
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS->value => fn(): array => $this->buildDefaultFlangeBoltRows($calculation),
             ResultTableTypeEnum::TOWER_FOUNDATION_LOADS->value => fn(): array => $this->buildDefaultFoundationLoadRows($calculation),
             ResultTableTypeEnum::TOWER_LOAD_COMPARISON->value => static fn(): array => array_map(
                 static fn(FoundationLoadKindEnum $kind): array => ['loadKind' => $kind->value],
@@ -220,6 +224,34 @@ final class CalculationResultService
                     'ry' => null,
                 ];
             }
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Строки таблицы фланцевых болтов: по одному стыку на верх каждой секции, кроме самой верхней.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function buildDefaultFlangeBoltRows(Calculation $calculation): array
+    {
+        $sections = array_values(array_filter(
+            $calculation->getPlatform()?->getSortSectionsByNumber() ?? [],
+            static fn(PlatformSection $section): bool => ! $section->isStrut(),
+        ));
+        array_pop($sections);
+
+        $rows = [];
+        foreach ($sections as $index => $section) {
+            $rows[] = [
+                'jointNumber' => $index + 1,
+                'mark' => $section->getMountHeightTopM(),
+                'boltCount' => null,
+                'maxLoad' => null,
+                'diameter' => null,
+                'strengthClass' => null,
+            ];
         }
 
         return $rows;
