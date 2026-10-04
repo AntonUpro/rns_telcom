@@ -15,6 +15,16 @@ use PhpOffice\PhpWord\Element\Section;
  */
 final class ClimateSection implements SectionBuilderInterface
 {
+    /**
+     * @param bool $withCoordinates выводить широту и долготу объекта
+     * @param bool $withIceAndSnow  выводить гололёдный и снеговой районы
+     */
+    public function __construct(
+        private readonly bool $withCoordinates = false,
+        private readonly bool $withIceAndSnow = false,
+    ) {
+    }
+
     public function build(Section $section, ReportContext $context, int &$tableNum): void
     {
         $data = $context->getData();
@@ -23,6 +33,11 @@ final class ClimateSection implements SectionBuilderInterface
         $ind  = DocStyleRegistry::paragraphIndent();
 
         $section->addText('Расположение объекта:', $body, $para);
+
+        if ($this->withCoordinates) {
+            $section->addText(sprintf('• широта: %s С;', $data?->getLatitude() ?? '—'), $body, $para);
+            $section->addText(sprintf('• долгота: %s В;', $data?->getLongitude() ?? '—'), $body, $para);
+        }
 
         // Тип местности
         $terrainType = $data?->getTerrainType();
@@ -53,6 +68,10 @@ final class ClimateSection implements SectionBuilderInterface
             $body,
             $para,
         );
+
+        if ($this->withIceAndSnow) {
+            $this->addIceAndSnowLines($section, $context);
+        }
 
         // Гололёдный район
 //        $icingRegion = $data?->getIcingRegion();
@@ -102,5 +121,40 @@ final class ClimateSection implements SectionBuilderInterface
 //        );
 
         $section->addTextBreak(1);
+    }
+
+    private function addIceAndSnowLines(Section $section, ReportContext $context): void
+    {
+        $data = $context->getData();
+        $body = DocStyleRegistry::bodyText();
+        $para = DocStyleRegistry::paragraphIndent();
+
+        $icingRegion = $data?->getIcingRegion();
+        $section->addText(
+            $icingRegion !== null
+                ? sprintf(
+                    '• гололёдный район %s, толщина стенки гололёда %d мм;',
+                    $icingRegion->value,
+                    $icingRegion->normativeThicknessMm(),
+                )
+                : '• гололёдный район —;',
+            $body,
+            $para,
+        );
+        $section->addText('• коэффициент надёжности для гололёдной нагрузки 1,8;', $body, $para);
+
+        $snowRegion = $data?->getSnowRegion();
+        $section->addText(
+            $snowRegion !== null
+                ? sprintf(
+                    '• снеговой район %s, нормативный вес снегового покрова %s кПа;',
+                    $snowRegion->value,
+                    number_format($snowRegion->snowLoad(), 1, ',', ''),
+                )
+                : '• снеговой район —;',
+            $body,
+            $para,
+        );
+        $section->addText('• коэффициент надёжности для снеговой нагрузки 1,4.', $body, $para);
     }
 }

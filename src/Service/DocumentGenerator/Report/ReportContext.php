@@ -11,6 +11,7 @@ use App\Entity\CalculationData;
 use App\Entity\CalculationDocument;
 use App\Entity\CalculationImage;
 use App\Entity\CalculationResultTable;
+use App\Enum\CalculationTypeEnum;
 use App\Enum\Calculation\ResultTableTypeEnum;
 
 final class ReportContext
@@ -248,6 +249,110 @@ final class ReportContext
                 $response[] = ResultTableTypeEnum::from($typeCalculation);
             }
         }
+        return $response;
+    }
+
+    public function isTower(): bool
+    {
+        return $this->calculation->getType() === CalculationTypeEnum::TOWER;
+    }
+
+    /**
+     * Максимальные Кисп по включённым таблицам конструкций башни
+     * (элементы каркаса, деформации, болты).
+     *
+     * @return array<string, float> ключ — ResultTableTypeEnum::value
+     */
+    public function getTowerStructureKuses(): array
+    {
+        $types = [
+            ResultTableTypeEnum::TOWER_BELT_STABILITY,
+            ResultTableTypeEnum::TOWER_BRACE_STABILITY,
+            ResultTableTypeEnum::TOWER_SPACER_STABILITY,
+            ResultTableTypeEnum::TOWER_DEFORMATION,
+            ResultTableTypeEnum::TOWER_ANCHOR_BOLTS,
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS,
+            ResultTableTypeEnum::TOWER_FLANGE_BOLTS_SHEAR,
+        ];
+
+        $kuses = [];
+        foreach ($types as $type) {
+            $table = $this->getResultTable($type);
+            if ($table === null || ! $table->isEnabled()) {
+                continue;
+            }
+            $k = $this->getMaxKUse($table->getRows());
+            if ($k !== null) {
+                $kuses[$type->value] = $k;
+            }
+        }
+
+        return $kuses;
+    }
+
+    /** Кисп конструкций башни по наиболее нагруженному элементу */
+    public function getTowerStructureMaxK(): ?float
+    {
+        $kuses = $this->getTowerStructureKuses();
+
+        return $kuses === [] ? null : max($kuses);
+    }
+
+    public function getTowerDeformationMaxK(): ?float
+    {
+        return $this->getTowerStructureKuses()[ResultTableTypeEnum::TOWER_DEFORMATION->value] ?? null;
+    }
+
+    /** Кисп фундаментов башни — по сравнению расчётных нагрузок с проектными */
+    public function getTowerFoundationMaxK(): ?float
+    {
+        $table = $this->getResultTable(ResultTableTypeEnum::TOWER_LOAD_COMPARISON);
+        if ($table === null || ! $table->isEnabled()) {
+            return null;
+        }
+
+        $max = null;
+        foreach ($table->getRows() as $row) {
+            foreach (['kUseVertical', 'kUseShear'] as $field) {
+                $k = isset($row[$field]) ? (float)$row[$field] : null;
+                if ($k !== null && ($max === null || $k > $max)) {
+                    $max = $k;
+                }
+            }
+        }
+
+        return $max;
+    }
+
+    public function getTowerMaxK(): ?float
+    {
+        $ks = array_filter(
+            [$this->getTowerStructureMaxK(), $this->getTowerFoundationMaxK()],
+            static fn(?float $k): bool => $k !== null,
+        );
+
+        return $ks === [] ? null : max($ks);
+    }
+
+    /**
+     * Таблицы башни, по которым несущая способность не обеспечена (Кисп > 1).
+     *
+     * @return ResultTableTypeEnum[]
+     */
+    public function getTowerNegativeCalculations(): array
+    {
+        $kuses = $this->getTowerStructureKuses();
+        if (($k = $this->getTowerFoundationMaxK()) !== null) {
+            $kuses[ResultTableTypeEnum::TOWER_LOAD_COMPARISON->value] = $k;
+        }
+
+        $response = [];
+        foreach ($kuses as $type => $k) {
+            if ($k > 1.0) {
+                $response[] = ResultTableTypeEnum::from($type);
+            }
+        }
+
         return $response;
     }
 

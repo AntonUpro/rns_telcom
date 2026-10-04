@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Service\Calculation\TotalLoad;
 
-use App\Dto\Calculation\Pillar\Calculate\SectionDto;
 use App\Dto\Calculation\TotalLoad\EquipmentHeightTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\PillarSectionTotalLoadDto;
 use App\Dto\Calculation\TotalLoad\PlatformSectionTotalLoadDto;
@@ -12,16 +11,13 @@ use App\Dto\Calculation\TotalLoad\TotalLoadResponseDto;
 use App\Dto\DefaultConstant;
 use App\Entity\CalculationData;
 use App\Entity\PlatformSection;
-use App\Enum\Pillar\FormConstructEnum;
 use App\Enum\Pillar\PlatformSectionTypeEnum;
 use App\Exception\NotFoundException;
 use App\Repository\CalculationRepository;
 use App\Service\Calculation\Equipment\CalculationWindEquipmentService;
-use App\Service\Calculation\Pillar\Calculator\CableCalculator;
-use App\Service\Calculation\Pillar\Calculator\CableChanelCalculator;
-use App\Service\Calculation\Pillar\Calculator\LadderCalculator;
 use App\Service\Calculation\Pillar\Pillar\PillarWindLoadCalculationService;
 use App\Service\Calculation\Platform\PlatformCalculationService;
+use App\Service\Calculation\Tower\TowerCommunicationsLoadCalculator;
 
 /**
  * Собирает суммарную нагрузку для таба 5:
@@ -36,6 +32,7 @@ final readonly class TotalLoadService
         private PillarWindLoadCalculationService $pillarWindLoadCalculationService,
         private CalculationWindEquipmentService $calculationWindEquipmentService,
         private PlatformCalculationService $platformCalculationService,
+        private TowerCommunicationsLoadCalculator $towerCommunicationsLoadCalculator,
     ) {
     }
 
@@ -101,9 +98,7 @@ final readonly class TotalLoadService
         $platformSections = $this->platformCalculationService->calculatePlatform($calculation->getId());
 
         $facetsCount = $calculation->getPlatform()->getFacetsCount();
-        $defaultValues = $calculationData->getTowerSpecificData()?->defaultValues;
-        $windRegion = $calculationData->getWindRegion();
-        $terrainType = $calculationData->getTerrainType();
+        $communications = $this->towerCommunicationsLoadCalculator->calculate($calculation, $platformSections);
 
         foreach ($platformSections->platformSections as $section) {
             if ($section->type !== PlatformSectionTypeEnum::SECTION) {
@@ -111,40 +106,8 @@ final readonly class TotalLoadService
             }
 
             $topHeight = (float)($section->mountingHeightSection + $section->heightSection); // мм
-            $totalLoadKgf = $section->press;
-
-            if ($defaultValues !== null) {
-                $sectionDto = new SectionDto(
-                    number: $section->numberSection,
-                    height: $section->heightSection,
-                    diameterTop: 0,
-                    diameterBottom: 0,
-                    topMark: $topHeight,
-                    formConstruct: FormConstructEnum::SQUARE,
-                );
-
-                $totalLoadKgf += (new CableCalculator(
-                    sectionDto: $sectionDto,
-                    windRegionEnum: $windRegion,
-                    terrainTypeEnum: $terrainType,
-                    equipments: $calculation->getCalculationEquipments()->toArray(),
-                    defaultValues: $defaultValues,
-                ))->calculate()?->press ?? 0;
-
-                $totalLoadKgf += (new LadderCalculator(
-                    sectionDto: $sectionDto,
-                    windRegionEnum: $windRegion,
-                    terrainTypeEnum: $terrainType,
-                    defaultValues: $defaultValues,
-                ))->calculate()?->press ?? 0;
-
-                $totalLoadKgf += (new CableChanelCalculator(
-                    sectionDto: $sectionDto,
-                    windRegionEnum: $windRegion,
-                    terrainTypeEnum: $terrainType,
-                    defaultValues: $defaultValues,
-                ))->calculate()?->press ?? 0;
-            }
+            $totalLoadKgf = $section->press
+                + ($communications[$section->numberSection]?->totalPress() ?? 0);
 
             $heightM = $section->heightSection / 1000;
 

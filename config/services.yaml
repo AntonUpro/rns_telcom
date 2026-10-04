@@ -38,6 +38,14 @@ services:
         arguments:
             $projectDir: '%kernel.project_dir%'
 
+    App\Service\DocumentGenerator\Report\ReportContextFactory:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Service\DocumentGenerator\Report\TowerReportGenerator:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
     App\Controller\Api\StaticImage\StaticImageController:
         arguments:
             $projectDir: '%kernel.project_dir%'

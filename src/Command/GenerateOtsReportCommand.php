@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Command;
 
 use App\Exception\NotFoundException;
-use App\Service\DocumentGenerator\Report\OtsReportGenerator;
+use App\Service\DocumentGenerator\Report\OtsReportDispatcher;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,7 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class GenerateOtsReportCommand extends Command
 {
     public function __construct(
-        private readonly OtsReportGenerator $generator,
+        private readonly OtsReportDispatcher $generator,
         private readonly string             $projectDir,
     ) {
         parent::__construct();

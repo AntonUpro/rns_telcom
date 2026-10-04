@@ -7,7 +7,7 @@ namespace App\Controller\Api\Report;
 use App\Controller\Api\AbstractApiController;
 use App\Exception\NotFoundException;
 use App\Service\DocumentGenerator\CalculationReportGenerator;
-use App\Service\DocumentGenerator\Report\OtsReportGenerator;
+use App\Service\DocumentGenerator\Report\OtsReportDispatcher;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,7 +21,7 @@ use Throwable;
 class DownloadCalculationReportController extends AbstractApiController
 {
     public function __construct(
-        private readonly OtsReportGenerator $otsReportGenerator,
+        private readonly OtsReportDispatcher $otsReportDispatcher,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -36,7 +36,7 @@ class DownloadCalculationReportController extends AbstractApiController
         $tmpDir = sys_get_temp_dir() . '/rns_reports';
 
         try {
-            $filePath = $this->otsReportGenerator->generate($calculationId, $tmpDir);
+            $filePath = $this->otsReportDispatcher->generate($calculationId, $tmpDir);
         } catch (NotFoundException $e) {
             return $this->errorResponse($e->getMessage());
         } catch (Throwable $e) {

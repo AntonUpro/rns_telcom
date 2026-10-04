@@ -29,8 +29,13 @@ final class TitlePageGenerator
     private const EMAIL = 'info@telkom.spb.ru';
     private const SITE = 'www.телком.рф';
 
+    /**
+     * @param string|null $amsTypeLabel текст строки «Тип АМС и высота»;
+     *                                  null — формируется для ж/б столба
+     */
     public function __construct(
         private readonly string $projectDir,
+        private readonly ?string $amsTypeLabel = null,
     ) {
     }
 
@@ -221,13 +226,7 @@ final class TitlePageGenerator
         $c2 = $table->addCell($colWidth, $cellStyle);
         $c2->addText($context->calculation?->getObjectCode(), $fStyle, $keepNext);
 
-        $heightAMS = $context->calculation?->getCalculationData()?->getAmsHeight() ?? '—';
-        $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? '—';
-        $textPillar = 'Столб ж/б';
-        if ((int)$heightAMS > (int)$heightPillar) {
-            $textPillar .= 'с металлической надстройкой';
-        }
-        $textPillar .= sprintf(', Н=%s м', $heightAMS);
+        $textPillar = $this->amsTypeLabel ?? $this->buildPillarTypeLabel($context);
 
         // --- Строка 4 (две высоты в одной ячейке) ---
         $table->addRow(Converter::cmToTwip(1), ['cantSplit' => true]);
@@ -305,5 +304,17 @@ final class TitlePageGenerator
         $section->addText("о несущей способности конструкций опоры в связи", $fStyle, $pStyle);
         $section->addText("с размещением оборудования сотовой связи", $fStyle, $pStyle);
         $section->addText($operator, $fStyle, $pStyle);
+    }
+
+    private function buildPillarTypeLabel(ReportContext $context): string
+    {
+        $heightAMS = $context->calculation?->getCalculationData()?->getAmsHeight() ?? '—';
+        $heightPillar = $context->calculation?->getCalculationData()?->getConcretePillarSpecificData()?->pillarHeight ?? '—';
+        $textPillar = 'Столб ж/б';
+        if ((int)$heightAMS > (int)$heightPillar) {
+            $textPillar .= 'с металлической надстройкой';
+        }
+
+        return $textPillar . sprintf(', Н=%s м', $heightAMS);
     }
 }

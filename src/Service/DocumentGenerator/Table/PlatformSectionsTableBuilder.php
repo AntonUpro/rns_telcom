@@ -75,9 +75,13 @@ final class PlatformSectionsTableBuilder
         'P, кг',
     ];
 
-    public function build(Section $section, TotalPlatformCalculationDto $data, int &$tableNum): void
-    {
-        $section->addText('Площадка и подкосы:', DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndentWithKeepNext());
+    public function build(
+        Section $section,
+        TotalPlatformCalculationDto $data,
+        int &$tableNum,
+        string $caption = 'Площадка и подкосы:',
+    ): void {
+        $section->addText($caption, DocStyleRegistry::normalText(), DocStyleRegistry::paragraphIndentWithKeepNext());
 
         $tableNum++;
         $section->addText(

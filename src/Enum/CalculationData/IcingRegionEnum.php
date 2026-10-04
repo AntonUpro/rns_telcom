@@ -43,6 +43,21 @@ enum IcingRegionEnum: string
         };
     }
 
+    /**
+     * Нормативная толщина стенки гололёда b, мм, на высоте 10 м
+     * (СП 20.13330.2016, таблица 12.1).
+     */
+    public function normativeThicknessMm(): int
+    {
+        return match($this) {
+            self::I => 3,
+            self::II => 5,
+            self::III => 10,
+            self::IV => 15,
+            self::V => 20,
+        };
+    }
+
     public static function choices(): array
     {
         $choices = [];

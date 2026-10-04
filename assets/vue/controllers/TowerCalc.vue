@@ -84,6 +84,10 @@ const tabRefMap = {
 
 const showUnsavedModal = ref(false);
 const pendingTab = ref(null);
+
+const downloadReport = () => {
+    window.open(`/api/v1/calculation/${props.calculationId}/report`, '_blank');
+};
 </script>
 
 <template>
@@ -187,6 +191,13 @@ const pendingTab = ref(null);
                     :calculation-id="calculationId"
                 />
             </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="calc-actions">
+            <button @click="downloadReport" class="btn-action btn-action-calc">
+                Скачать расчет
+            </button>
         </div>
 
         <UnsavedChangesModal
